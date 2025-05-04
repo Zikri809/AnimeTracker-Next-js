@@ -144,7 +144,7 @@ export const getStaticProps = async () =>{
         upcomingSeason : data3
 
       },
-      revalidate: 600
+      revalidate: 43200000
     }
   
 }
