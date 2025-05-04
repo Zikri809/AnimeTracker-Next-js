@@ -1,115 +1,271 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import { useContext, useState } from 'react'
+import Nav from '@/ComponentsSelf/navbar.jsx'
+import LastSeason from '@/ComponentsSelf/LastSeason.jsx'
+import { CarouselDemo } from '@/ComponentsSelf/carousel.jsx'
+import  ThisSeasonSec from '@/ComponentsSelf/ThisSeasonSec.jsx'
+import UpcomingSec from '@/ComponentsSelf/Upcoming.jsx'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { useEffect, useRef } from "react"
+import Link from 'next/link'
+import { useRouter } from 'next/router' //supposed to import useNavigate also supposed to use useRouter by next
+import checkadder from '@/Utility/checkadder.js'
+import validator from '@/Utility/validation.js'
+import { Season_context } from '@/pages/_app'
+import dynamic from "next/dynamic";
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
-export default function Home() {
-  return (
-    <div
-      className={`${geistSans.className} ${geistMono.className} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/pages/index.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+
+
+async function season_fetch(season,year){
+  try{
+   
+    const response = await fetch('https://api.jikan.moe/v4/seasons/'+year+'/'+season+'?')
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const apifeedback = await response.json()
+    const top24 = apifeedback.data.slice(0,24)
+    //console.log('api response is ',top24)
+    let tempfilteredSetid =  new Set()
+    let tempfiltered = new Set()
+    let filteredSet = top24.filter((element)=>{
+       if(!tempfilteredSetid.has(element.mal_id)){
+        tempfiltered.add(element)
+        tempfilteredSetid.add(element.mal_id)
+        return true
+       }
+       return false
+    })
+    let deconstructed=new Set()
+     tempfiltered.forEach(({status,mal_id,images:{webp:{large_image_url}}, year, title,score})=>(
+        deconstructed.add({status,mal_id,images:{webp:{large_image_url}}, year,title,score})
+        )
+    )
+   
+    return {
+            querydata : [...deconstructed],
+            isloading : false,
+            error: false
+        }
+    }
+   
+        
+catch(error){
+    console.error(error)
+    return {
+            querydata : [],
+            isloading : true,
+            error : true
+        }
+
+}
+}
+
+export const getStaticProps = async () =>{
+  
+  const dateobject = new Date()
+  let current_month = dateobject.getMonth()+1
+  let current_year = dateobject.getFullYear()
+  let past_year = 0
+  let upcoming_year =0
+  const seasons = ['winter','spring', 'summer', 'fall']
+  let current_season
+  if(current_month>=1 && current_month<=3){
+     current_season = seasons[0]
+  }
+  else if(current_month>=4 && current_month<=6){
+     current_season= seasons[1]
+  }
+  else if(current_month>=7 && current_month<=9){
+     current_season = seasons[2]
+  }
+  else{
+     current_season = seasons[3]
+  }
+  const past_season_funct = (seasons, current_season,current_year) =>{
+    if(seasons.indexOf(current_season)==0){
+      past_year = current_year-1
+      return seasons[seasons.length-1]
+    }
+    else{
+      past_year = current_year
+      return seasons[seasons.indexOf(current_season)-1]
+    }
+  }
+  
+  const upcoming_season_funct = (seasons, current_season,current_year) =>{
+    if(seasons.indexOf(current_season) == seasons.length-1){
+      upcoming_year = current_year+1
+      return seasons[0]
+    }
+    else{
+      upcoming_year = current_year
+      return seasons[seasons.indexOf(current_season)+1]
+    }
+  }
+  
+  const past_year_funct = (seasons, current_season,current_year) =>{
+    if(seasons.indexOf(current_season)==0){
+      return past_year = current_year-1
+    
+    }
+    else{
+      return past_year = current_year
+     
+    }
+  }
+  
+  const upcoming_year_funct = (seasons, current_season,current_year) =>{
+    if(seasons.indexOf(current_season) == seasons.length-1){
+      return upcoming_year = current_year+1
+  
+    }
+    else{
+      return upcoming_year = current_year
+     
+    }
+  }
+  
+  
+  const past_season = past_season_funct(seasons, current_season)
+  const upcoming_season = upcoming_season_funct(seasons,current_season)
+  past_year = past_year_funct(seasons,current_season,current_year)
+  upcoming_year = upcoming_year_funct(seasons,current_season,current_year)
+
+
+    const data1 = await season_fetch(current_season,current_year)
+    const data2 = await season_fetch(past_season,past_year)
+    const data3 = await season_fetch(upcoming_season,upcoming_year)
+
+    return {
+      props:{
+        thisseason : data1,
+        pastSeason : data2,
+        upcomingSeason : data3
+
+      },
+      revalidate: 600
+    }
+  
+}
+
+
+
+export default function Home({thisseason,pastSeason,upcomingSeason}) {
+  const searchbar = useRef([])
+  const searchbutton = useRef([])
+  const navsearchref = useRef([])
+  const navbuttonref = useRef([])
+  const [searchval, Setsearchval] = useState(' ')
+  const seasoninfo = useContext(Season_context)
+  const router = useRouter()
+  
+ 
+
+
+useEffect(()=>{
+ 
+  if(!router.isReady) return
+  const navsearchbar = navsearchref.current
+  const navbutton = navbuttonref.current
+  const inputsearch = searchbar.current
+  const button = searchbutton.current
+  
+  navbutton.addEventListener('click',searchhandler)
+  button.addEventListener('click',searchhandler)
+  window.addEventListener('keydown',enterhandler)
+
+  function enterhandler(e){
+   if(e.key =="Enter"){
+    searchhandler()
+    
+   }
+  }
+  
+  function searchhandler(){
+    Setsearchval(inputsearch.value)
+   
+    if(inputsearch.value!=''){
+      router.push('/search/'+inputsearch.value)
+    }
+  else if (navsearchbar.value!=''){
+    router.push(navsearchbar.value.length==0?'/':'/search/'+navsearchbar.value)
+  }else {
+    router.push('/')
+  }
+
+  }
+
+  sessionStorage.setItem('morescroll',JSON.stringify(0))
+  sessionStorage.removeItem("animedatasearch")
+  sessionStorage.removeItem("lastupdatetimesearch")
+  sessionStorage.setItem('activetab','Plan To Watch')
+  sessionStorage.setItem('scrollY', window.scrollY)
+ 
+ 
+
+  if(localStorage.getItem('Watching')==null){
+    const Watching = new Map()
+    localStorage.setItem('Watching',JSON.stringify([...Watching]))
+}
+if(localStorage.getItem('Completed')==null){
+  const Completed = new Map()
+  localStorage.setItem('Completed',JSON.stringify([...Completed]))
+}
+  if(localStorage.getItem('PlanToWatch')==null){
+    const PlanToWatch = new Map()
+    localStorage.setItem('PlanToWatch',JSON.stringify([...PlanToWatch]))
+}
+  if(localStorage.getItem('OnHold')==null){
+    const OnHold = new Map()
+    localStorage.setItem('OnHold',JSON.stringify([...OnHold]))
+}
+  if(localStorage.getItem('Dropped')==null){
+    const Dropped = new Map()
+    localStorage.setItem('Dropped',JSON.stringify([...Dropped]))
+}
+  
+return () =>{
+  navbutton.removeEventListener('click',searchhandler)
+  button.removeEventListener('click',searchhandler)
+  window.removeEventListener('keydown',enterhandler)
+}
+},[router.isReady])
+
+
+useEffect(()=>{
+  checkadder(seasoninfo).then(
+    setTimeout(validator, 2000)
+  )
+},[])
+
+//the issue with search bar causing freeze because we cant have
+//body tag in server component
+//causes mismatch client hydration on the server
+//note to self starting now use dive for all
+//spent 1 whole day only to know i cant use body tag on server component
+return (
+ <div className='relative top-0 left-0  overflow-x-clip m-0   w-[100%] h-fit  bg-black text-white font-poppins my-1 ' >
+      
+      <Nav searchref={navsearchref} buttonref={navbuttonref}  />
+     
+      <div className='w-screen bg-black px-4'>
+        <div className="flex  w-full justify-around  items-center sm:hidden space-x-2">
+          <Input ref={searchbar} className='border-gray-500 text-base' type="search" placeholder="Search anime..."  />
+          
+              <Button ref={searchbutton} type="button">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                  </svg>
+              </Button>
+          
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+        </div>
+      
+      <CarouselDemo />
+      <ThisSeasonSec data={thisseason.querydata} loading={thisseason.isloading} error={thisseason.error}/>
+      <LastSeason className='' data={pastSeason.querydata} loading={pastSeason.isloading} error={pastSeason.error}/>
+      <UpcomingSec data={upcomingSeason.querydata} loading={upcomingSeason.isloading} error={upcomingSeason.error}/>
+ </div>
+)
 }
