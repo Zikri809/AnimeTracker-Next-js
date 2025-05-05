@@ -58,7 +58,7 @@ function UpcomingSec(props){
                     
                 )
                          :(querydata?.map((element)=>(
-                            <Link href={'/'+element.mal_id} >{/*to={'/'+element.mal_id} */}
+                            <Link href={'/Anime/'+element.mal_id} >{/*to={'/'+element.mal_id} */}
                                 <CarouselItem key={element.id} className="pl-2 md:pl-4"> <Animecard title={element.title} link={element.images.webp.large_image_url} year={element.year} rating={element.score} status = {element.status}/></CarouselItem>
                             </Link> 
                          )))

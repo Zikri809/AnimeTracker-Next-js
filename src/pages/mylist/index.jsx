@@ -93,7 +93,7 @@ export default function mylist(){
               <TabsTrigger  onClick={scrollreset} className='text-white    text-base      data-[state=active]:bg-inherit  data-[state=active]:text-white  data-[state=active]:border-b-1 data-[state=active]:border-b-white data-[state=active]:rounded-b-none' value="On Hold">On Hold</TabsTrigger>
               <TabsTrigger  onClick={scrollreset} className=' text-white    text-base     data-[state=active]:bg-inherit  data-[state=active]:text-white  data-[state=active]:border-b-1 data-[state=active]:border-b-white data-[state=active]:rounded-b-none' value="Dropped">Dropped</TabsTrigger>
             </TabsList>
-            <TabsContent className='relative top-10 pb-20 ' value="Plan To Watch">
+            <TabsContent className='relative top-10 pb-38 sm:pb-20 ' value="Plan To Watch">
             {isloading? <p>Loading please wait</p>:
             (planmap.length!=0?<div className="lg:grid  lg:grid-cols-2 w-screen lg:grid-rows">
                 {
@@ -117,7 +117,7 @@ export default function mylist(){
               
             }
             </TabsContent>
-            <TabsContent className='relative top-10 max-w-screen pb-20' value="Completed">
+            <TabsContent className='relative top-10 max-w-screen pb-38 sm:pb-20' value="Completed">
             {isloading? <p>Loading please wait</p>:
            (completedmap.length!=0? <div className="lg:grid lg:grid-cols-2 max-w-screen lg:grid-rows">
                 {
@@ -141,7 +141,7 @@ export default function mylist(){
               
             }
             </TabsContent>
-            <TabsContent className='relative top-10 bg-black  pb-20' value="Watching">
+            <TabsContent className='relative top-10 bg-black  pb-38 sm:pb-20' value="Watching">
             {isloading? <p>Loading please wait</p>:
             ( watchinmap.length!=0?<div className="lg:grid lg:grid-cols-2 max-w-screen lg:grid-rows">
                 {
@@ -165,7 +165,7 @@ export default function mylist(){
                
             }
             </TabsContent>
-            <TabsContent className='relative top-10 pb-20' value="On Hold">
+            <TabsContent className='relative top-10 pb-38 sm:pb-20' value="On Hold">
             {isloading? <p>Loading please wait</p>:
             (onholdmap.length!=0?<div className="lg:grid lg:grid-cols-2 w-screen lg:grid-rows">
                 {
@@ -189,7 +189,7 @@ export default function mylist(){
               
             }
             </TabsContent>
-            <TabsContent className='relative top-10 pb-20' value="Dropped">
+            <TabsContent className='relative top-10 pb-38 sm:pb-20' value="Dropped">
             {isloading? <p>Loading please wait</p>:
             (droppedmap.length!=0?
             <div className="lg:grid lg:grid-cols-2 w-screen lg:grid-rows">

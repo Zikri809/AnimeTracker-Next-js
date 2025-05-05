@@ -11,7 +11,7 @@ export default function searchnavbar(props){
         <Link href={router.asPath.split('/')[1]=='morethiseseason' || router.asPath.split('/')[1]=='moreupcoming' || router.asPath.split('/')[1]=='morelastseason'?
                 (router.query.hasOwnProperty('relation_id')?'/'+router.asPath.split('/')[1]+'/'+router.query.mal_id+'/relation/'+router.query.relation_id:'/'+router.asPath.split('/')[1]+'/'+router.query.mal_id):
                 (router.query.hasOwnProperty('title')?(router.query.hasOwnProperty('relation_id')?('/search/'+router.query.title+'/'+router.query.mal_id+'/relation/'+router.query.relation_id):'/search/'+router.query.title+'/'+router.query.mal_id):
-                (router.query.hasOwnProperty('mylist_tab')?'/mylist':(router.query.hasOwnProperty('relation_id')?'/'+router.query.mal_id+'/relation/'+router.query.relation_id:'/'+router.query.mal_id)))}>{/*to={!router.query.hasOwnProperty('section')?(id.hasOwnProperty('title')?'/search/'+id.title+'/'+id.mal_id:(id.hasOwnProperty('mylist_tab')?'/mylist/'+id.mylist_tab+'/'+id.mal_id:'/'+id.mal_id)):'/'+id.section+'/'+id.mal_id} */}
+                (router.query.hasOwnProperty('mylist_tab')?'/mylist':(router.query.hasOwnProperty('relation_id')?'/Anime/'+router.query.mal_id+'/relation/'+router.query.relation_id:'/Anime/'+router.query.mal_id)))}>{/*to={!router.query.hasOwnProperty('section')?(id.hasOwnProperty('title')?'/search/'+id.title+'/'+id.mal_id:(id.hasOwnProperty('mylist_tab')?'/mylist/'+id.mylist_tab+'/'+id.mal_id:'/'+id.mal_id)):'/'+id.section+'/'+id.mal_id} */}
              <Button className='bg-zinc-800 text-white ' variant="secondary" size="icon"><ChevronLeft  /></Button> 
             </Link>
            

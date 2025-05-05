@@ -60,7 +60,7 @@ export default function add_to_watchlist_button (props){
 
     return(
         <Link  href={props.to}>{/* to={props.to}*/}
-        <Button key={Math.random()+Math.random()} type='button' size='xl' className='p-4 sm:p-5 z-10 sm:text-lg fixed right-0 bottom-0 mb-5 bg-gray-800 mr-5 hover:bg-gray-300 hover:text-black text-blue-100'>
+        <Button key={Math.random()+Math.random()} type='button' size='xl' className='p-4 sm:p-5 z-10 sm:text-lg fixed right-0 bottom-15 sm:bottom-0 mb-5 bg-gray-800 mr-5 hover:bg-gray-300 hover:text-black text-blue-100'>
         {user_state}
         </Button>
         </Link>

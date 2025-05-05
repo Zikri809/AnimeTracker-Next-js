@@ -126,6 +126,7 @@ export default function searchpage(){
                 
             }
             catch(error){
+            
                 fetchapi(currentpage,searchtarget)
                 console.error(error)
             }
@@ -141,10 +142,10 @@ export default function searchpage(){
       
     return(
        < >
-            <Navbar set_state={clearstate} searchtitle={router.query.title}/>
-            { isLoading?<div className=" w-screen h-screen flex flex-row justify-center items-center "> <div class="loader"></div></div>:<div  className='relative left-0 top-18 lg:grid lg:grid-cols-2 w-screen   lg:grid-rows '>
+            <Navbar set_state={clearstate} searchtitle={router.query.title=='NA'?'':router.query.title}/>
+            { isLoading?<div className=" w-screen h-screen flex flex-row justify-center items-center "> <div class="loader"></div></div>:<div  className='relative left-0 pb-34 sm:pb-0 top-18 lg:grid lg:grid-cols-2 w-screen   lg:grid-rows '>
             {
-             ( animearr.length!=0?(animearr.map((element) =>(
+             ( animearr.length!=0 && router.query.title!='NA'?(animearr.map((element) =>(
               
                     <Link  key={element.mal_id+10} href={'/search/'+router.query.title+'/'+element.mal_id}>
                          <Horizontalcard  key={element.mal_id}
@@ -167,7 +168,7 @@ export default function searchpage(){
 
                 
                     
-                )):<p className="text-white w-full h-full text-center py-60 ">No shows with this keyword yet</p>)
+                )):<p className="text-white w-full h-full text-center py-60 ">Search your favourite anime</p>)
             }
             </div>}
            

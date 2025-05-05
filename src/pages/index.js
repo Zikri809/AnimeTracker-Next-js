@@ -18,6 +18,7 @@ import dynamic from "next/dynamic";
 
 
 
+
 async function season_fetch(season,year){
   try{
    
@@ -60,6 +61,58 @@ catch(error){
 
 }
 }
+async function apifetch(){
+    
+  try {
+    const apiresponse = await fetch('https://api.jikan.moe/v4/top/anime?type=tv&filter=airing&sfw=true&limit=5');
+    console.log('API request initiated');
+    
+    if (!apiresponse.ok) {
+      throw new Error(`API request failed with status: ${apiresponse.status}`);
+    }
+  
+    const responsedata = await apiresponse.json();
+    const animedata = responsedata.data; // Get the array of anime data
+    
+    // Efficient mapping and returning anime data
+    const deconstructed = animedata.map(({ images: { webp: { large_image_url } }, title, genres, mal_id }) => ({
+      images: { webp: { large_image_url } },
+      title,
+      genres,
+      mal_id
+    }));
+    let filtered =[]
+    for(let i =0 ; i<deconstructed.length; i++){
+      let dupe = false
+      for(let x =0 ; x<filtered.length;x++){
+        if(filtered[x].mal_id==deconstructed[i].mal_id){
+          dupe = true
+          break
+        }
+        }
+        if(!dupe){
+          filtered.push(deconstructed[i])
+      }
+    }
+    console.log('Carousel API fetch successful', filtered);
+    
+    return {
+      querydata: filtered,
+      isloading: false,
+      error: false,
+    }
+  }
+    catch{
+      return {
+        querydata : [],
+        isloading : true,
+        error : true
+    }
+    }
+  }
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
 
 export const getStaticProps = async () =>{
   
@@ -125,7 +178,7 @@ export const getStaticProps = async () =>{
      
     }
   }
-  
+
   
   const past_season = past_season_funct(seasons, current_season)
   const upcoming_season = upcoming_season_funct(seasons,current_season)
@@ -136,24 +189,26 @@ export const getStaticProps = async () =>{
     const data1 = await season_fetch(current_season,current_year)
     const data2 = await season_fetch(past_season,past_year)
     const data3 = await season_fetch(upcoming_season,upcoming_year)
+    sleep(1100)
+    const carouseldata = await apifetch()
 
     return {
       props:{
         thisseason : data1,
         pastSeason : data2,
-        upcomingSeason : data3
+        upcomingSeason : data3,
+        carouseldata : carouseldata
 
       },
-      revalidate: 43200000
+      revalidate: 43200 //12 hours  in seconds
     }
   
 }
 
 
 
-export default function Home({thisseason,pastSeason,upcomingSeason}) {
-  const searchbar = useRef([])
-  const searchbutton = useRef([])
+export default function Home({thisseason,pastSeason,upcomingSeason,carouseldata}) {
+
   const navsearchref = useRef([])
   const navbuttonref = useRef([])
   const [searchval, Setsearchval] = useState(' ')
@@ -168,11 +223,11 @@ useEffect(()=>{
   if(!router.isReady) return
   const navsearchbar = navsearchref.current
   const navbutton = navbuttonref.current
-  const inputsearch = searchbar.current
-  const button = searchbutton.current
+
+
   
   navbutton.addEventListener('click',searchhandler)
-  button.addEventListener('click',searchhandler)
+ 
   window.addEventListener('keydown',enterhandler)
 
   function enterhandler(e){
@@ -191,7 +246,7 @@ useEffect(()=>{
   else if (navsearchbar.value!=''){
     router.push(navsearchbar.value.length==0?'/':'/search/'+navsearchbar.value)
   }else {
-    router.push('/')
+    router.push('/search/')
   }
 
   }
@@ -227,7 +282,7 @@ if(localStorage.getItem('Completed')==null){
   
 return () =>{
   navbutton.removeEventListener('click',searchhandler)
-  button.removeEventListener('click',searchhandler)
+  
   window.removeEventListener('keydown',enterhandler)
 }
 },[router.isReady])
@@ -245,27 +300,17 @@ useEffect(()=>{
 //note to self starting now use dive for all
 //spent 1 whole day only to know i cant use body tag on server component
 return (
- <div className='relative top-0 left-0  overflow-x-clip m-0   w-[100%] h-fit  bg-black text-white font-poppins my-1 ' >
+ <div className='relative top-0 left-0  overflow-x-clip m-0   w-[100%] h-fit pb-13  bg-black text-white font-poppins my-1 ' >
       
       <Nav searchref={navsearchref} buttonref={navbuttonref}  />
      
-      <div className='w-screen bg-black px-4'>
-        <div className="flex  w-full justify-around  items-center sm:hidden space-x-2">
-          <Input ref={searchbar} className='border-gray-500 text-base' type="search" placeholder="Search anime..."  />
-          
-              <Button ref={searchbutton} type="button">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                  </svg>
-              </Button>
-          
-        </div>
-        </div>
+     
       
-      <CarouselDemo />
+      <CarouselDemo data={carouseldata.querydata} />
       <ThisSeasonSec data={thisseason.querydata} loading={thisseason.isloading} error={thisseason.error}/>
       <LastSeason className='' data={pastSeason.querydata} loading={pastSeason.isloading} error={pastSeason.error}/>
       <UpcomingSec data={upcomingSeason.querydata} loading={upcomingSeason.isloading} error={upcomingSeason.error}/>
+      
  </div>
 )
 }

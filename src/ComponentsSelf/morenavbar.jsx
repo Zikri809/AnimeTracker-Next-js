@@ -10,7 +10,7 @@ return (
             <Button className='bg-zinc-800 text-white hover:text-black hover:bg-zinc-400' variant="secondary" size="icon"><ChevronLeft  /></Button> 
         </Link>
        
-        <p className="line-clamp-1 overflow-hidden text-ellipsis text-2xl ml-2 text-white font-bold text-center">{props.sectionTitle}</p>
+        <p className="line-clamp-1 overflow-hidden text-ellipsis text-xl ml-2 text-white font-bold text-center">{props.sectionTitle}</p>
         </div>
     </nav>
 )

@@ -43,7 +43,7 @@ const relation = (props) => {
               ('/'+router.asPath.split('/')[1]+'/'+router.query.mal_id+'/relation/'+object.mal_id):
               (router.query.hasOwnProperty('title')?'/search/'+router.query.title+'/'+router.query.mal_id+'/relation/'+object.mal_id:
               (router.query.hasOwnProperty('mylist_tab')?'/mylist/'+router.query.mylist_tab+'/'+router.query.mal_id+'/relation/'+object.mal_id:
-              '/'+router.query.mal_id+'/relation/'+object.mal_id))}>{/*to={} */}
+              '/Anime/'+router.query.mal_id+'/relation/'+object.mal_id))}>{/*to={} */}
                   
                   
                   <p className='text-blue-500'>{object.name}</p>

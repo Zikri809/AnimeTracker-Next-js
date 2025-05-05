@@ -144,7 +144,7 @@ function dropdown_handler(){
                 <Skeleton className='h-10 w-10 bg-zinc-700 rounded-md '/>
             </nav>
             : <Navbar className='' sectionTitle={animeinfo.title}/>}
-            <div className='relative top-20 flex  flex-col '>
+            <div className='relative top-20 flex pb-38 sm:pb-30 flex-col '>
                 {
                     isloading? <Cardskeleton></Cardskeleton>
                     :

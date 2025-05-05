@@ -35,7 +35,7 @@ return (
                 (router.query.hasOwnProperty('relation_id')?'/'+router.asPath.split('/')[1]+'/'+router.query.mal_id:'/'+router.asPath.split('/')[1]):
                 (router.query.hasOwnProperty('title')?(router.query.hasOwnProperty('relation_id')?('/search/'+router.query.title+'/'+router.query.mal_id):'/search/'+router.query.title):
                 (router.query.hasOwnProperty('mylist_tab')?(router.query.hasOwnProperty('relation_id')?'/mylist/'+router.query.mylist_tab+'/'+router.query.mal_id:'/mylist'):
-                '/'))
+                (router.query.hasOwnProperty('relation_id')?'/Anime/'+router.query.mal_id:'/')))
                 }
             >
             
@@ -49,7 +49,7 @@ return (
        
         </div>
         
-        <Button ref={buttonref} variant="outline" className='ml-2 border-none hover:bg-gray-300' ><Copy ref={iconchange} className="text-black"/></Button>
+        <Button ref={buttonref} variant="outline" className='ml-2 border-none bg-white hover:bg-gray-300' ><Copy ref={iconchange} className="text-black"/></Button>
        
        
     </nav>
