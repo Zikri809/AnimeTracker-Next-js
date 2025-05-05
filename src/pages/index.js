@@ -14,6 +14,8 @@ import checkadder from '@/Utility/checkadder.js'
 import validator from '@/Utility/validation.js'
 import { Season_context } from '@/pages/_app'
 import dynamic from "next/dynamic";
+import fs from 'fs/promises';
+import path from 'path';
 
 
 
@@ -64,15 +66,12 @@ catch(error){
 async function apifetch(){
     
   try {
-    const apiresponse = await fetch('https://api.jikan.moe/v4/top/anime?type=tv&filter=airing&sfw=true&limit=5');
-    console.log('API request initiated');
-    
-    if (!apiresponse.ok) {
-      throw new Error(`API request failed with status: ${apiresponse.status}`);
-    }
-  
-    const responsedata = await apiresponse.json();
-    const animedata = responsedata.data; // Get the array of anime data
+    //process.cwd() retruns current working directory of the server
+    //path .join combine all of it into a working path
+    const filePath = path.join(process.cwd(), 'public', 'data', 'anime.json');
+    const rawData = await fs.readFile(filePath, 'utf8');
+    const data = JSON.parse(rawData);
+    const animedata = data.data; // Get the array of anime data
     
     // Efficient mapping and returning anime data
     const deconstructed = animedata.map(({ images: { webp: { large_image_url } }, title, genres, mal_id }) => ({
@@ -189,12 +188,11 @@ export const getStaticProps = async () =>{
     const data1 = await season_fetch(current_season,current_year)
     const data2 = await season_fetch(past_season,past_year)
     const data3 = await season_fetch(upcoming_season,upcoming_year)
-    sleep(1100)
     const carouseldata = await apifetch()
     let revalidate_time
     if(carouseldata.querydata.length == 0){
        revalidate_time = 60
-       throw new Error(`carousel data fetch failed`)
+       //throw new Error(`carousel data fetch failed`)
     }
     else{
       revalidate_time=43200
