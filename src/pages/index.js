@@ -68,7 +68,7 @@ async function apifetch(){
   try {
     //process.cwd() retruns current working directory of the server
     //path .join combine all of it into a working path
-    const filePath = path.join(process.cwd(), 'public', 'data', 'anime.json');
+    const filePath = path.join(process.cwd(), 'data', 'anime.json');
     const rawData = await fs.readFile(filePath, 'utf8');
     const data = JSON.parse(rawData);
     const animedata = data.data; // Get the array of anime data
