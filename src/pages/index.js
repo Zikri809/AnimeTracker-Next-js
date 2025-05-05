@@ -194,6 +194,7 @@ export const getStaticProps = async () =>{
     let revalidate_time
     if(carouseldata.querydata.length == 0){
        revalidate_time = 60
+       throw new Error(`carousel data fetch failed`)
     }
     else{
       revalidate_time=43200
