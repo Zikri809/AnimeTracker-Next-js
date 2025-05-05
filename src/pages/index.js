@@ -191,7 +191,14 @@ export const getStaticProps = async () =>{
     const data3 = await season_fetch(upcoming_season,upcoming_year)
     sleep(1100)
     const carouseldata = await apifetch()
-
+    let revalidate_time
+    if(carouseldata.querydata.length == 0){
+       revalidate_time = 60
+    }
+    else{
+      revalidate_time=43200
+    }
+    console.log('revalidate time is set to ',revalidate_time)
     return {
       props:{
         thisseason : data1,
@@ -200,7 +207,7 @@ export const getStaticProps = async () =>{
         carouseldata : carouseldata
 
       },
-      revalidate: 43200 //12 hours  in seconds
+      revalidate:revalidate_time //12 hours  in seconds
     }
   
 }
