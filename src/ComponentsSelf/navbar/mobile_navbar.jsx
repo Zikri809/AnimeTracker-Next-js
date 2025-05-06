@@ -34,7 +34,7 @@ export default function mobile_navbar(props){
 
     
     return (
-        <nav className="fixed overflow-x-hidden w-screen border-t border-gray-700 bg-black rounded-t-none py-3 z-10000 sm:hidden bottom-0 left-0 flex flex-row  justify-around">
+        <nav className="fixed overflow-x-hidden w-screen border-t-1 border-gray-700 bg-black rounded-t-none py-3 z-10000 sm:hidden bottom-0 left-0 flex flex-row  justify-around">
             
             
             <div ref={buttonref0} className="flex items-center flex-col text-white text-xs">

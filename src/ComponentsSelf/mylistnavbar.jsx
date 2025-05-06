@@ -9,12 +9,22 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
+  import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+  } from "@/components/ui/dialog"
+  import { Download } from 'lucide-react';
   import { EllipsisVertical } from 'lucide-react';
   
 function morenavbar(props){
 
 return (
-    <nav className="fixed w-screen  z-3 bg-black  pl-4 h-15 px-4 pr-4 mb-3 top-0 left-0 flex flex-row items-center justify-between">
+    <nav className="fixed w-screen  z-3 border-0  bg-black  py-4 h-20 px-4  mb-3 top-0 left-0 flex flex-row items-center justify-between">
         <div className="flex  items-center gap-5">
         <Link href={'/'}>
             <Button className='bg-zinc-800 text-white hover:text-black hover:bg-zinc-400' variant="secondary" size="icon"><ChevronLeft  /></Button> 
@@ -22,17 +32,35 @@ return (
        
         <p className="line-clamp-1 overflow-hidden text-ellipsis text-2xl  text-white font-bold text-center">Mylist</p>
         </div>
-      
-        <DropdownMenu >
-            <DropdownMenuTrigger className='outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 border-none bg-black' ><EllipsisVertical/></DropdownMenuTrigger>
-           
-            <DropdownMenuContent side={'left'} align={'start'}  className='text-xl rounded-sm border-1 bg-black text-white border-neutral-600'> 
-                <DropdownMenuLabel className='text-base'>User Data</DropdownMenuLabel>
-                <DropdownMenuSeparator className='bg-neutral-700' />
-              <DropdownMenuItem className='text-base focus:bg-neutral-700 focus:text-white' >Backup</DropdownMenuItem>
-              <DropdownMenuItem className='text-base focus:bg-neutral-700 focus:text-white'>Restore</DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <Dialog>
+            <DropdownMenu >
+                <DropdownMenuTrigger className='outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 border-none bg-black' ><EllipsisVertical/></DropdownMenuTrigger>
+               
+                <DropdownMenuContent side={'left'} align={'start'}  className='text-xl rounded-sm border-0 bg-neutral-700 text-white border-neutral-600'> 
+                  <DialogTrigger asChild>
+                    <DropdownMenuItem className='text-base focus:bg-neutral-600 focus:text-white' >Backup</DropdownMenuItem>
+                  </DialogTrigger>
+                  <DropdownMenuItem className='text-base focus:bg-neutral-600 focus:text-white'>Restore</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <DialogContent className='border-neutral-800'>
+            <DialogHeader>
+            <DialogTitle>Download Watchlist Backup?</DialogTitle>
+            <DialogDescription>
+            A file containing your watchlist will be downloaded to your device. Do not tamper with this file, and be sure to follow the restoration instructions.
+            </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+                <div className="relative right-0 flex flex-row w-auto gap-2 justify-end">
+                <Button className='outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-neutral-700 border-none border-neutral-700 hover:bg-neutral-600'>Cancel</Button>
+                <Button className='bg-emerald-500 border-none hover:bg-green-700'><Download />Download</Button>
+                </div>
+               
+            </DialogFooter>
+            </DialogContent>
+                 
+       
+        </Dialog>
        
         
     </nav>
