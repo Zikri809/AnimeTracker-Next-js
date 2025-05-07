@@ -23,6 +23,24 @@ import {
   
 function morenavbar(props){
 
+  function backup(){
+    const plantowatch =JSON.parse(localStorage.getItem('PlanToWatch'))
+    const watching =   JSON.parse(localStorage.getItem('Watching'))
+    const  completed = JSON.parse(localStorage.getItem('Completed'))
+    const onhold =     JSON.parse(localStorage.getItem('OnHold'))
+    const dropped =    JSON.parse(localStorage.getItem('Dropped'))
+    const watchlistarr = [plantowatch,watching,completed,onhold,dropped]
+
+    //turn it into a more readable format
+    const downloadable = JSON.stringify(watchlistarr,null,2)
+    const blob = new Blob([downloadable], {type: 'application/json'})
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "watchlist-backup.json";
+    a.click();
+  }
+
 return (
     <nav className="fixed w-screen  z-3 border-0  bg-black  py-4 h-20 px-4  mb-3 top-0 left-0 flex flex-row items-center justify-between">
         <div className="flex  items-center gap-5">
@@ -40,7 +58,7 @@ return (
                   <DialogTrigger asChild>
                     <DropdownMenuItem className='text-base focus:bg-neutral-600 focus:text-white' >Backup</DropdownMenuItem>
                   </DialogTrigger>
-                  <DropdownMenuItem className='text-base focus:bg-neutral-600 focus:text-white'>Restore</DropdownMenuItem>
+                  <DropdownMenuItem className='text-base focus:bg-neutral-600 focus:text-white'><Link href={'/mylist/Restore'}>Restore</Link></DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
             <DialogContent className='border-neutral-800'>
@@ -53,7 +71,7 @@ return (
             <DialogFooter>
                 <div className="relative right-0 flex flex-row w-auto gap-2 justify-end">
                 <Button className='outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-neutral-700 border-none border-neutral-700 hover:bg-neutral-600'>Cancel</Button>
-                <Button className='bg-emerald-500 border-none hover:bg-green-700'><Download />Download</Button>
+                <Button onClick={backup} className='bg-emerald-500 border-none hover:bg-green-700'><Download />Download</Button>
                 </div>
                
             </DialogFooter>
