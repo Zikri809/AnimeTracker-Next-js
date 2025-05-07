@@ -130,7 +130,7 @@ export default function App({ Component, pageProps }) {
       <link rel="apple-touch-startup-image" media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash_screens/11__iPad_Pro__10.5__iPad_Pro_portrait.png"/>
       <link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash_screens/iPhone_8__iPhone_7__iPhone_6s__iPhone_6__4.7__iPhone_SE_portrait.png"/>
 
-
+<meta name="google-site-verification" content="JaWtTN1_CBU0wc-SqB4fy9DTi0C4E1Sl_hGEEZnAfsE" />
   </Head>
   <Season_context.Provider value={{current_month,current_year,current_season,past_season,past_year,upcoming_season,upcoming_year}}>
       <QueryClientProvider client={queryclient}>
