@@ -1,5 +1,4 @@
 
-```markdown
 # AnimeTracker-Next.js  
 
 An anime tracking application built with **Next.js**, **React**, and **Tailwind CSS**. This project allows users to search for anime, track their watched episodes, and manage their anime list.  
