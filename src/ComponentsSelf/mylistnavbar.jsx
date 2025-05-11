@@ -20,8 +20,26 @@ import {
   } from "@/components/ui/dialog"
   import { Download } from 'lucide-react';
   import { EllipsisVertical } from 'lucide-react';
+import { useState } from "react"
+import Uploadbackup from "./restore components/uploadbackup"
+
+import { Upload, History } from 'lucide-react';
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useRef,
+} from "react"
+import { Toaster } from "sonner"
+import { toast } from "sonner"
+import { useRouter } from 'next/router';
   
 function morenavbar(props){
+    const [dialogytpe, Set_dialogtype] = useState()
+    const [entries , Set_entries] = useState()
+    const [last_modified , Set_lastmodified] = useState()
+    const [animearr , Setanimearr] = useState()
+    const inputref = useRef(null)
+    const router = useRouter()
+
 
   function backup(){
     const plantowatch =JSON.parse(localStorage.getItem('PlanToWatch'))
@@ -30,19 +48,85 @@ function morenavbar(props){
     const onhold =     JSON.parse(localStorage.getItem('OnHold'))
     const dropped =    JSON.parse(localStorage.getItem('Dropped'))
     const watchlistarr = [plantowatch,watching,completed,onhold,dropped]
-
+    console.log('backup clicked')
     //turn it into a more readable format
     const downloadable = JSON.stringify(watchlistarr,null,2)
     const blob = new Blob([downloadable], {type: 'application/json'})
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a');
+    a.sandbox="allow-scripts allow-downloads"
     a.href = url;
     a.download = "watchlist-backup.json";
     a.click();
+    toast.success('Watchlist Downloading')
   }
+  
+
+ 
+    function Filereader(e){
+        const file = e.target.files[0]
+        const date = new Date(file.lastModified)
+        Set_lastmodified(date.toDateString())
+        if(!file){
+            console.log('No file selected. PLease choose a file')
+            return
+        }
+        if(!file.type=='.json'){
+            console.log('Unsupported file type.File must be json ')
+            return
+        }
+        const reader = new FileReader()
+        reader.onerror = () => {
+            console.log("Error reading the file. Please try again.", "error");
+          };
+        reader.onload = ()=>{
+          try{
+              const watchlistarr = JSON.parse(reader.result)
+              Setanimearr(watchlistarr)
+              Set_entries(watchlistarr[0].length +watchlistarr[1].length +watchlistarr[2].length + watchlistarr[3].length + watchlistarr[4].length)
+              //toast.success('File is succesfully red')
+          }
+          catch{
+              toast.error('Problem reading the file')
+          }
+        }
+        reader.readAsText(file)
+    }
+    function submitrestore(){
+        if(animearr==undefined) return
+        const plantowatcharr =  animearr[0]
+        const watchingarr = animearr[1]
+        const  completedarr = animearr[2]
+        const onholdarr = animearr[3]
+        const droppedarr = animearr[4]
+        const plantowatchmap = new Map(plantowatcharr)
+    
+        const watchingmap = new Map(watchingarr)
+        const  completedmap =new Map(completedarr)
+        const onholdmap =new Map(onholdarr)
+        const droppedmap =new Map(droppedarr)
+        if(plantowatchmap==undefined || watchingmap ==undefined || completedmap==undefined || onholdmap ==undefined || droppedmap ==undefined){
+            toast.error('File content cannot be parsed. This file may have been tampered')
+            return
+        }
+        localStorage.setItem('PlanToWatch',JSON.stringify(plantowatcharr))
+        localStorage.setItem('Watching', JSON.stringify(watchingarr))
+        localStorage.setItem('Completed', JSON.stringify(completedarr))
+        localStorage.setItem('OnHold', JSON.stringify(onholdarr))
+        localStorage.setItem('Dropped', JSON.stringify(droppedarr))
+        toast.success('Watchlist restored')
+        console.log('data restored')
+        setTimeout(() => {
+            router.reload()
+        }, 1500);
+        
+       } 
+
 
 return (
+
     <nav className="fixed w-screen  z-3 border-0  bg-black  py-4 h-20 px-4  mb-3 top-0 left-0 flex flex-row items-center justify-between">
+        
         <div className="flex  items-center gap-5">
         <Link href={'/'}>
             <Button className='bg-zinc-800 text-white hover:text-black hover:bg-zinc-400' variant="secondary" size="icon"><ChevronLeft  /></Button> 
@@ -50,32 +134,62 @@ return (
        
         <p className="line-clamp-1 overflow-hidden text-ellipsis text-2xl  text-white font-bold text-center">Mylist</p>
         </div>
-        <Dialog>
+        <Dialog >
             <DropdownMenu >
-                <DropdownMenuTrigger className='outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 border-none bg-black' ><EllipsisVertical/></DropdownMenuTrigger>
+                <DropdownMenuTrigger  className='outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 border-none bg-black' ><EllipsisVertical/></DropdownMenuTrigger>
                
-                <DropdownMenuContent side={'left'} align={'start'}  className='text-xl rounded-sm border-0 bg-neutral-700 text-white border-neutral-600'> 
-                  <DialogTrigger asChild>
-                    <DropdownMenuItem className='text-base focus:bg-neutral-600 focus:text-white' >Backup</DropdownMenuItem>
-                  </DialogTrigger>
-                  <DropdownMenuItem className='text-base focus:bg-neutral-600 focus:text-white'><Link href={'/mylist/Restore'}>Restore</Link></DropdownMenuItem>
+                <DropdownMenuContent side={'left'} align={'start'}  className='text-xl rounded-sm border-0 bg-neutral-700 text-white border-neutral-600'>
+                <DialogTrigger asChild >
+                    <DropdownMenuItem onClick={()=>{Set_dialogtype('backup')}} className='text-base focus:bg-neutral-600 focus:text-white'>Backup</DropdownMenuItem> 
+                </DialogTrigger>
+                <DialogTrigger asChild >
+                    <DropdownMenuItem onClick={()=>{Set_dialogtype('restore')}} className='text-base focus:bg-neutral-600 focus:text-white'>Restore</DropdownMenuItem> 
+                </DialogTrigger>
+                   
+
+                  
                 </DropdownMenuContent>
-            </DropdownMenu>
-            <DialogContent className='border-neutral-800'>
-            <DialogHeader>
-            <DialogTitle>Download Watchlist Backup?</DialogTitle>
-            <DialogDescription>
-            A file containing your watchlist will be downloaded to your device. Do not tamper with this file, and be sure to follow the restoration instructions.
-            </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-                <div className="relative right-0 flex flex-row w-auto gap-2 justify-end">
-                <Button className='outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-neutral-700 border-none border-neutral-700 hover:bg-neutral-600'>Cancel</Button>
-                <Button onClick={backup} className='bg-emerald-500 border-none hover:bg-green-700'><Download />Download</Button>
-                </div>
+                <DialogContent  className='border-neutral-800'>
+                    {dialogytpe=='backup'&&
+                     <>
+                     <DialogHeader>
+                        <DialogTitle>Download Watchlist Backup?</DialogTitle>
+                        <DialogDescription>
+                        A file containing your watchlist will be downloaded to your device. Do not tamper with this file, and be sure to follow the restoration instructions.
+                        </DialogDescription>
+                    </DialogHeader>
+                                 
+                    <DialogFooter>
+                        <div className="relative right-0 flex flex-row w-auto gap-2 justify-end">
+                         
+                            <Button onClick={backup} className='outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-emerald-500 border-none hover:bg-green-700'><Download />Download</Button>
+                        </div>
+                    </DialogFooter>
+                    </>
+                    }
+                    {dialogytpe=='restore' &&
+                    <>
+                    <DialogHeader className='text-white text-xl text-justify w-full font-bold border-0'>Restore Your Anime World</DialogHeader>
+                   <div className=' border-0'>
+                  
+                       <p className='mt-1 text-sm text-neutral-500 text-left'>
+                           Upload your saved data file to continue tracking your favourite anime.
+                       </p>
+                       <Input onChange={Filereader} ref={inputref} className='my-3 bg-black  text-sm text-neutral-500 border-neutral-700 rounded-sm' placeholder='no file chosen' type="file"/>
+                       <Button onClick={submitrestore} className='mb-2 w-full hover:bg-neutral-800 bg-neutral-900 border-neutral-700'>Restore Now</Button>
                
-            </DialogFooter>
-            </DialogContent>
+                       <ul className='list-disc list-inside w-full text-neutral-500 text-sm'>
+                         <li>{entries==undefined? 'NA':entries} anime entries</li>
+                         <li>Last modified: {last_modified==undefined?'NA' : last_modified}</li>
+                       
+                       </ul>
+                   </div>
+                      
+                   </>
+                }
+                </DialogContent>
+            </DropdownMenu>
+
                  
        
         </Dialog>

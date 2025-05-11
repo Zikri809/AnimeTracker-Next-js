@@ -8,6 +8,7 @@ import Link from "next/link"
 import { useWindowScroll } from "@uidotdev/usehooks"
 import validator from '@/Utility/validation.js'
 import { useRouter } from "next/router"
+import { Toaster } from "@/components/ui/sonner"
 
 export default function mylist(){
     const [planmap , Setplan] = useState()
@@ -84,7 +85,7 @@ export default function mylist(){
     return (
         <> 
              <Navbar/>
-      
+             <Toaster className='fixed top-0 z-1000' richColors/>
              <Tabs defaultValue="Plan To Watch" value={activetab} onValueChange={handletabchange} className="relative w-full top-20 border-0 border-blue-500 bg-black">
             <TabsList style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}} className='no-scrollbar::-webkit-scrollbar w-full text-xl  z-2 fixed touch-auto  pb-0 rounded-none bg-black text-black border-b-1 overflow-auto border-gray-600'>
               <TabsTrigger  onClick={scrollreset} className='ml-16 sm:ml-4 w-300  text-base data-[state=active]:border-b-1 data-[state=active]:border-b-white data-[state=active]:rounded-b-none data-[state=active]:bg-inherit    data-[state=active]:text-white text-white  ' value="Plan To Watch">Plan To Watch</TabsTrigger>
