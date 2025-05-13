@@ -3,6 +3,8 @@ import { createContext } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Head from "next/head";
 import Mobile_navbar from '@/ComponentsSelf/navbar/mobile_navbar'
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const Season_context = createContext()
 
@@ -135,6 +137,8 @@ export default function App({ Component, pageProps }) {
   <Season_context.Provider value={{current_month,current_year,current_season,past_season,past_year,upcoming_season,upcoming_year}}>
       <QueryClientProvider client={queryclient}>
         <Component {...pageProps} />
+        <Analytics/>
+        <SpeedInsights/>
       </QueryClientProvider>
   </Season_context.Provider>
   <Mobile_navbar/>
