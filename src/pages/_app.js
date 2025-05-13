@@ -87,7 +87,7 @@ export default function App({ Component, pageProps }) {
   return (
   <>
   <Head>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1,viewport-fit=cover" />
       <link rel="manifest" href="/manifest.json" />
       <link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)" href="splash_screens/iPhone_13_mini__iPhone_12_mini__iPhone_11_Pro__iPhone_XS__iPhone_X_landscape.png"/>
       <link rel="apple-touch-startup-image" media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash_screens/iPhone_14_Plus__iPhone_13_Pro_Max__iPhone_12_Pro_Max_portrait.png"/>
