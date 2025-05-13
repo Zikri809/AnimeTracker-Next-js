@@ -145,7 +145,7 @@ function dropdown_handler(){
                
                 <Skeleton className='h-10 w-10 bg-zinc-700 rounded-md '/>
             </nav>
-            : <Navbar className='' sectionTitle={animeinfo.title}/>}
+            : <Navbar className='' sectionTitle={animeinfo.title_english==null?animeinfo.title: animeinfo.title_english}/>}
             <div className='relative top-20 flex pb-38 sm:pb-30 flex-col '>
                 {
                     isloading? <Cardskeleton></Cardskeleton>
@@ -156,7 +156,7 @@ function dropdown_handler(){
                     status= {animeinfo.status}
                     season={animeinfo.season ==null ? ' ':animeinfo.season + ' '+ animeinfo.year }
                     episodes={animeinfo.episodes}
-                    title={animeinfo.title}
+                    title={animeinfo.title_english==null?animeinfo.title: animeinfo.title_english}
                     score={animeinfo.score}
                     users={animeinfo.scored_by}
                     ranking={animeinfo.popularity}

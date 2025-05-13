@@ -40,8 +40,8 @@ async function season_fetch(season,year){
        return false
     })
     let deconstructed=new Set()
-     tempfiltered.forEach(({status,mal_id,images:{webp:{large_image_url}}, year, title,score})=>(
-        deconstructed.add({status,mal_id,images:{webp:{large_image_url}}, year,title,score})
+     tempfiltered.forEach(({status,mal_id,images:{webp:{large_image_url}}, year, title,score,title_english})=>(
+        deconstructed.add({status,mal_id,images:{webp:{large_image_url}}, year,title,score,title_english})
         )
     )
    

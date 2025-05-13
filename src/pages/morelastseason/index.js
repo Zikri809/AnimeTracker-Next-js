@@ -107,8 +107,8 @@ function more(){
                    return false
                 })
                 let deconstructed=new Set()
-                 tempfiltered.forEach(({status,mal_id,images:{webp:{large_image_url}},season, year,episodes, title,score,scored_by,popularity,genres })=>(
-                    deconstructed.add({status,mal_id,images:{webp:{large_image_url}},season, year,episodes, title,score,scored_by,popularity,genres })
+                 tempfiltered.forEach(({status,mal_id,images:{webp:{large_image_url}},season, year,episodes, title,title_english,score,scored_by,popularity,genres })=>(
+                    deconstructed.add({status,mal_id,images:{webp:{large_image_url}},season, year,episodes, title,title_english,score,scored_by,popularity,genres })
                     )
                 )
                 //console.log('deconstructed arr is ',deconstructed)
@@ -160,7 +160,7 @@ function more(){
              { isLoading ?<div className=" w-screen h-screen flex flex-row justify-center items-center "> <div class="loader"></div></div>:
              
              (
-                <div  className='relative top-18 lg:grid lg:grid-cols-2 w-screen lg:grid-rows '>
+                <div  className='relative top-18 lg:grid lg:grid-cols-2 w-screen pb-33 sm:pb-0 lg:grid-rows '>
            
             {animearr.map((element) =>(
                 <Link  href={'/morelastseason'+'/'+element.mal_id}>
@@ -171,7 +171,7 @@ function more(){
                     status= {element.status}
                     season={element.season ==null ? ' ':element.season + ' '+ element.year }
                     episodes={element.episodes}
-                    title={element.title}
+                   title={element.title_english==null?element.title:element.title_english}
                     score={element.score}
                     users={element.scored_by}
                     ranking={element.popularity}

@@ -22,7 +22,7 @@ const relation = (props) => {
       }
   }
   fetchapi() 
-  },[])
+  },[props.id])
   
 
     

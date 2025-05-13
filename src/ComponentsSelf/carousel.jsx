@@ -29,12 +29,7 @@ export function CarouselDemo(props) {
   )
   
  
-  const imagearr = ['https://cdn.myanimelist.net/images/anime/1750/145801l.webp?_gl=1*11kk1f7*_gcl_au*MTM3NDQyODcyNC4xNzQxMTkyNzU4*_ga*MjA0NDg0MTY4Mi4xNzQxMTkyNzU4*_ga_26FEP9527K*MTc0MTE5Mjc1Ni4xLjEuMTc0MTE5MzE1OS4xMi4wLjA.',
-    'https://cdn.myanimelist.net/images/anime/1437/115925l.webp',
-    'https://cdn.myanimelist.net/images/anime/1091/145945l.webp?_gl=1*1t9umzs*_gcl_au*MTM3NDQyODcyNC4xNzQxMTkyNzU4*_ga*MjA0NDg0MTY4Mi4xNzQxMTkyNzU4*_ga_26FEP9527K*MTc0MTE5Mjc1Ni4xLjEuMTc0MTE5MzA3NC4xNC4wLjA.',
-    'https://cdn.myanimelist.net/images/anime/1848/147037l.webp?_gl=1*1degood*_gcl_au*MTM3NDQyODcyNC4xNzQxMTkyNzU4*_ga*MjA0NDg0MTY4Mi4xNzQxMTkyNzU4*_ga_26FEP9527K*MTc0MTE5Mjc1Ni4xLjEuMTc0MTE5MzI5OS40Ni4wLjA.',
-    'https://cdn.myanimelist.net/images/anime/1258/147105l.webp',
-  ]
+
   return (
     <div className="h-140 mt-15">
        <div className="relative flex h-[550px] w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-black border-transparent">
@@ -69,7 +64,7 @@ export function CarouselDemo(props) {
                  <div className="fixed top-0  h-145 w-110 border-0 rounded-base bg-transprent bg-gradient-to-t from-black via-transparent to-transparent">
 
                   <div className="relative top-82  z-2 flex flex-col gap-4 items-center">
-                       <div className="line-clamp-1 text-center overflow-hidden text-ellipsis w-85 text-2xl text-white">{object.title}</div>
+                       <div className="line-clamp-1 text-center font-bold overflow-hidden text-ellipsis w-85 text-2xl text-white">{object.title}</div>
                        <div className="flex flex-row gap-4  rounded-md text-white">
                         {
                           object.genres.slice(0, 3).map((genre, index) => (

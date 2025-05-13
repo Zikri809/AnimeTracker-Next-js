@@ -162,7 +162,7 @@ return (
                     <DialogFooter>
                         <div className="relative right-0 flex flex-row w-auto gap-2 justify-end">
                          
-                            <Button onClick={backup} className='outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-emerald-500 border-none hover:bg-green-700'><Download />Download</Button>
+                            <Button onClick={backup} className='outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-emerald-700 border-none hover:bg-emerald-500'><Download />Download</Button>
                         </div>
                     </DialogFooter>
                     </>
@@ -175,8 +175,8 @@ return (
                        <p className='mt-1 text-sm text-neutral-500 text-left'>
                            Upload your saved data file to continue tracking your favourite anime.
                        </p>
-                       <Input onChange={Filereader} ref={inputref} className='my-3 bg-black  text-sm text-neutral-500 border-neutral-700 rounded-sm' placeholder='no file chosen' type="file"/>
-                       <Button onClick={submitrestore} className='mb-2 w-full hover:bg-neutral-800 bg-neutral-900 border-neutral-700'>Restore Now</Button>
+                       <Input onChange={Filereader} ref={inputref} className='my-3 bg-black  text-sm text-neutral-500 border-neutral-700 rounded-sm'  type="file"/>
+                       <Button onClick={submitrestore} className='mb-2 w-full hover:bg-neutral-600 bg-neutral-700 border-neutral-700'>Restore Now</Button>
                
                        <ul className='list-disc list-inside w-full text-neutral-500 text-sm'>
                          <li>{entries==undefined? 'NA':entries} anime entries</li>

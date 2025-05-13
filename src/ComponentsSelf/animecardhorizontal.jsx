@@ -61,7 +61,7 @@ function animecardhorizontal(props){
                     <p>{props.episodes==null ? '' : props.episodes+' episodes'} </p>
                 </div>
                 <div>
-                    <div className="text-2xl font-bold line-clamp-1 overflow-hidden text-ellipsis">{props.title}</div>
+                    <div className="text-lg sm:text-2xl font-bold line-clamp-1 w-full overflow-hidden text-ellipsis">{props.title}</div>
                     <div className="text-md text-gray-400 line-clamp-1 overflow-hidden text-ellipsis">{props.title_english}</div>
                 </div>
                 
