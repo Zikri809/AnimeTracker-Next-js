@@ -130,7 +130,7 @@ export default function mylist(){
                             status= {value.status}
                             season={value.season ==null ? ' ':value.season + ' '+ value.year }
                             episodes={value.episodes}
-                            title={value.title}
+                            title={value.title_english==null?value.title:value.title_english}
                             score={value.score}
                             users={value.scored_by}
                             ranking={value.popularity}
@@ -154,7 +154,7 @@ export default function mylist(){
                             status= {value.status}
                             season={value.season ==null ? ' ':value.season + ' '+ value.year }
                             episodes={value.episodes}
-                            title={value.title}
+                            title={value.title_english==null?value.title:value.title_english}
                             score={value.score}
                             users={value.scored_by}
                             ranking={value.popularity}
@@ -178,7 +178,7 @@ export default function mylist(){
                             status= {value.status}
                             season={value.season ==null ? ' ':value.season + ' '+ value.year }
                             episodes={value.episodes}
-                            title={value.title}
+                            title={value.title_english==null?value.title:value.title_english}
                             score={value.score}
                             users={value.scored_by}
                             ranking={value.popularity}
@@ -203,7 +203,7 @@ export default function mylist(){
                             status= {value.status}
                             season={value.season ==null ? ' ':value.season + ' '+ value.year }
                             episodes={value.episodes}
-                            title={value.title}
+                            title={value.title_english==null?value.title:value.title_english}
                             score={value.score}
                             users={value.scored_by}
                             ranking={value.popularity}
