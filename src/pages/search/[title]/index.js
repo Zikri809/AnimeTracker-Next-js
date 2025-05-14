@@ -154,8 +154,7 @@ export default function searchpage(){
                     status= {element.status}
                     season={element.season ==null ? ' ':element.season + ' '+ element.year }
                     episodes={element.episodes}
-                    title={element.title}
-                    title_english={element.title_english}
+                    title={element.title_english==null?element.title:element.title_english}
                     score={element.score}
                     users={element.scored_by}
                     ranking={element.popularity}

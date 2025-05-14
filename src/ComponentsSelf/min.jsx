@@ -29,10 +29,10 @@ const relation = (props) => {
   
 //console.log('animerelinfo ',animerelinfo)
   return (
-    <div className='flex bg-black w-screen px-5 py-4 flex-wrap flex-col justify-between '>
+    <div className='flex bg-black overflow-hidden w-screen px-5 py-4 flex-wrap flex-col justify-between '>
      {
       isloading?<p>loading</p>:(animerelinfo!=undefined?animerelinfo.map((object)=>(
-        <div>
+        <div className='overflow-hidden'>
            <p className=' text-gray-400'>{object.relation}</p>
           { object.relation!='Adaptation' ?
            ( object.entry.map((object)=>{

@@ -60,9 +60,9 @@ function animecardhorizontal(props){
                     <p className="capitalize">{props.season}</p>
                     <p>{props.episodes==null ? '' : props.episodes+' episodes'} </p>
                 </div>
-                <div>
-                    <div className="text-lg sm:text-2xl font-bold line-clamp-1 w-full overflow-hidden text-ellipsis">{props.title}</div>
-                    <div className="text-md text-gray-400 line-clamp-1 overflow-hidden text-ellipsis">{props.title_english}</div>
+                <div className="pr-2 sm:pr-auto">
+                    <div className="text-base sm:text-2xl font-bold line-clamp-2 w-full overflow-hidden text-ellipsis">{props.title}</div>
+                    <div className="text-md hidden text-gray-400 line-clamp-1 overflow-hidden text-ellipsis">{props.title_english}</div>
                 </div>
                 
                 <div className="flex flex-row gap-10 text-sm text-gray-400">

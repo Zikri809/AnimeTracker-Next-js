@@ -208,7 +208,7 @@ function dropdown_handler(){
                {
                 isloading ? <Skeleton className=' bg-zinc-700  my-4 mx-6 sm:mx-auto sm:w-200 aspect-video'></Skeleton>:(
                     <>
-                        <iframe align='center' className='border-1 border-gray-700 my-4 mx-6 sm:mx-auto sm:w-200 aspect-video' src={animeinfo.trailer.embed_url!=null?(animeinfo.trailer.embed_url.substring(0,animeinfo.trailer.embed_url.length-11)+'&autoplay=0&mute=0'):''}></iframe>
+                       {animeinfo.trailer.embed_url!=null && <iframe align='center' className='border-1 border-gray-700 my-4 mx-6 sm:mx-auto sm:w-200 aspect-video' src={animeinfo.trailer.embed_url!=null?(animeinfo.trailer.embed_url.substring(0,animeinfo.trailer.embed_url.length-11)+'&autoplay=0&mute=0'):''}></iframe>}      
                     </>
                 )
                }

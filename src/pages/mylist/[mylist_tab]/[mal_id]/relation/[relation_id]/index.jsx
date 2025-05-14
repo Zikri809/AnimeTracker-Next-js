@@ -129,7 +129,7 @@ function dropdown_handler(){
     },[router.query.relation_id])
     //console.log('id',id)
     return (
-        <body className='relative overflow-x-hidden top-0 left-0   m-0   w-screen h-auto  bg-black text-white font-poppins my-1 antialiased' >
+       <div className='relative overflow-x-hidden top-0 left-0   m-0   w-screen h-auto  bg-black text-white font-poppins my-1 antialiased' >
             {isloading? 
             <nav className='flex flex-row justify-between items-center px-4 top-0 fixed bg-black z-4 w-full h-20'>
                 <div className='flex flex-row gap-3'>
@@ -202,7 +202,7 @@ function dropdown_handler(){
                {
                 isloading ? <Skeleton className=' bg-zinc-700  my-4 mx-6 sm:mx-auto sm:w-200 aspect-video'></Skeleton>:(
                     <>
-                        <iframe align='center' className='border-1 border-gray-700 my-4 mx-6 sm:mx-auto sm:w-200 aspect-video' src={animeinfo.trailer.embed_url!=null?(animeinfo.trailer.embed_url.substring(0,animeinfo.trailer.embed_url.length-11)+'&autoplay=0&mute=0'):''}></iframe>
+                       {animeinfo.trailer.embed_url!=null && <iframe align='center' className='border-1 border-gray-700 my-4 mx-6 sm:mx-auto sm:w-200 aspect-video' src={animeinfo.trailer.embed_url!=null?(animeinfo.trailer.embed_url.substring(0,animeinfo.trailer.embed_url.length-11)+'&autoplay=0&mute=0'):''}></iframe>}      
                     </>
                 )
                }
@@ -274,7 +274,7 @@ function dropdown_handler(){
                     <Add_to_watchlist_button to={router.query.hasOwnProperty('relation_id')?'/mylist/'+router.query.mylist_tab+'/'+router.query.mal_id+'/relation/'+router.query.relation_id+'/tracking':'/mylist/'+router.query.mylist_tab+'/'+router.query.mal_id+'/tracking'}/>{/* */}
             </div>
            
-        </body>
+        </div>
           
         
     )

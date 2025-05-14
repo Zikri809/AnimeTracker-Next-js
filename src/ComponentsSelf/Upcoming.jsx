@@ -29,7 +29,7 @@ function UpcomingSec(props){
             <div className="flex flex-row  pl-4  pr-6 mb-2 justify-between items-center">
                 <div className="border-b-2  pb-2"><h4 className=" scroll-m-20 text-xl font-semibold tracking-tight">Upcoming Season</h4> </div>
                 <Link href='/moreupcoming'>
-                    <Button className='bg-black border-black' variant="outline" size="icon"><p className="text-blue-500 text-base">View All</p></Button>      
+                    <Button className='bg-black border-black ' variant="link" size="icon"><p className="text-blue-500 text-base">View All</p></Button>      
                 </Link>
               
             </div>
