@@ -129,7 +129,7 @@ function dropdown_handler(){
     },[router.query.relation_id])
     //console.log('id',id)
     return (
-       <div className='relative overflow-x-hidden top-0 left-0   m-0   w-screen h-auto  bg-black text-white font-poppins my-1 antialiased' >
+       <div className='relative overflow-x-hidden top-0 left-0   m-0   w-screen h-auto overflow-hidden  bg-black text-white font-poppins my-1 antialiased' >
             {isloading? 
             <nav className='flex flex-row justify-between items-center px-4 top-0 fixed bg-black z-4 w-full h-20'>
                 <div className='flex flex-row gap-3'>

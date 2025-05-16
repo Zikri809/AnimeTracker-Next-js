@@ -84,10 +84,11 @@
   }
 }
 
-body {
+html,body {
   background: black;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .dark {

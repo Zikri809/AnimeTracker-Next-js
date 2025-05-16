@@ -142,7 +142,7 @@ export default function searchpage(){
       
     return(
        < >
-            <Navbar set_state={clearstate} searchtitle={router.query.title=='NA'?'':router.query.title}/>
+            <Navbar set_state={clearstate} searchtitle={router.query.title=='NA'?'Search':router.query.title}/>
             { isLoading?<div className=" w-screen h-screen flex flex-row justify-center items-center "> <div class="loader"></div></div>:<div  className='relative left-0 pb-34 sm:pb-0 top-18 lg:grid lg:grid-cols-2 w-screen   lg:grid-rows '>
             {
              ( animearr.length!=0 && router.query.title!='NA'?(animearr.map((element) =>(

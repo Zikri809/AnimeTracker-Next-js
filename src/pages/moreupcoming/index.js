@@ -153,13 +153,13 @@ function more(){
         console.log('current page is ',currentpage)
         //console.log('params is ',params)
     return(
-       <div   className='relative top-0 left-0 font-poppins overflow-x-hidden m-0   w-screen h-auto  bg-black text-white font-poppins ml-1  antialiased' >
+       <div   className='relative top-0 left-0 font-poppins overflow-hidden m-0   w-screen h-auto  bg-black text-white font-poppins ml-1  antialiased' >
          
             <Morenavabr sectionTitle={'Upcoming'}/>
              { isLoading?<div className=" w-screen h-screen flex flex-row justify-center items-center "> <div class="loader"></div></div>:
              
              (
-                <div  className='relative top-18 lg:grid lg:grid-cols-2 w-screen pb-15 sm:pb-0  lg:grid-rows '>
+                <div  className='relative top-18 lg:grid lg:grid-cols-2 w-screen pb-33 sm:pb-0  lg:grid-rows '>
            
             {animearr.map((element) =>(
                 <Link href={'/moreupcoming'+'/'+element.mal_id}>
