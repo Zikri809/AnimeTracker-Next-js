@@ -15,7 +15,7 @@ function animecard(props){
         <CardContent className='truncate p-1 '>
 
             
-            <img className="rounded-md mb-2 mx-auto sm:h-70 h-50" src={props.link}></img>
+            <img className="rounded-md mb-2 mx-auto sm:h-70 h-50" alt={props.title} src={props.link}></img>
             <CardTitle className='text-white text-center truncate mb-2'> {props.title}</CardTitle>
             <CardDescription className='flex sm:flex-nowrap w-full truncate flex-row text-sm items-center flex-wrap  justify-center sm:justify-between'>
             <span className="mr-2 sm:mr-0">{props.rating!=null ? ('⭐'+props.rating):('NA')}</span>

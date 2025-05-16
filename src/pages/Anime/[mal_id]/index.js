@@ -14,6 +14,7 @@ import { useDebounce } from "@uidotdev/usehooks";
 import dynamic from 'next/dynamic'
 
 import { useRouter } from 'next/router'
+import Head from 'next/head'
 
 
 function sleep(ms) {
@@ -129,7 +130,9 @@ function dropdown_handler(){
     },[router.query.mal_id])
     //console.log('id',id)
     return (
-       <div className='relative overflow-x-hidden top-0 left-0   m-0   w-screen h-auto overflow-hidden  bg-black text-white font-poppins my-1 antialiased' >
+    <>
+    
+        <main className='relative overflow-x-hidden top-0 left-0   m-0   w-screen h-auto overflow-hidden  bg-black text-white font-poppins my-1 antialiased' >
             {isloading? 
             <nav className='flex flex-row justify-between items-center px-4 top-0 fixed bg-black z-4 w-full h-20'>
                 <div className='flex flex-row gap-3'>
@@ -274,7 +277,9 @@ function dropdown_handler(){
                     <Add_to_watchlist_button key={router.asPath} mal_id={animeinfo.mal_id} to={router.query.hasOwnProperty('section')?('/'+router.query.section+'/'+router.query.mal_id+'/tracking'):(router.query.hasOwnProperty('title')?'/search/'+router.query.title+'/'+router.query.mal_id+'/tracking':(router.query.hasOwnProperty('mylist_tab')?'/mylist/'+router.query.mylist_tab+'/'+router.query.mal_id+'/tracking':'/Anime/'+router.query.mal_id+'/tracking'))}/>{/* */}
             </div>
            
-        </div>
+        </main>
+    </>
+       
           
         
     )

@@ -21,9 +21,6 @@ import { useState } from "react";
 
 
 export function CarouselDemo(props) {
- React.useEffect(()=>{
-  console.log('carousel data ', props.data)
- },[])
   const plugin = React.useRef(
     Autoplay({ delay: 2000, stopOnInteraction: false })
   )
@@ -60,7 +57,7 @@ export function CarouselDemo(props) {
           <CarouselItem key={index} className='border-none'>
             <div className="p-2 border-none">
               <Card className=" bg-transparent border-none p-0 h-120 flex flex-row justify-center rounded-md overflow-clip border-black">
-                 <img className='h-120 w-fit rounded-md' src={object.images.webp.large_image_url}></img>
+                 <img className='h-120 w-fit rounded-md'alt={object.title} src={object.images.webp.large_image_url}></img>
                  <div className="fixed top-0  h-145 w-110 border-0 rounded-base bg-transprent bg-gradient-to-t from-black via-transparent to-transparent">
 
                   <div className="relative top-82  z-2 flex flex-col gap-4 items-center">

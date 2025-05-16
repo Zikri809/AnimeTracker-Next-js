@@ -16,6 +16,7 @@ import { Season_context } from '@/pages/_app'
 import dynamic from "next/dynamic";
 import fs from 'fs/promises';
 import path from 'path';
+import Head from 'next/head'
 
 
 
@@ -306,7 +307,27 @@ useEffect(()=>{
 //note to self starting now use dive for all
 //spent 1 whole day only to know i cant use body tag on server component
 return (
- <div className='relative top-0 left-0  overflow-x-clip m-0   w-[100%] h-fit pb-13  bg-black text-white font-poppins my-1 ' >
+  <>
+  <Head>
+    <title>AniJikan</title>
+        <meta
+    name="description"
+    content="Explore trending and currently airing anime with AnimeTracker. Track your watchlist, manage your progress, and stay updated with the latest anime releases."
+  />
+  <meta
+    name="keywords"
+    content="anime tracker, anime discovery, anime watchlist, track anime episodes, anime list manager, trending anime, currently airing anime"
+  />
+  <meta property="og:title" content="AnimeTracker – Discover & Track Your Favorite Anime" />
+  <meta
+    property="og:description"
+    content="A simple and clean platform to discover anime and manage your anime watchlist. Stay on top of trending and new anime releases."
+  />
+  <meta property="og:url" content="https://anime-tracker-next-js.vercel.app/" />
+  <meta property="og:type" content="website" />
+        
+  </Head>
+   <main className='relative top-0 left-0  overflow-x-clip m-0   w-[100%] h-fit pb-13  bg-black text-white font-poppins my-1 ' >
       
       <Nav searchref={navsearchref} buttonref={navbuttonref}  />
      
@@ -317,6 +338,9 @@ return (
       <LastSeason className='' data={pastSeason.querydata} loading={pastSeason.isloading} error={pastSeason.error}/>
       <UpcomingSec data={upcomingSeason.querydata} loading={upcomingSeason.isloading} error={upcomingSeason.error}/>
       
- </div>
+  </main>
+  
+  </>
+ 
 )
 }
