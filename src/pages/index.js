@@ -262,7 +262,9 @@ useEffect(()=>{
   sessionStorage.removeItem("animedatasearch")
   sessionStorage.removeItem("lastupdatetimesearch")
   sessionStorage.setItem('activetab','Plan To Watch')
-  sessionStorage.setItem('scrollY', window.scrollY)
+  sessionStorage.setItem('scrollY', 0)
+  sessionStorage.setItem('slicearr',JSON.stringify(30))
+
  
  
 

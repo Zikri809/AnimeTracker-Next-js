@@ -7,19 +7,17 @@ import {
     CardTitle,
   } from "@/components/ui/card"
   import { Button } from "@/components/ui/button"
-  import React, { useEffect } from "react"
+  import React, { useEffect, useState } from "react"
   import { CheckCheck } from 'lucide-react';
 import { useRouter } from "next/router";
 
 function animecardhorizontal(props){
+    
+
+    
     const router = useRouter()
  
-        const plantowatchmap = new Map(JSON.parse(localStorage.getItem('PlanToWatch')))
-        const watchingmap = new Map(JSON.parse(localStorage.getItem('Watching')))
-        const  completedmap = new Map(JSON.parse(localStorage.getItem('Completed')))
-        const onholdmap = new Map(JSON.parse(localStorage.getItem('OnHold')))
-        const droppedmap = new Map(JSON.parse(localStorage.getItem('Dropped')))
-  
+       
    
     
     class object{
@@ -27,7 +25,7 @@ function animecardhorizontal(props){
             this.name=name
         }
     }
-        let genrearr = props.genre
+        let genrearr = props.genre ?? []
         if(genrearr.length>2){
            let exeeeded = genrearr.length-2
            //console.log('before slice',genrearr)
@@ -50,8 +48,8 @@ function animecardhorizontal(props){
                         <Button variant="outline" className='bg-black border-1 font-medium text-sm text-red-400 border-gray-700' >{props.status}</Button>
                     )}
                     {router.isReady?(
-                        (plantowatchmap.has(props.mal_id) || watchingmap.has(props.mal_id) || completedmap.has(props.mal_id) || onholdmap.has(props.mal_id) || droppedmap.has(props.mal_id))?
-                        <Button variant="outline" className='bg-black border-1 font-medium text-sm text-blue-300 border-gray-700' ><CheckCheck size={32} /></Button>:<p></p>
+                        (props.addstatus)?
+                        <Button variant="outline" className='bg-black border-1 font-medium text-sm text-blue-300 border-gray-700' ><CheckCheck size={32} /></Button>:<></>
                     ):<></>}
 
                     </div>

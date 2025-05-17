@@ -8,172 +8,156 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useContext } from 'react';
 import { Season_context } from '@/pages/_app';
+import seasonaldata from '@/Utility/seasonaldata';
+import scrollsaver from '@/Utility/ScrollSaver';
 
 
-function more(props){
+
+export const getStaticProps = async () =>{
+  const seasoninfo = seasonaldata()
+   const fields='main_picture,status,start_season,num_episodes,title,alternative_titles,mean,num_scoring_users,popularity,genres'
+   const offset=0
+   let data =[]
+  try{
+        const result = await fetch (`https://api.myanimelist.net/v2/anime/season/${seasoninfo.current_year}/${seasoninfo.current_season}?sort=descending&limit=500&offset=${offset}&fields=${fields}`,{
+            method: 'GET',
+            headers:{
+               'X-MAL-CLIENT-ID': process.env.Client_ID,
+            }
+        })
+        if(!result.ok){
+            throw new Error(`HTTP ${result.status}`)
+        }
+        data = await result.json()
+    }
+    catch(error){
+        console.log('error fetching data')
+
+
+    }
+  let revalidate_time=43200
+  return {
+      props:{
+        seasonaldata : data.data,
+        
+
+      },
+      revalidate:revalidate_time //12 hours  in seconds
+    }
+}
+
+
+function more({seasonaldata}){
         const [animearr, setAnimearr] = useState([]);
-        const [isLoading, setLoading] = useState(true)
-        const [currentpage , setpage ] = useState(0)
+        const [isLoading, setLoading] = useState(false)
+        const [currentpagearr , setpagearr ] = useState(30)
+        const is_scrollrestored = useRef(false)
+        const is_arrrestored = useRef(false)
         const cardref = useRef(null)
         const [{ x, y }, scrollTo] = useWindowScroll();
         const isupdated = useRef(false)
         const isaddedarr = useRef(false)
+        const [plantowatchmap, Setplantowatchmap] =useState(new Map())
+        const [watchingmap, Setwatchingmap] =useState(new Map())
+        const [completedmap, Setcompletedmap] =useState(new Map())
+        const [onholdmap, Setonholdmap] =useState(new Map())
+        const [droppedmap, Setdroppedmap] =useState(new Map())
+            
         let router = useRouter()
         const seasoninfo = useContext(Season_context)
         
         useEffect(()=>{
-
+                //console.log('api data is ',seasonaldata)
+              Setplantowatchmap(new Map(JSON.parse(localStorage.getItem('PlanToWatch'))))
+              Setwatchingmap (new Map(JSON.parse(localStorage.getItem('Watching'))))
+              Setcompletedmap (new Map(JSON.parse(localStorage.getItem('Completed'))))
+              Setonholdmap (new Map(JSON.parse(localStorage.getItem('OnHold'))))
+              Setdroppedmap (new Map(JSON.parse(localStorage.getItem('Dropped'))))
               setTimeout(validator, 2000)
             
           },[])
-      
-          useEffect(() => {
-            const handleRouteChangeStart = () => {
-              sessionStorage.setItem('scrollY', window.scrollY);
-            };
-            router.events.on('routeChangeStart', handleRouteChangeStart);
-         
-            return () => {
-                router.events.off('routeChangeStart', handleRouteChangeStart);
-               
-              };
-        },[])
-         
-        useEffect(()=>{
-            if(!isLoading){
+          useEffect(()=>{
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight +100;
             const savedY = sessionStorage.getItem('scrollY');
-                if (savedY) {
+            console.log('max scroll ', maxScroll)
+            console.log('mxscroll check is ',savedY && savedY<=maxScroll && !is_scrollrestored.current)
+                if (savedY && savedY<=maxScroll && !is_scrollrestored.current) {
+                  console.log('scroll restored')
+                  is_scrollrestored.current = true
                   window.scrollTo(0, parseInt(savedY));
-                }}
-        },[isLoading])
+                }
+          },[currentpagearr,animearr])
+        
 
-        useEffect(()=>{
+        
+          useEffect(() => {
+            setAnimearr(seasonaldata)
+             if(sessionStorage.getItem('slicearr')!=undefined && currentpagearr<parseInt(sessionStorage.getItem('slicearr'))) {
+              setpagearr(parseInt(sessionStorage.getItem('slicearr')))
+              console.log('updated the current page arr ')
+              isupdated.current =true
+            
+            }
+         
+        },[currentpagearr])
+         scrollsaver(router)
+         useEffect(()=>{
             function scrollhandler(){   
                //console.log( window.innerHeight + Math.ceil(window.scrollY)>=document.body.offsetHeight - 10 )
                //about line below, how it work? dont't know suddenly decided to works along with teh useEffect above
                //  future me dont fix if it ain't broken
      
-                if (  window.innerHeight + window.scrollY>=document.body.offsetHeight - 2000 && !isupdated.current && router.isReady){
-                        setpage((currentpage)=>currentpage+1)
-                        console.log('condition fullfiled',currentpage)
-                        isaddedarr.current = false
-                        isupdated.current = true
-                       
-                        window.removeEventListener('scroll', scrollhandler)
-                       
-                    }
+                if (  window.innerHeight + window.scrollY>=document.body.offsetHeight - 0 && isupdated.current && router.isReady && (currentpagearr<seasonaldata.length) ){
+                  const addedpage = currentpagearr +30
+                  setpagearr(addedpage)
+                  console.log('added page is ',addedpage)
+                  console.log('current page is ',currentpagearr)
+                  sessionStorage.setItem('slicearr',(addedpage))
+                  console.log('condition fullfiled',currentpagearr)
+                  isupdated.current = true  
+                }
             }
             window.addEventListener('scroll',scrollhandler,false)
-        },[currentpage])
-
-
-        async function fetchapi(currpage, apilink,storageidentifier,storagetimeidentifier){
-            try{
-                const storeddata = JSON.parse(sessionStorage.getItem('animedata'+storageidentifier))
-                if(storeddata!==null){
-                    if( !(Math.floor(Date.now()/86400000)-JSON.parse(sessionStorage.getItem('lastupdatetime'+storagetimeidentifier))>=1)){
-                        console.log('lastupdatedtime',)
-                        if(storeddata.length>animearr.length){
-                            console.log('using already stored data',storeddata)
-                            console.log('storedata length ', storeddata.length)
-                            //console.log('store data page ',storeddata.length/25)
-                            setpage(Math.ceil(storeddata.length/24)+1)
-                            setAnimearr(storeddata)
-                            setLoading(false)
-                            return
-                        }
-                    }
-                    else{
-                        sessionStorage.removeItem("animedata"+storageidentifier)
-                        sessionStorage.removeItem("lastupdatetime"+storagetimeidentifier)
-                    }
-                   
-                }
-             
-                const response = await fetch(apilink+'&sfw=true&limit=24&page='+currpage)
-                const apifeedback = await response.json()
-                const top24 = apifeedback.data
-                //console.log('apifeedback',apifeedback)
-                let tempfilteredSetid =  new Set()
-                let tempfiltered = new Set()
-                 top24.filter((element)=>{
-                   if(!tempfilteredSetid.has(element.mal_id)){
-                    tempfiltered.add(element)
-                    tempfilteredSetid.add(element.mal_id)
-                    return true
-                   }
-                   return false
-                })
-                let deconstructed=new Set()
-                 tempfiltered.forEach(({status,mal_id,images:{webp:{large_image_url}},season, year,episodes, title,title_english,score,scored_by,popularity,genres })=>(
-                    deconstructed.add({status,mal_id,images:{webp:{large_image_url}},season, year,episodes, title,title_english,score,scored_by,popularity,genres })
-                    )
-                )
-                //console.log('deconstructed arr is ',deconstructed)
-                if(!isaddedarr.current){
-                    isaddedarr.current = true
-                    setAnimearr((animearr)=>[...animearr,...deconstructed])
-                    const currenttimedays = Math.floor(Date.now()/86400000)
-                    sessionStorage.setItem('lastupdatetime'+storagetimeidentifier,JSON.stringify(currenttimedays))
-                    sessionStorage.setItem('animedata'+storageidentifier,JSON.stringify([...animearr,...deconstructed]))
-                    
-                   
-                    //console.log('local storage ',JSON.parse(sessionStorage.getItem('animedata')))
-                    isupdated.current = false
-                }
-              
-               
-                setLoading(false)
-                    
-                
+            return() =>{
+               window.removeEventListener('scroll', scrollhandler)
             }
-            catch(error){
-               //initla 0 is set buffer as it seems to increment on mount thus let say by chance it does not error will occur thus we change it to 1
-               if (currpage==0){
-                setpage(1)
-               }
-               else{
-                fetchapi(currentpage, apilink,storageidentifier,storagetimeidentifier)
-                console.error(error)
-               } 
-              
-                
-            }
-        }
+        },[currentpagearr])
+      
         
-        useEffect(()=>{
-            const apilink = 'https://api.jikan.moe/v4/seasons/'+seasoninfo.current_year+'/'+seasoninfo.current_season+'?'
-            const storageidentifier = 'morethisseason'
-            const storagetimeidentifier = 'morethisseasontime'
+ useEffect(()=>{
             
-            fetchapi(currentpage,apilink,storageidentifier,storagetimeidentifier) 
-        },[currentpage])
-        console.log('fetching ',animearr)
-        console.log('current page is ',currentpage)
+           
+            isupdated.current = true 
+  
+        },[currentpagearr])
+        //console.log('api data is ',seasonaldata)
+        //console.log('fetching ',animearr)
+       
         //console.log('params is ',params)
     return(
-       <div   className='relative top-0 left-0 font-poppins overflow-hidden m-0   w-screen h-auto  bg-black text-white font-poppins ml-1  antialiased' >
+       <div  className='relative top-0 left-0 font-poppins overflow-hidden m-0   w-screen h-auto  bg-black text-white font-poppins ml-1  antialiased' >
          
             <Morenavabr sectionTitle={'This Season'}/>
-             { isLoading?<div className=" w-screen h-screen flex flex-row justify-center items-center "> <div class="loader"></div></div>:
+             { isLoading ?<div className=" w-screen h-screen flex flex-row justify-center items-center "> <div class="loader"></div></div>:
              
              (
                 <div  className='relative top-18 lg:grid lg:grid-cols-2 w-screen pb-33 sm:pb-0 lg:grid-rows '>
            
-            {animearr.map((element) =>(
-                <Link href={'/morethiseseason'+'/'+element.mal_id}>
+            {animearr.slice(0,currentpagearr).map((element) =>(
+                <Link  href={'/morethiseseason'+'/'+element.node.id}>
                     
-                    <Horizontalcard  ref={cardref} key={element.mal_id} 
-                    mal_id={element.mal_id}
-                    image={element.images.webp.large_image_url} 
-                    status= {element.status}
-                    season={element.season ==null ? ' ':element.season + ' '+ element.year }
-                    episodes={element.episodes}
-                    title={element.title_english==null?element.title:element.title_english}
-                    score={element.score}
-                    users={element.scored_by}
-                    ranking={element.popularity}
-                    genre={element.genres}/>
+                    <Horizontalcard  ref={cardref} key={element.node.id}
+                    addstatus={plantowatchmap.has(element.node.id) || watchingmap.has(element.node.id) || completedmap.has(element.node.id) || onholdmap.has(element.node.id) || droppedmap.has(element.node.id)} 
+                    mal_id={element.node.id}
+                    image={element.node.main_picture.large==undefined?'':element.node.main_picture.large} 
+                    status= {element.node.status.split('_').map(word => word[0].toUpperCase() + word.slice(1)).join(' ')}
+                    season={element.node.season ==null ? ' ':element.node.season + ' '+ element.node.year }
+                    episodes={element.node.num_episodes}
+                   title={element.node.alternative_titles.en==''?element.node.title:element.node.alternative_titles.en}
+                    score={element.node.mean}
+                    users={element.node.num_scoring_users}
+                    ranking={element.node.popularity}
+                    genre={element.node.genres}/>
                 </Link>
                 
                )   
