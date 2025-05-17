@@ -108,7 +108,7 @@ function more({seasonaldata}){
                //about line below, how it work? dont't know suddenly decided to works along with teh useEffect above
                //  future me dont fix if it ain't broken
      
-                if (  window.innerHeight + window.scrollY>document.body.offsetHeight - 0 && isupdated.current && router.isReady && (currentpagearr<seasonaldata.length) ){
+                if (  window.innerHeight + window.scrollY>=document.body.offsetHeight - 0 && isupdated.current && router.isReady && (currentpagearr<seasonaldata.length) ){
                   const addedpage = currentpagearr +30
                   setpagearr(addedpage)
                   console.log('added page is ',addedpage)
