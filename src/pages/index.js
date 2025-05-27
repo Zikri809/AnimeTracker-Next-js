@@ -11,12 +11,14 @@ import { useEffect, useRef } from "react"
 import Link from 'next/link'
 import { useRouter } from 'next/router' //supposed to import useNavigate also supposed to use useRouter by next
 import checkadder from '@/Utility/checkadder.js'
-import validator from '@/Utility/validation.js'
+
 import { Season_context } from '@/pages/_app'
 import dynamic from "next/dynamic";
 import fs from 'fs/promises';
 import path from 'path';
 import Head from 'next/head'
+import { parseCookies } from 'nookies'
+import tokenrefresh from '@/Utility/refreshjob'
 
 
 
@@ -221,7 +223,58 @@ export default function Home({thisseason,pastSeason,upcomingSeason,carouseldata}
   const [searchval, Setsearchval] = useState(' ')
   const seasoninfo = useContext(Season_context)
   const router = useRouter()
+  const [token_refresh, Set_token_refresh] = useState(false)
+  const cookies =parseCookies({})
+  const expiry_date = new Date(cookies.expires_in) // real expiry
+  const internaldeadline = new Date(cookies.expires_in)
+  internaldeadline.setDate(expiry_date.getDate()-2);
+  const current_date = new Date()
   
+  
+ useEffect(()=>{
+    console.log('current date is ', current_date, ' expiry date is ',internaldeadline,' compare current_date >= expiry_date', current_date.getTime() >= internaldeadline.getTime())
+    if(current_date.getTime() >= internaldeadline.getTime()){
+      const func = async () =>{
+        console.log('refresh token get')
+         await tokenrefresh()
+         router.reload()
+      }
+      func()
+     
+    }
+  },[])
+
+
+  useEffect(()=>{
+     if(cookies.expires_in==undefined || cookies.expires_in == null || current_date.getTime() >= expiry_date.getTime()  ) return
+    
+     const worker = new Worker(
+       '/worker/worker.js'
+      
+     );
+     worker.postMessage('start')
+     worker.onmessage = (e) =>{
+       console.log('data is passed from the worker',e.data.collectionarr)
+       
+       const watchingmap = e.data.collectionarr[0]
+       const completedmap = e.data.collectionarr[1]
+       const onholdmap = e.data.collectionarr[2]
+       const droppedmap = e.data.collectionarr[3]
+       const plantowatchmap = e.data.collectionarr[4]
+       
+       localStorage.setItem('Watching',JSON.stringify(Array.from(watchingmap)))
+       localStorage.setItem('Completed',JSON.stringify(Array.from(completedmap)))
+       localStorage.setItem('OnHold',JSON.stringify(Array.from(onholdmap)))
+       localStorage.setItem('Dropped',JSON.stringify(Array.from(droppedmap)))
+       localStorage.setItem('PlanToWatch',JSON.stringify(Array.from(plantowatchmap)))
+      
+     }
+    
+   return ()=>{
+     worker.terminate()
+   }
+  },)
+
  
 
 
@@ -245,12 +298,7 @@ useEffect(()=>{
   }
   
   function searchhandler(){
-    Setsearchval(inputsearch.value)
-   
-    if(inputsearch.value!=''){
-      router.push('/search/'+inputsearch.value)
-    }
-  else if (navsearchbar.value!=''){
+     if (navsearchbar.value!=''){
     router.push(navsearchbar.value.length==0?'/':'/search/'+navsearchbar.value)
   }else {
     router.push('/search/')
@@ -297,11 +345,7 @@ return () =>{
 },[router.isReady])
 
 
-useEffect(()=>{
-  checkadder(seasoninfo).then(
-    setTimeout(validator, 2000)
-  )
-},[])
+
 
 //the issue with search bar causing freeze because we cant have
 //body tag in server component

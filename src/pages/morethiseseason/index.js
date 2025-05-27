@@ -3,7 +3,7 @@ import Horizontalcard from '@/ComponentsSelf/animecardhorizontal'
 import { useState, useEffect, useRef } from "react";
 
 import { useWindowScroll } from "@uidotdev/usehooks";
-import validator from '@/Utility/validation.js'
+
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useContext } from 'react';
@@ -73,7 +73,7 @@ function more({seasonaldata}){
               Setcompletedmap (new Map(JSON.parse(localStorage.getItem('Completed'))))
               Setonholdmap (new Map(JSON.parse(localStorage.getItem('OnHold'))))
               Setdroppedmap (new Map(JSON.parse(localStorage.getItem('Dropped'))))
-              setTimeout(validator, 2000)
+              
             
           },[])
           useEffect(()=>{
@@ -107,7 +107,7 @@ function more({seasonaldata}){
                //about line below, how it work? dont't know suddenly decided to works along with teh useEffect above
                //  future me dont fix if it ain't broken
      
-                if (  window.innerHeight + window.scrollY>=document.body.offsetHeight - 0 && isupdated.current && router.isReady && (currentpagearr<seasonaldata.length) ){
+                if (  window.innerHeight + window.scrollY>=document.body.offsetHeight - 200 && isupdated.current && router.isReady && (currentpagearr<seasonaldata.length) ){
                   const addedpage = currentpagearr +30
                   setpagearr(addedpage)
                   console.log('added page is ',addedpage)

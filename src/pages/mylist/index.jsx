@@ -2,13 +2,14 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Navbar from '@/ComponentsSelf/mylistnavbar.jsx'
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Horizontalcard from '@/ComponentsSelf/animecardhorizontal'
 import Link from "next/link"
 import { useWindowScroll } from "@uidotdev/usehooks"
-import validator from '@/Utility/validation.js'
+
 import { useRouter } from "next/router"
 import { Toaster } from "@/components/ui/sonner"
+import scrollsaver from "@/Utility/ScrollSaver"
 
 export default function mylist(){
     const [planmap , Setplan] = useState()
@@ -20,11 +21,13 @@ export default function mylist(){
     const [{ x, y }, scrollTo] = useWindowScroll();
     const [activetab, Setactivetab] = useState('Plan To Watch')
     const router = useRouter()
+    const [currentpagearr , setpagearr ] = useState(30)
+    const is_scrollrestored = useRef(false)
+     const isupdated = useRef(false)
 
      
-    useEffect(()=>{
-               setTimeout(validator, 2000)
-               },[]) 
+    
+
     useEffect(() => {
             const handleRouteChangeStart = () => {
               sessionStorage.setItem('scrollY', window.scrollY);
@@ -43,29 +46,76 @@ export default function mylist(){
               };
         })
 
-    function scrollreset(e){
-       console.log('reset triggered')
-        sessionStorage.setItem('mylistscroll',JSON.stringify(0))
-        const scrollresult = JSON.parse(sessionStorage.getItem('mylistscroll'))
-        console.log('retrieve scroll position')
-            if (scrollresult!=null){
-                console.log('scroll result ',scrollresult)
-                scrollTo({ left: 0, top: scrollresult,  })
-            }
-        e.target.scrollIntoView({behavior: "smooth",inline: "center"})
-        console.log(e.target)
+    function scrollreset(list_type){
+        
+        console.log('scrollreset triggered')
+       sessionStorage.setItem('scrollY', 0)
+       window.scrollTo(0, 0)
     }
   
-   
+    useEffect(()=>{
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight +100;
+            const savedY = sessionStorage.getItem('scrollY');
+            console.log('max scroll ', maxScroll)
+            console.log('mxscroll check is ',savedY && savedY<=maxScroll && !is_scrollrestored.current)
+                if (savedY && savedY<=maxScroll && !is_scrollrestored.current) {
+                  console.log('scroll restored')
+                  is_scrollrestored.current = true
+                  window.scrollTo(0, parseInt(savedY));
+                }
+          },[currentpagearr,planmap,watchinmap,droppedmap,onholdmap,completedmap])
+        
 
+        
+          useEffect(() => {
+            //setAnimearr(seasonaldata)
+             if(sessionStorage.getItem('slicearr')!=undefined && currentpagearr<parseInt(sessionStorage.getItem('slicearr'))) {
+              setpagearr(parseInt(sessionStorage.getItem('slicearr')))
+              console.log('updated the current page arr ')
+              isupdated.current =true
+            
+            }
+         
+        },[currentpagearr])
+        useEffect(()=>{
+            function scrollhandler(){   
+               //console.log( window.innerHeight + Math.ceil(window.scrollY)>=document.body.offsetHeight - 10 )
+               //about line below, how it work? dont't know suddenly decided to works along with teh useEffect above
+               //  future me dont fix if it ain't broken
+     
+                if (  window.innerHeight + window.scrollY>=document.body.offsetHeight - 200 && isupdated.current && router.isReady ){
+                  const addedpage = currentpagearr +30
+                  setpagearr(addedpage)
+                  console.log('added page is ',addedpage)
+                  console.log('current page is ',currentpagearr)
+                  sessionStorage.setItem('slicearr',(addedpage))
+                  console.log('condition fullfiled',currentpagearr)
+                  isupdated.current = true  
+                }
+            }
+            window.addEventListener('scroll',scrollhandler,false)
+            return() =>{
+               window.removeEventListener('scroll', scrollhandler)
+            }
+        },[currentpagearr])
+      
+        
+        useEffect(()=>{
+            
+           
+            isupdated.current = true 
+  
+        },[currentpagearr])
+         scrollsaver(router)
+         
      
     
     useEffect(()=>{
-        Setcompleted(JSON.parse(localStorage.getItem('Completed')).reverse())
-        Setplan(JSON.parse(localStorage.getItem('PlanToWatch')).reverse())
-        Setwatching(JSON.parse(localStorage.getItem('Watching')).reverse())
-        Setonhold(JSON.parse(localStorage.getItem('OnHold')).reverse())
-        Setdropped(JSON.parse(localStorage.getItem('Dropped')).reverse())
+        Setcompleted(JSON.parse(localStorage.getItem('Completed')))
+        Setplan(JSON.parse(localStorage.getItem('PlanToWatch')))
+        Setwatching(JSON.parse(localStorage.getItem('Watching')))
+        Setonhold(JSON.parse(localStorage.getItem('OnHold')))
+        Setdropped(JSON.parse(localStorage.getItem('Dropped')))
         console.log('completed map', completedmap)
         if(sessionStorage.getItem('activetab')==undefined || sessionStorage.getItem('activetab')==null){
             Setactivetab('Plan To Watch')
@@ -98,19 +148,20 @@ export default function mylist(){
             {isloading? <p>Loading please wait</p>:
             (planmap.length!=0?<div className="lg:grid  lg:grid-cols-2 w-screen lg:grid-rows pb-8 sm:pb-0">
                 {
-                     (planmap.map(([key, value]) =>(
-                        <Link     href={'/mylist/Plan To Watch/'+value.mal_id}>
+                     (planmap.slice(0,currentpagearr).map(([key, value]) =>(
+                        <Link     href={'/mylist/Plan To Watch/'+value.node.id}>
                             
-                            <Horizontalcard className='' key={value.mal_id} 
-                            image={value.images.webp.large_image_url} 
-                            status= {value.status}
-                            season={value.season ==null ? ' ':value.season + ' '+ value.year }
-                            episodes={value.episodes}
-                            title={value.title_english==null?value.title:value.title_english}
-                            score={value.score}
-                            users={value.scored_by}
-                            ranking={value.popularity}
-                            genre={value.genres}/>
+                            <Horizontalcard className='' key={value.node.id} 
+                            mal_id={value.node.id}
+                            image={value.node.main_picture?.large==undefined?'':value.node.main_picture?.large} 
+                            status= {value.node.status.split('_').map(word => word[0].toUpperCase() + word.slice(1)).join(' ')}
+                            season={value.node.season ==null ? ' ':value.node.season + ' '+ value.node.year }
+                            episodes={value.node.num_episodes}
+                            title={value.node.alternative_titles.en==''?value.node.title:value.node.alternative_titles.en}
+                            score={value.node.mean}
+                            users={value.node.num_scoring_users}
+                            ranking={value.node.popularity}
+                            genre={value.node.genres}/>
                         </Link>
                )))
                 }
@@ -122,19 +173,20 @@ export default function mylist(){
             {isloading? <p>Loading please wait</p>:
            (completedmap.length!=0? <div className="lg:grid lg:grid-cols-2 max-w-screen pb-8 sm:pb-0 lg:grid-rows">
                 {
-                     (completedmap.map(([key, value]) =>(
-                        <Link  href={'/mylist/Completed/'+value.mal_id}>
-                            
-                            <Horizontalcard   key={value.mal_id} 
-                            image={value.images.webp.large_image_url} 
-                            status= {value.status}
-                            season={value.season ==null ? ' ':value.season + ' '+ value.year }
-                            episodes={value.episodes}
-                            title={value.title_english==null?value.title:value.title_english}
-                            score={value.score}
-                            users={value.scored_by}
-                            ranking={value.popularity}
-                            genre={value.genres}/>
+                     (completedmap.slice(0,currentpagearr).map(([key, value]) =>(
+                        <Link  href={'/mylist/Completed/'+value.node.id}>
+                            <Horizontalcard className='' key={value.node.id} 
+                            mal_id={value.node.id}
+                            image={value.node.main_picture?.large==undefined?'':value.node.main_picture?.large} 
+                            status= {value.node.status.split('_').map(word => word[0].toUpperCase() + word.slice(1)).join(' ')}
+                            season={value.node.season ==null ? ' ':value.node.season + ' '+ value.node.year }
+                            episodes={value.node.num_episodes}
+                            title={value.node.alternative_titles.en==''?value.node.title:value.node.alternative_titles.en}
+                            score={value.node.mean}
+                            users={value.node.num_scoring_users}
+                            ranking={value.node.popularity}
+                            genre={value.node.genres}/>
+                           
                         </Link>
                )))
                 }
@@ -146,19 +198,20 @@ export default function mylist(){
             {isloading? <p>Loading please wait</p>:
             ( watchinmap.length!=0?<div className="lg:grid lg:grid-cols-2 max-w-screen pb-8 sm:pb-0 lg:grid-rows">
                 {
-                    (watchinmap.map(([key, value]) =>(
-                        <Link  href={'/mylist/Watching/'+value.mal_id}>
-                            
-                            <Horizontalcard   key={value.mal_id} 
-                            image={value.images.webp.large_image_url} 
-                            status= {value.status}
-                            season={value.season ==null ? ' ':value.season + ' '+ value.year }
-                            episodes={value.episodes}
-                            title={value.title_english==null?value.title:value.title_english}
-                            score={value.score}
-                            users={value.scored_by}
-                            ranking={value.popularity}
-                            genre={value.genres}/>
+                    (watchinmap.slice(0,currentpagearr).map(([key, value]) =>(
+                        <Link  href={'/mylist/Watching/'+value.node.id}>
+                            <Horizontalcard className='' key={value.node.id} 
+                            mal_id={value.node.id}
+                            image={value.node.main_picture?.large==undefined?'':value.node.main_picture?.large} 
+                            status= {value.node.status.split('_').map(word => word[0].toUpperCase() + word.slice(1)).join(' ')}
+                            season={value.node.season ==null ? ' ':value.node.season + ' '+ value.node.year }
+                            episodes={value.node.num_episodes}
+                            title={value.node.alternative_titles.en==''?value.node.title:value.node.alternative_titles.en}
+                            score={value.node.mean}
+                            users={value.node.num_scoring_users}
+                            ranking={value.node.popularity}
+                            genre={value.node.genres}/>
+                           
                         </Link>
                )))
                 }
@@ -170,19 +223,20 @@ export default function mylist(){
             {isloading? <p>Loading please wait</p>:
             (onholdmap.length!=0?<div className="lg:grid lg:grid-cols-2 w-screen pb-8 sm:pb-0 lg:grid-rows">
                 {
-                     (onholdmap.map(([key, value]) =>(
-                        <Link  href={'/mylist/On Hold/'+value.mal_id}>
-                            
-                            <Horizontalcard   key={value.mal_id} 
-                            image={value.images.webp.large_image_url} 
-                            status= {value.status}
-                            season={value.season ==null ? ' ':value.season + ' '+ value.year }
-                            episodes={value.episodes}
-                            title={value.title_english==null?value.title:value.title_english}
-                            score={value.score}
-                            users={value.scored_by}
-                            ranking={value.popularity}
-                            genre={value.genres}/>
+                     (onholdmap.slice(0,currentpagearr).map(([key, value]) =>(
+                        <Link  href={'/mylist/On Hold/'+value.node.id}>
+                            <Horizontalcard className='' key={value.node.id} 
+                            mal_id={value.node.id}
+                            image={value.node.main_picture?.large==undefined?'':value.node.main_picture?.large} 
+                            status= {value.node.status.split('_').map(word => word[0].toUpperCase() + word.slice(1)).join(' ')}
+                            season={value.node.season ==null ? ' ':value.node.season + ' '+ value.node.year }
+                            episodes={value.node.num_episodes}
+                            title={value.node.alternative_titles.en==''?value.node.title:value.node.alternative_titles.en}
+                            score={value.node.mean}
+                            users={value.node.num_scoring_users}
+                            ranking={value.node.popularity}
+                            genre={value.node.genres}/>
+                           
                         </Link>
                )))
                 }
@@ -195,19 +249,20 @@ export default function mylist(){
             (droppedmap.length!=0?
             <div className="lg:grid lg:grid-cols-2 w-screen pb-8 sm:pb-0 lg:grid-rows">
                 {
-                     (droppedmap.map(([key, value]) =>(
-                        <Link href={'/mylist/Dropped/'+value.mal_id}>
-                            
-                            <Horizontalcard   key={value.mal_id} 
-                            image={value.images.webp.large_image_url} 
-                            status= {value.status}
-                            season={value.season ==null ? ' ':value.season + ' '+ value.year }
-                            episodes={value.episodes}
-                            title={value.title_english==null?value.title:value.title_english}
-                            score={value.score}
-                            users={value.scored_by}
-                            ranking={value.popularity}
-                            genre={value.genres}/>
+                     (droppedmap.slice(0,currentpagearr).map(([key, value]) =>(
+                        <Link href={'/mylist/Dropped/'+value.node.id}>
+                            <Horizontalcard className='' key={value.node.id} 
+                            mal_id={value.node.id}
+                            image={value.node.main_picture?.large==undefined?'':value.node.main_picture?.large} 
+                            status= {value.node.status.split('_').map(word => word[0].toUpperCase() + word.slice(1)).join(' ')}
+                            season={value.node.season ==null ? ' ':value.node.season + ' '+ value.node.year }
+                            episodes={value.node.num_episodes}
+                            title={value.node.alternative_titles.en==''?value.node.title:value.node.alternative_titles.en}
+                            score={value.node.mean}
+                            users={value.node.num_scoring_users}
+                            ranking={value.node.popularity}
+                            genre={value.node.genres}/>
+                          
                         </Link>
                          )))
                 }

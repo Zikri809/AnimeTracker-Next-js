@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 
 import Relation from '@/ComponentsSelf/min'
 import Add_to_watchlist_button from '@/ComponentsSelf/add to watchlist button'
-import validator from '@/Utility/validation.js'
+
 import { Skeleton } from "@/components/ui/skeleton"
 import Cardskeleton from '@/ComponentsSelf/animecardheader-skeleton.jsx'
 import overflow_detect from  '@/Utility/overflow_detect.js'
@@ -97,7 +97,7 @@ function dropdown_handler(){
             SetBrowserWidth(debouncebrowserwidth)
         });
     
-    setTimeout(validator, 2000)
+    
     },[])
     useEffect(()=>{
         async function fetchapi(){

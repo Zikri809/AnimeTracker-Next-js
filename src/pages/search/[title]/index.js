@@ -7,7 +7,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useWindowScroll } from "@uidotdev/usehooks";
-import validator from '@/Utility/validation.js'
+
 
 export default function searchpage(){
     const [animearr, setAnimearr] = useState([]);
@@ -51,7 +51,7 @@ export default function searchpage(){
         },[isLoading])
 
         useEffect(()=>{
-            setTimeout(validator, 2000)
+            
             },[])
         useEffect(()=>{
             function scrollhandler(){ 
@@ -143,7 +143,7 @@ export default function searchpage(){
     return(
        < >
             <Navbar set_state={clearstate} searchtitle={router.query.title=='NA'?'Search':router.query.title}/>
-            { isLoading?<div className=" w-screen h-screen flex flex-row justify-center items-center "> <div class="loader"></div></div>:<div  className='relative left-0 pb-34 sm:pb-0 top-18 lg:grid lg:grid-cols-2 w-screen   lg:grid-rows '>
+            { isLoading?<div className=" w-screen h-screen flex flex-row justify-center items-center "> <div class="loader"></div></div>:<div  className='relative left-0 pb-34 sm:pb-0 top-18 lg:grid lg:grid-cols-2 w-screen content-center min-h-screen   lg:grid-rows '>
             {
              ( animearr.length!=0 && router.query.title!='NA'?(animearr.map((element) =>(
               
@@ -167,7 +167,10 @@ export default function searchpage(){
 
                 
                     
-                )):<p className="text-white w-full h-full text-center py-60 ">Search your favourite anime</p>)
+                )):<div className='flex p-0 h-fit w-screen flex-col gap-0 items-center justify-center'>
+                       
+                        <p className="text-neutral-300 text-base font-bold text-center  ">Your anime journey starts here !</p>
+                    </div>)
             }
             </div>}
            

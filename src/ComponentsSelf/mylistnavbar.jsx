@@ -31,6 +31,8 @@ import { useRef,
 import { Toaster } from "sonner"
 import { toast } from "sonner"
 import { useRouter } from 'next/router';
+import { parseCookies } from "nookies"
+
   
 function morenavbar(props){
     const [dialogytpe, Set_dialogtype] = useState()
@@ -39,6 +41,7 @@ function morenavbar(props){
     const [animearr , Setanimearr] = useState()
     const inputref = useRef(null)
     const router = useRouter()
+    const cookies = parseCookies({})
 
 
   function backup(){
@@ -121,6 +124,17 @@ function morenavbar(props){
         }, 1500);
         
        } 
+       async function log_out(){
+        try{
+            //console.log('log out api ran')
+           router.push('/api/users/auth/log_out')
+            
+        }
+        catch(error){
+            console.log('error on log out function')
+            router.push('/mylist/login_failed')
+        }
+       }
 
 
 return (
@@ -138,14 +152,35 @@ return (
             <DropdownMenu >
                 <DropdownMenuTrigger  className='outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 border-none bg-black' ><EllipsisVertical/></DropdownMenuTrigger>
                
-                <DropdownMenuContent side={'left'} align={'start'}  className='text-xl rounded-sm border-0 bg-neutral-700 text-white border-neutral-600'>
+                <DropdownMenuContent side={'left'} align={'start'}  className='text-xl  backdrop-blur-md bg-white/20 border  rounded-md shadow-lg text-white border-neutral-600'>
+                <DropdownMenuLabel>{cookies.expires_in?'My Account':'Local Account'}</DropdownMenuLabel>
+                <DropdownMenuSeparator className='bg-neutral-400' />
+                {
+                    cookies.expires_in?<></>:<DropdownMenuItem className='focus:bg-neutral-600 focus:text-white'asChild><Link  href='/mylist/login'>Log In</Link></DropdownMenuItem>
+                }
+                {
+                    cookies.expires_in?<></>:
+                    <DialogTrigger asChild >
+                        <DropdownMenuItem onClick={()=>{Set_dialogtype('backup')}} className=' focus:bg-neutral-600 focus:text-white'>Backup</DropdownMenuItem> 
+                    </DialogTrigger>
+                }
+                {
+                     cookies.expires_in?<></>:
+                        <DialogTrigger asChild >
+                            <DropdownMenuItem onClick={()=>{Set_dialogtype('restore')}} className=' focus:bg-neutral-600 focus:text-white'>Restore</DropdownMenuItem> 
+                        </DialogTrigger>
+                }
+                {
+                    cookies.expires_in?<DropdownMenuItem  className='text-white focus:text-white focus:bg-neutral-600' aschild  ><Link href='/mylist/user_profile'>User Profile</Link></DropdownMenuItem>:<></>
+                }
                 <DialogTrigger asChild >
-                    <DropdownMenuItem onClick={()=>{Set_dialogtype('backup')}} className='text-base focus:bg-neutral-600 focus:text-white'>Backup</DropdownMenuItem> 
+                        <DropdownMenuItem onClick={()=>{Set_dialogtype('about')}} className=' focus:bg-neutral-600 focus:text-white'>About Dev</DropdownMenuItem> 
                 </DialogTrigger>
-                <DialogTrigger asChild >
-                    <DropdownMenuItem onClick={()=>{Set_dialogtype('restore')}} className='text-base focus:bg-neutral-600 focus:text-white'>Restore</DropdownMenuItem> 
-                </DialogTrigger>
-                   
+                 {
+                    cookies.expires_in?<DropdownMenuItem onClick={log_out} className='text-red-600 focus:text-red-400 focus:bg-neutral-600' >Log Out</DropdownMenuItem>:<></>
+                }
+                
+                
 
                   
                 </DropdownMenuContent>
