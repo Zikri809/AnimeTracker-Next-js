@@ -1,4 +1,11 @@
+import seasonal_data from "@/Utility/seasonal_carousel/season_carousel"
+import { useEffect } from "react"
 export default function testbed(){
+    useEffect(()=>{
+        
+    seasonal_data()
+
+    },[])
     return(
         
         <div>
@@ -6,3 +13,4 @@ export default function testbed(){
         </div>
     )
 }
+

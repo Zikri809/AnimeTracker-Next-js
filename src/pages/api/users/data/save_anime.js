@@ -1,5 +1,5 @@
 import { parseCookies } from "nookies"
-//http://localhost:3000//api/users/data/save_anime?anime_id=51818&status=watching&episode=0&score=0
+//http://localhost:3000/api/users/data/save_anime?anime_id=51818&status=watching&episode=0&score=0
 export default async function handler(req, res){
     const {anime_id,status, episode, score} = req.query
    if(!(status=='watching' || status=='completed' || status=='on_hold' || status=='dropped' || status=='plan_to_watch')){
