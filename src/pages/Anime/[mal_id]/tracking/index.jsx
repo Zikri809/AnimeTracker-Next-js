@@ -18,6 +18,9 @@ import {
   import savehandler_tracking from '@/Utility/tracking/savehandler_tracking'
   import last_clicktracking from '@/Utility/tracking/lastclick_tracking'
   import delete_show_tracking from '@/Utility/tracking/deleteshow_tracking'
+  import completed_click from '@/Utility/tracking/completed_click'
+  import status_button from '@/Utility/tracking/statusbutton'
+
  
 
   import { useRouter } from 'next/router'
@@ -90,43 +93,14 @@ export default function trackingform(){
         },[isloading,api])
 
     function completedclickhandler(e){
-        
-        //console.log('button clicked')
-        //api.scrollTo(props.episodes-1);
-        api.scrollTo(animeinfo.node.num_episodes);
-        for(let i =0 ; i<5 ; i++){
-            btnref.current[i].style.color = 'white'
-        }
-        e.target.style.color='#2196F3'
-        //console.log(e)
-        Setstatus(e.target.innerText)
-        //console.log('button clicked')
+        completed_click(e,api,btnref,Setstatus,animeinfo.node.num_episodes)
       }
       function last_click(){
         last_clicktracking(btnref,api,api2,router)
       }
 
       function statusbutton(e){
-        for(let i =0 ; i<5 ; i++){
-            btnref.current[i].style.color = 'white'
-        }
-        let text = e.target.innerText
-        if(text=='Watching'){
-            console.log('triggered')
-            e.target.style.color='#4CAF50'
-        }
-        else if (text =='Plan To Watch'){
-            e.target.style.color='#5C6BC0'
-        }
-        else if(text =='On Hold'){
-            e.target.style.color = '#FFEB3B'
-        }
-        else{
-            e.target.style.color = '#F44336'
-        }
-        
-        console.log(e)
-        Setstatus(text)
+        status_button(e,btnref,Setstatus)
       }
        function savehandler(){
         //router cannot be use inside the import function
@@ -155,7 +129,7 @@ export default function trackingform(){
                     {animeinfo.node.status=='not_yet_aired' ||animeinfo.node.status=='currently_airing'?<Button disabled type="button" ref={(Element) =>(btnref.current[1]=Element)}  variant='outline' className='bg-black rounded-sm border-gray-400 text-white '>Completed</Button>: <Button ref={(Element) =>(btnref.current[1]=Element)}  type="button" variant='outline' onClick={completedclickhandler} className='bg-black rounded-sm border-gray-400 text-white hover:text-black focus:bg-black '>Completed</Button>}
                     <Button variant='outline' ref={(Element) =>(btnref.current[2]=Element)} type="button"  onClick={statusbutton} className='bg-black rounded-sm border-gray-400 text-white hover:text-black focus:bg-black '>Plan To Watch</Button>    
                     <Button variant='outline' ref={(Element) =>(btnref.current[3]=Element)} type="button"  onClick={statusbutton} className='bg-black rounded-sm border-gray-400 text-white hover:text-black focus:bg-black'>On Hold</Button>
-                    <Button variant='outline' ref={(Element) =>(btnref.current[4]=Element)} type="button"  onClick={statusbutton} className='bg-black rounded-sm border-gray-400 text-white hover:text-black focus:bg-black'>Dropped</Button>
+                    <Button variant='outline' ref={(Element) =>(btnref.current[4]=Element)} type="button"  onClick={statusbutton} className='bg-black rounded-sm border-gray-400 text-white  !hover:text-black focus:bg-black'>Dropped</Button>
                     </div>
                 </div>
                

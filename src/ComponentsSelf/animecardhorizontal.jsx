@@ -10,6 +10,8 @@ import {
   import React, { useEffect, useState } from "react"
   import { CheckCheck } from 'lucide-react';
 import { useRouter } from "next/router";
+import { Progress } from "@/components/ui/progress";
+import Image from "next/image";
 
 function animecardhorizontal(props){
     
@@ -40,7 +42,7 @@ function animecardhorizontal(props){
         <>
         <Card className='rounded-none w-[100%] overflow-x-hidden border-l-1 hover:bg-zinc-800  text-white border-x-0 border-t-0 py-5 px-1 sm:px-4 mx-0 border-gray-700 bg-black'>
             <CardContent className='flex p-0 flex-row gap-5 max-w-screen items-center'>
-                <img className="rounded-sm h-55 w-35 sm:w-40 object-cover" src={props.image}></img>
+                <Image className="rounded-sm h-55 w-35 sm:w-40 object-cover" loading="lazy" src={props.image} quality={90} height={1000} width={1000} alt={props.title}></Image>
                 <div className="flex flex-col items-start h-55 w-80 overflow-hidden sm:overflow-visible justify-between">
                     <div className="flex flex-row gap-1">
                     {props.status=='Finished Airing'?<Button variant="outline" className='bg-black border-1 font-medium text-sm text-green-500 border-gray-700' >{props.status}</Button>:
@@ -77,11 +79,18 @@ function animecardhorizontal(props){
                     </div>
                     
                 </div>
-                <div className="flex flex-row gap-2">
+                <div className="flex flex-row gap-2 w-full items-center">
                     {
-                        genrearr.map((object) =>(
+                        genrearr.length ==0 ?(
+                            <>
+                                 <Progress className='my-2  h-2 bg-neutral-500  border-0' value={props.user_episode/props.episodes *100} ></Progress>
+                                 <p className="text-gray-400 text-sm ">{props.user_episode+"/"+props.episodes}</p>                          
+                            </>
+                        ):(
+                            genrearr.map((object) =>(
                             <Button variant="secondary"className=' text-sm text-white bg-slate-800' >{object.name}</Button>
                         ))
+                        )
                     }
                 </div>
                 </div>

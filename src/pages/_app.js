@@ -5,9 +5,17 @@ import Head from "next/head";
 import Mobile_navbar from '@/ComponentsSelf/navbar/mobile_navbar'
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import Persistent_worker from "@/ComponentsSelf/persistent_worker/persistent_worker";
 
 export const Season_context = createContext()
+import { Poppins } from 'next/font/google';
 
+const poppins = Poppins({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-poppins',
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900']
+});
 
 export default function App({ Component, pageProps }) {
 
@@ -134,7 +142,8 @@ export default function App({ Component, pageProps }) {
 
 <meta name="google-site-verification" content="JaWtTN1_CBU0wc-SqB4fy9DTi0C4E1Sl_hGEEZnAfsE" />
   </Head>
-  <Season_context.Provider value={{current_month,current_year,current_season,past_season,past_year,upcoming_season,upcoming_year}}>
+  <Persistent_worker className={poppins.className}>
+    <Season_context.Provider value={{current_month,current_year,current_season,past_season,past_year,upcoming_season,upcoming_year}}>
       <QueryClientProvider client={queryclient}>
         <Component {...pageProps} />
         <Analytics/>
@@ -142,6 +151,8 @@ export default function App({ Component, pageProps }) {
       </QueryClientProvider>
   </Season_context.Provider>
   <Mobile_navbar/>
+  </Persistent_worker>
+  
   </>
   
 

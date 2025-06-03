@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react"
 import Horizontalcard from '@/ComponentsSelf/animecardhorizontal'
 import Link from "next/link"
 import { useWindowScroll } from "@uidotdev/usehooks"
-
+import progress from "@/Utility/progress"
 import { useRouter } from "next/router"
 import { Toaster } from "@/components/ui/sonner"
 import scrollsaver from "@/Utility/ScrollSaver"
@@ -50,6 +50,7 @@ export default function mylist(){
         
         console.log('scrollreset triggered')
        sessionStorage.setItem('scrollY', 0)
+       setpagearr(30)
        window.scrollTo(0, 0)
     }
   
@@ -138,11 +139,11 @@ export default function mylist(){
              <Toaster className='fixed top-0 z-1000' richColors/>
              <Tabs defaultValue="Plan To Watch" value={activetab} onValueChange={handletabchange} className="relative w-full top-20 border-0 border-blue-500 bg-black">
             <TabsList style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}} className='no-scrollbar::-webkit-scrollbar w-screen justify-start text-xl  z-2 fixed touch-auto  pb-0 rounded-none bg-black text-black border-b-0 overflow-auto border-gray-600 gap-0'>
-              <TabsTrigger  onClick={scrollreset} className='  text-base border-b-gray-600 rounded-none data-[state=active]:border-b-white data-[state=active]:rounded-b-none data-[state=active]:bg-inherit    data-[state=active]:text-white text-neutral-400  ' value="Plan To Watch">Plan To Watch</TabsTrigger>
-              <TabsTrigger  onClick={scrollreset} className='text-neutral-400    text-base      data-[state=active]:bg-inherit  data-[state=active]:text-white  border-b-gray-600 rounded-none data-[state=active]:border-b-white data-[state=active]:rounded-b-none' value="Completed">Completed</TabsTrigger>
-              <TabsTrigger  onClick={scrollreset} className='text-neutral-400    text-base      data-[state=active]:bg-inherit  data-[state=active]:text-white  border-b-gray-600 rounded-none data-[state=active]:border-b-white data-[state=active]:rounded-b-none' value="Watching">Watching</TabsTrigger>
-              <TabsTrigger  onClick={scrollreset} className='text-neutral-400    text-base      data-[state=active]:bg-inherit  data-[state=active]:text-white  border-b-gray-600 rounded-none data-[state=active]:border-b-white data-[state=active]:rounded-b-none' value="On Hold">On Hold</TabsTrigger>
-              <TabsTrigger  onClick={scrollreset} className=' text-neutral-400    text-base     data-[state=active]:bg-inherit  data-[state=active]:text-white  border-b-gray-600 rounded-none data-[state=active]:border-b-white data-[state=active]:rounded-b-none' value="Dropped">Dropped</TabsTrigger>
+              <TabsTrigger  onClick={scrollreset} className='border-x-0  text-base border-b-gray-600 rounded-none data-[state=active]:border-b-white data-[state=active]:rounded-b-none data-[state=active]:bg-inherit    data-[state=active]:text-white text-neutral-400  ' value="Plan To Watch">Plan To Watch</TabsTrigger>
+              <TabsTrigger  onClick={scrollreset} className='border-x-0  text-neutral-400    text-base      data-[state=active]:bg-inherit  data-[state=active]:text-white  border-b-gray-600 rounded-none data-[state=active]:border-b-white data-[state=active]:rounded-b-none' value="Completed">Completed</TabsTrigger>
+              <TabsTrigger  onClick={scrollreset} className='border-x-0  text-neutral-400    text-base      data-[state=active]:bg-inherit  data-[state=active]:text-white  border-b-gray-600 rounded-none data-[state=active]:border-b-white data-[state=active]:rounded-b-none' value="Watching">Watching</TabsTrigger>
+              <TabsTrigger  onClick={scrollreset} className='border-x-0  text-neutral-400    text-base      data-[state=active]:bg-inherit  data-[state=active]:text-white  border-b-gray-600 rounded-none data-[state=active]:border-b-white data-[state=active]:rounded-b-none' value="On Hold">On Hold</TabsTrigger>
+              <TabsTrigger  onClick={scrollreset} className='border-x-0  text-neutral-400    text-base     data-[state=active]:bg-inherit  data-[state=active]:text-white  border-b-gray-600 rounded-none data-[state=active]:border-b-white data-[state=active]:rounded-b-none' value="Dropped">Dropped</TabsTrigger>
             </TabsList>
             <TabsContent className='relative top-10 pb-38 sm:pb-20 ' value="Plan To Watch">
             {isloading? <p>Loading please wait</p>:
@@ -210,7 +211,7 @@ export default function mylist(){
                             score={value.node.mean}
                             users={value.node.num_scoring_users}
                             ranking={value.node.popularity}
-                            genre={value.node.genres}/>
+                            user_episode={progress(key)}/>
                            
                         </Link>
                )))

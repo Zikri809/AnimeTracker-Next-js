@@ -6,6 +6,9 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+   images: {
+    remotePatterns: [new URL('https://cdn.myanimelist.net/**')],
+  },
   
 };
 
