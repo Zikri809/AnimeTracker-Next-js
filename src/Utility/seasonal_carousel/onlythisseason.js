@@ -1,4 +1,4 @@
-export default async function onlythis_season(object, season,year){
+export default function onlythis_season(object, season,year){
     //this function return one exclusive anime for each season
  
     //console.log('object is ',object)

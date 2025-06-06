@@ -26,19 +26,20 @@ function morenavbar(props){
           
     },[refstate])
    
+    {router.asPath.split('/')[1]=='morethiseseason' || router.asPath.split('/')[1]=='moreupcoming' || router.asPath.split('/')[1]=='morelastseason'?
+        (router.query.hasOwnProperty('relation_id')?'/'+router.asPath.split('/')[1]+'/'+router.query.mal_id:'/'+router.asPath.split('/')[1]):
+        (router.query.hasOwnProperty('title')?(router.query.hasOwnProperty('relation_id')?('/search/'+router.query.title+'/'+router.query.mal_id):'/search/'+router.query.title):
+        (router.query.hasOwnProperty('mylist_tab')?(router.query.hasOwnProperty('relation_id')?'/mylist/'+router.query.mylist_tab+'/'+router.query.mal_id:'/mylist'):
+        (router.query.hasOwnProperty('relation_id')?'/Anime/'+router.query.mal_id:'/')))
+        }
 //console.log('id is',id)
 return (
     <nav className="fixed border-b-1 border-gray-700 z-1000 bg-black w-screen pl-4 h-20 px-2 pr-4 mb-3 top-0 left-0 flex flex-row items-center justify-between">
         <div className="flex  flex-row items-center gap-2 sm:gap-1">
             <Link 
-            href={router.asPath.split('/')[1]=='morethiseseason' || router.asPath.split('/')[1]=='moreupcoming' || router.asPath.split('/')[1]=='morelastseason'?
-                (router.query.hasOwnProperty('relation_id')?'/'+router.asPath.split('/')[1]+'/'+router.query.mal_id:'/'+router.asPath.split('/')[1]):
-                (router.query.hasOwnProperty('title')?(router.query.hasOwnProperty('relation_id')?('/search/'+router.query.title+'/'+router.query.mal_id):'/search/'+router.query.title):
-                (router.query.hasOwnProperty('mylist_tab')?(router.query.hasOwnProperty('relation_id')?'/mylist/'+router.query.mylist_tab+'/'+router.query.mal_id:'/mylist'):
-                (router.query.hasOwnProperty('relation_id')?'/Anime/'+router.query.mal_id:'/')))
-                }
+            href={router.query.hasOwnProperty('relation_id')?(router.asPath.split('/').slice(0,-2).join('/')):
+                (router.asPath.split('/')[1]=='Anime'?'/':(router.query.hasOwnProperty('mylist_tab')? '/mylist':router.asPath.split('/').slice(0,-1).join('/')))}
             >
-            
             
             <Button className='bg-zinc-800 text-white hover:text-black hover:bg-zinc-400' variant="secondary" size="icon"><ChevronLeft  /></Button> 
             </Link>

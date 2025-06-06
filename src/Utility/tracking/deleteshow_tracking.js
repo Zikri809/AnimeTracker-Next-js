@@ -65,10 +65,6 @@ export default async function delete_show(animeinfo,Setadded,router, status){
         });
     }
     setTimeout(() => {
-        router.push(router.asPath.split('/')[1]=='morethiseseason' || router.asPath.split('/')[1]=='moreupcoming' || router.asPath.split('/')[1]=='morelastseason'?
-                (router.query.hasOwnProperty('relation_id')?'/'+router.asPath.split('/')[1]+'/'+router.query.mal_id+'/relation/'+router.query.relation_id:'/'+router.asPath.split('/')[1]+'/'+router.query.mal_id):
-                (router.query.hasOwnProperty('title')?(router.query.hasOwnProperty('relation_id')?('/search/'+router.query.title+'/'+router.query.mal_id+'/relation/'+router.query.relation_id):'/search/'+router.query.title+'/'+router.query.mal_id):
-                (router.query.hasOwnProperty('mylist_tab')?(router.query.hasOwnProperty('relation_id')?'/mylist/'+router.asPath.split('/')[2]+'/'+router.query.mal_id+'/relation/'+router.query.relation_id:'/mylist/'+router.asPath.split('/')[2]+'/'+router.query.mal_id):
-                (router.query.hasOwnProperty('relation_id')?'/Anime/'+router.query.mal_id+'/relation/'+router.query.relation_id:'/Anime/'+router.query.mal_id))))
+       router.push(router.asPath.split('/').slice(0,-1).join('/'))
     }, vartimer);
 }

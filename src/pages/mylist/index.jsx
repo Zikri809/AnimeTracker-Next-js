@@ -122,7 +122,7 @@ export default function mylist(){
             Setactivetab('Plan To Watch')
         }
         if(sessionStorage.getItem('activetab')!=undefined || sessionStorage.getItem('activetab')!=null){
-            Setactivetab(sessionStorage.getItem('activetab'))
+            Setactivetab(sessionStorage.getItem('activetab')=='PlanToWatch'?'Plan To Watch':(sessionStorage.getItem('activetab')=='OnHold'?'On Hold':sessionStorage.getItem('activetab')))
        }
         Setloading(false)
         
@@ -150,7 +150,7 @@ export default function mylist(){
             (planmap.length!=0?<div className="lg:grid  lg:grid-cols-2 w-screen lg:grid-rows pb-8 sm:pb-0">
                 {
                      (planmap.slice(0,currentpagearr).map(([key, value]) =>(
-                        <Link     href={'/mylist/Plan To Watch/'+value.node.id}>
+                        <Link     href={'/mylist/PlanToWatch/'+value.node.id}>
                             
                             <Horizontalcard className='' key={value.node.id} 
                             mal_id={value.node.id}
@@ -225,7 +225,7 @@ export default function mylist(){
             (onholdmap.length!=0?<div className="lg:grid lg:grid-cols-2 w-screen pb-8 sm:pb-0 lg:grid-rows">
                 {
                      (onholdmap.slice(0,currentpagearr).map(([key, value]) =>(
-                        <Link  href={'/mylist/On Hold/'+value.node.id}>
+                        <Link  href={'/mylist/OnHold/'+value.node.id}>
                             <Horizontalcard className='' key={value.node.id} 
                             mal_id={value.node.id}
                             image={value.node.main_picture?.large==undefined?'':value.node.main_picture?.large} 

@@ -39,11 +39,7 @@ const relation = (props) => {
               return (
               <Link 
 
-              href={router.asPath.split('/')[1]=='morethiseseason' || router.asPath.split('/')[1]=='moreupcoming' || router.asPath.split('/')[1]=='morelastseason'?
-              ('/'+router.asPath.split('/')[1]+'/'+router.query.mal_id+'/relation/'+object.mal_id):
-              (router.query.hasOwnProperty('title')?'/search/'+router.query.title+'/'+router.query.mal_id+'/relation/'+object.mal_id:
-              (router.query.hasOwnProperty('mylist_tab')?'/mylist/'+router.query.mylist_tab+'/'+router.query.mal_id+'/relation/'+object.mal_id:
-              '/Anime/'+router.query.mal_id+'/relation/'+object.mal_id))}>{/*to={} */}
+              href={router.query.hasOwnProperty('relation_id')?router.asPath.split('/').slice(0,-2).join('/')+ '/relation/'+object.mal_id:router.asPath + '/relation/'+object.mal_id}>{/*to={} */}
                   
                   
                   <p className='text-blue-500'>{object.name}</p>

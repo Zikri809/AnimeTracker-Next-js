@@ -81,7 +81,7 @@ function animecardhorizontal(props){
                 </div>
                 <div className="flex flex-row gap-2 w-full items-center">
                     {
-                        genrearr.length ==0 ?(
+                        props.user_episode!=undefined ?(
                             <>
                                  <Progress className='my-2  h-2 bg-neutral-500  border-0' value={props.user_episode/props.episodes *100} ></Progress>
                                  <p className="text-gray-400 text-sm ">{props.user_episode+"/"+props.episodes}</p>                          

@@ -19,10 +19,61 @@ import path from 'path';
 import Head from 'next/head'
 import { parseCookies } from 'nookies'
 import tokenrefresh from '@/Utility/refreshjob'
+import Season_carousel from '@/ComponentsSelf/carousel/season_carousel'
+import extended_season_data from '@/Utility/seasonal_carousel/extended_season_data'
+import seasonaldata from '@/Utility/seasonaldata'
+import onlythis_season from '@/Utility/seasonal_carousel/onlythisseason'
 
 
 
-
+async function seasonal_carousel_data_func (){
+  const seasonal_data = seasonaldata()
+        const extended = extended_season_data()
+        const all_season = [
+            ...extended.past_4_season, 
+            {season: seasonal_data.past_season,year: seasonal_data.past_year},
+            {season: seasonal_data.current_season,year: seasonal_data.current_year},
+            {season: seasonal_data.upcoming_season,year: seasonal_data.upcoming_year},
+            ...extended.future_4_season
+        ]
+        let season_anime = []
+        //console.log('all season ',all_season)
+        //add past 4 season
+        const fields='main_picture,status,start_season,num_episodes,title,alternative_titles,mean,num_scoring_users,popularity,genres'
+        for(const element of all_season){
+            try{
+                    //console.log(`/api/seasonal?year=${year}&season=${season}&limit=${10}`)
+                    //this will be called by static path thus need for the host
+                   const result = await fetch (`https://api.myanimelist.net/v2/anime/season/${element.year}/${element.season}?sort=anime_score&limit=${500}&offset=${0}&fields=${fields}`,{
+                method: 'GET',
+                headers:{
+                   'X-MAL-CLIENT-ID': process.env.Client_ID,
+                }
+            })
+            if(!result.ok){
+                throw new Error
+            }
+            const resultjson = await result.json()
+            season_anime.push(onlythis_season(resultjson,element.season,element.year))
+                //console.log(season_anime)
+                //sleep(500)
+            }
+            catch(error){
+                console.log('error occured fetching exclusive season data error: ',error)
+                return []
+            }
+           
+        }
+        //resolved all the promises in the array to obtain the value
+    
+        //season_anime = await season_anime.json()
+        //console.log('all 11 season data ',season_anime)
+        return {
+          season_anime: season_anime,
+          seasonal_data: all_season
+        }
+      
+}
 
 async function season_fetch(season,year){
   try{
@@ -96,7 +147,7 @@ async function apifetch(){
           filtered.push(deconstructed[i])
       }
     }
-    console.log('Carousel API fetch successful', filtered);
+    //console.log('Carousel API fetch successful', filtered);
     
     return {
       querydata: filtered,
@@ -192,6 +243,11 @@ export const getStaticProps = async () =>{
     const data2 = await season_fetch(past_season,past_year)
     const data3 = await season_fetch(upcoming_season,upcoming_year)
     const carouseldata = await apifetch()
+    //const seasonal_carousel_data = []
+    const seasonal_carousel_data = await seasonal_carousel_data_func()
+    //console.log('seaonal carousel data is ',seasonal_carousel_data)
+    
+    
     let revalidate_time
     if(carouseldata.querydata.length == 0){
        revalidate_time = 60
@@ -206,7 +262,8 @@ export const getStaticProps = async () =>{
         thisseason : data1,
         pastSeason : data2,
         upcomingSeason : data3,
-        carouseldata : carouseldata
+        carouseldata : carouseldata,
+        seasonal_carousel_data : seasonal_carousel_data
 
       },
       revalidate:revalidate_time //12 hours  in seconds
@@ -216,7 +273,7 @@ export const getStaticProps = async () =>{
 
 
 
-export default function Home({thisseason,pastSeason,upcomingSeason,carouseldata}) {
+export default function Home({thisseason,pastSeason,upcomingSeason,carouseldata,seasonal_carousel_data}) {
 
   const navsearchref = useRef([])
   const navbuttonref = useRef([])
@@ -232,7 +289,7 @@ export default function Home({thisseason,pastSeason,upcomingSeason,carouseldata}
   
   
  useEffect(()=>{
-    console.log('current date is ', current_date, ' expiry date is ',internaldeadline,' compare current_date >= expiry_date', current_date.getTime() >= internaldeadline.getTime())
+    //console.log('current date is ', current_date, ' expiry date is ',internaldeadline,' compare current_date >= expiry_date', current_date.getTime() >= internaldeadline.getTime())
     if(current_date.getTime() >= internaldeadline.getTime()){
       const func = async () =>{
         console.log('refresh token get')
@@ -355,6 +412,7 @@ return (
       <ThisSeasonSec data={thisseason.querydata} loading={thisseason.isloading} error={thisseason.error}/>
       <LastSeason className='' data={pastSeason.querydata} loading={pastSeason.isloading} error={pastSeason.error}/>
       <UpcomingSec data={upcomingSeason.querydata} loading={upcomingSeason.isloading} error={upcomingSeason.error}/>
+      <Season_carousel data={seasonal_carousel_data}/>
       
   </main>
   

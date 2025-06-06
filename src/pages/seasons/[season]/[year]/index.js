@@ -10,19 +10,59 @@ import { useContext } from 'react';
 import { Season_context } from '@/pages/_app';
 import seasonaldata from '@/Utility/seasonaldata';
 import scrollsaver from '@/Utility/ScrollSaver';
+import extended_season_data from '@/Utility/seasonal_carousel/extended_season_data';
+import onlythis_season from '@/Utility/seasonal_carousel/onlythisseason';
 
 
 
 
 
-export const getStaticProps = async () =>{
+
+
+
+
+
+export async function getStaticPaths (){
+   const seasonal_data = seasonaldata()
+  const {past_4_season, future_4_season} = extended_season_data()
+   const all_season = [
+            ...past_4_season, 
+            {season: seasonal_data.past_season,year: seasonal_data.past_year},
+            {season: seasonal_data.current_season,year: seasonal_data.current_year},
+            {season: seasonal_data.upcoming_season,year: seasonal_data.upcoming_year},
+            ...future_4_season
+        ]
+  console.log(past_4_season , future_4_season)
+  let paths = []
+
+  //generate all possible paths
+  for(const element of all_season){
+    paths.push(
+      {
+        params: {
+          year: element.year.toString(),
+          season: element.season
+        }
+      }
+    )
+  }
+
+  return{
+    paths: paths,
+    fallback: false
+  }
+    
   
+}
+
+export const getStaticProps = async ({params}) =>{
+  const {year, season} = params
    const seasoninfo = seasonaldata()
    const fields='main_picture,status,start_season,num_episodes,title,alternative_titles,mean,num_scoring_users,popularity,genres'
    const offset=0
    let data =[]
   try{
-        const result = await fetch (`https://api.myanimelist.net/v2/anime/season/${seasoninfo.upcoming_year}/${seasoninfo.upcoming_season}?sort=descending&limit=500&offset=${offset}&fields=${fields}`,{
+        const result = await fetch (`https://api.myanimelist.net/v2/anime/season/${year}/${season}?sort=descending&limit=500&offset=${offset}&fields=${fields}`,{
             method: 'GET',
             headers:{
                'X-MAL-CLIENT-ID': process.env.Client_ID,
@@ -42,6 +82,8 @@ export const getStaticProps = async () =>{
   return {
       props:{
         seasonaldata : data.data,
+        year: year,
+        season: season
         
 
       },
@@ -50,7 +92,7 @@ export const getStaticProps = async () =>{
 }
 
 
-function more({seasonaldata}){
+function more({seasonaldata,year,season}){
         const [animearr, setAnimearr] = useState([]);
         const [isLoading, setLoading] = useState(false)
         const [currentpagearr , setpagearr ] = useState(30)
@@ -80,7 +122,7 @@ function more({seasonaldata}){
             
           },[])
           useEffect(()=>{
-           const maxScroll = document.documentElement.scrollHeight - window.innerHeight +100;
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight +100;
             const savedY = sessionStorage.getItem('scrollY');
             console.log('mxscroll check is ',savedY<maxScroll)
                 if (savedY && savedY<=maxScroll && !is_scrollrestored.current) {
@@ -95,14 +137,13 @@ function more({seasonaldata}){
             setAnimearr(seasonaldata)
              if(sessionStorage.getItem('slicearr')!=undefined ) {
               setpagearr(parseInt(sessionStorage.getItem('slicearr')))
-              console.log('page arr restored ')
               isupdated.current =true
             
             }
-         
-         
+
         },[])
-         scrollsaver(router)
+        //in this function it has its own useefect and needs a router
+        scrollsaver(router)
          useEffect(()=>{
             function scrollhandler(){   
                //console.log( window.innerHeight + Math.ceil(window.scrollY)>=document.body.offsetHeight - 10 )
@@ -110,15 +151,15 @@ function more({seasonaldata}){
                //  future me dont fix if it ain't broken
      
                 if (  window.innerHeight + window.scrollY>=document.body.offsetHeight - 200 && isupdated.current && router.isReady && (currentpagearr<seasonaldata.length) ){
-                  const addedpage = currentpagearr +30
-                  setpagearr(addedpage)
-                  console.log('added page is ',addedpage)
-                  console.log('current page is ',currentpagearr)
-                  sessionStorage.setItem('slicearr',(addedpage))
-                  console.log('condition fullfiled',currentpagearr)
-                  isupdated.current = true
-                  
-                  //window.removeEventListener('scroll', scrollhandler)
+                        const addedpage = currentpagearr +30
+                        setpagearr(addedpage)
+                        console.log('added page is ',addedpage)
+                        console.log('current page is ',currentpagearr)
+                        sessionStorage.setItem('slicearr',(addedpage))
+                        console.log('condition fullfiled',currentpagearr)
+                        isupdated.current = true
+                       
+                        //window.removeEventListener('scroll', scrollhandler)
                        
                     }
             }
@@ -135,21 +176,18 @@ function more({seasonaldata}){
             isupdated.current = true 
   
         },[currentpagearr])
-        //console.log('api data is ',seasonaldata)
-        //console.log('fetching ',animearr)
-       
-        //console.log('params is ',params)
+        
     return(
        <div  className='relative top-0 left-0 font-poppins overflow-hidden m-0   w-screen h-auto  bg-black text-white font-poppins ml-1  antialiased' >
          
-            <Morenavabr sectionTitle={'Upcoming Season'}/>
+            <Morenavabr sectionTitle={`${season.split('_').map(word => word[0].toUpperCase() + word.slice(1)).join(' ')}, ${year}`}/>
              { isLoading ?<div className=" w-screen h-screen flex flex-row justify-center items-center "> <div class="loader"></div></div>:
              
              (
                 <div  className='relative top-18 lg:grid lg:grid-cols-2 w-screen pb-33 sm:pb-0 lg:grid-rows '>
            
             {animearr.slice(0,currentpagearr).map((element) =>(
-                <Link  href={'/moreupcoming'+'/'+element.node.id}>
+                <Link  href={`/seasons/${season}/${year}/${element.node.id}`}>
                     
                     <Horizontalcard  ref={cardref} key={element.node.id}
                     addstatus={plantowatchmap.has(element.node.id) || watchingmap.has(element.node.id) || completedmap.has(element.node.id) || onholdmap.has(element.node.id) || droppedmap.has(element.node.id)} 

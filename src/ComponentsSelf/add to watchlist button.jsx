@@ -8,7 +8,7 @@ import loadFromLocal from '@/Utility/loadfromlocal';
 export default function add_to_watchlist_button (props){
     const router = useRouter()
     const [user_state , Setusersstate] = useState( <></>)
-    console.log('id is ')
+    //console.log('id is ')
     useEffect(() => {
         
     

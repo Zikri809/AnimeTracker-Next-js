@@ -18,7 +18,7 @@ export default function mobile_navbar(props){
         }
         
         const path = router.asPath.split('/')[1]
-        if(path=='' || path =='Anime' || path == 'morelastseason' || path=='morethiseseason' || path == 'moreupcoming'){
+        if(path=='' || path =='Anime' || path == 'morelastseason' || path=='morethiseseason' || path == 'moreupcoming' || path== 'seasons'){
             buttonref0.current.style.color = '#ffffff'
         }
         else if (path == 'search'){

@@ -38,7 +38,7 @@ function ThisseasonSec(props){
                     skipSnaps: true,
                   }}
             >
-                <CarouselContent className="ml-1 md:ml-1 w-56">
+                <CarouselContent className="ml-1 md:ml-1 last:mr-2">
                     {isLoading  ? (
                         <>
                             <Cardskeleton/>
@@ -59,7 +59,7 @@ function ThisseasonSec(props){
                 )
                          :(querydata?.map((element)=>(
                             <Link href={'/Anime/'+element.mal_id}>{/*to={'/'+element.mal_id} */}
-                                  <CarouselItem key={element.id} className="pl-2 md:pl-4"> <Animecard title={element.title_english==null?element.title:element.title_english} link={element.images.webp.large_image_url} year={element.year} rating={element.score} status = {element.status}/></CarouselItem>
+                                  <CarouselItem key={element.id} className="basis-auto flex-shrink-0 pl-2 md:pl-4"> <Animecard title={element.title_english==null?element.title:element.title_english} link={element.images.webp.large_image_url} year={element.year} rating={element.score} status = {element.status}/></CarouselItem>
                             </Link>
                            
                          )))

@@ -8,10 +8,7 @@ export default function searchnavbar(props){
     return(
         <nav className="fixed border-b-1 border-gray-700 z-3 bg-black w-screen pl-4 h-20 px-2 pr-4 mb-3 top-0 left-0 flex flex-row items-center justify-between">
         <div className="flex  flex-row items-center gap-2 sm:gap-2">
-        <Link href={router.asPath.split('/')[1]=='morethiseseason' || router.asPath.split('/')[1]=='moreupcoming' || router.asPath.split('/')[1]=='morelastseason'?
-                (router.query.hasOwnProperty('relation_id')?'/'+router.asPath.split('/')[1]+'/'+router.query.mal_id+'/relation/'+router.query.relation_id:'/'+router.asPath.split('/')[1]+'/'+router.query.mal_id):
-                (router.query.hasOwnProperty('title')?(router.query.hasOwnProperty('relation_id')?('/search/'+router.query.title+'/'+router.query.mal_id+'/relation/'+router.query.relation_id):'/search/'+router.query.title+'/'+router.query.mal_id):
-                (router.query.hasOwnProperty('mylist_tab')?(router.query.hasOwnProperty('relation_id')?'/mylist/'+router.asPath.split('/')[2]+'/'+router.query.mal_id+'/relation/'+router.query.relation_id:'/mylist/'+router.asPath.split('/')[2]+'/'+router.query.mal_id):(router.query.hasOwnProperty('relation_id')?'/Anime/'+router.query.mal_id+'/relation/'+router.query.relation_id:'/Anime/'+router.query.mal_id)))}>{/*to={!router.query.hasOwnProperty('section')?(id.hasOwnProperty('title')?'/search/'+id.title+'/'+id.mal_id:(id.hasOwnProperty('mylist_tab')?'/mylist/'+id.mylist_tab+'/'+id.mal_id:'/'+id.mal_id)):'/'+id.section+'/'+id.mal_id} */}
+        <Link href={router.asPath.split('/').slice(0,-1).join('/')}>{/*to={!router.query.hasOwnProperty('section')?(id.hasOwnProperty('title')?'/search/'+id.title+'/'+id.mal_id:(id.hasOwnProperty('mylist_tab')?'/mylist/'+id.mylist_tab+'/'+id.mal_id:'/'+id.mal_id)):'/'+id.section+'/'+id.mal_id} */}
              <Button className='bg-zinc-800 text-white ' variant="secondary" size="icon"><ChevronLeft  /></Button> 
             </Link>
            

@@ -13,13 +13,14 @@ export default async function seasonal_data(){
             ...extended.future_4_season
         ]
         let season_anime = []
-        console.log('all season ',all_season)
+        //console.log('all season ',all_season)
         //add past 4 season
     
         for(const element of all_season){
             try{
                 //console.log(`/api/seasonal?year=${year}&season=${season}&limit=${10}`)
-                const result = await fetch(`/api/seasonal?year=${element.year}&season=${element.season}&limit=${10}`)
+                //this will be called by static path thus need for the host
+                const result = await fetch(`${process.env.NEXT_PUBLIC_Local_host }/api/seasonal?year=${element.year}&season=${element.season}&limit=${10}`)
                 const resultjson = await result.json()
                 season_anime.push(onlythis_season(resultjson,element.season,element.year))
                 //console.log(season_anime)
@@ -32,6 +33,11 @@ export default async function seasonal_data(){
            
         }
         //resolved all the promises in the array to obtain the value
-        season_anime = await Promise.all(season_anime)
+    
+        //season_anime = await season_anime.json()
         console.log('all 11 season data ',season_anime)
+        return {
+            season_anime: season_anime,
+            seasonal_data: all_season
+        }
 }

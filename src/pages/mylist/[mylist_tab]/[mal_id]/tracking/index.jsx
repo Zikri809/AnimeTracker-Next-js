@@ -108,7 +108,7 @@ export default function trackingform(){
         
       }
       //console.log({userstatus: status, userscore: score, userprogress: progress})
-      console.log('btnref',btnref)
+      //console.log('btnref',btnref)
       //solving button first when click reset all styles to inactive using useref with looping then use e to target that specific element changes the style after that trigger a state so that it can force a rerender
     return(
         <div className='bg-black w-screen h-[100vh] mb-15 sm:mb-0 overflow-hidden'>
