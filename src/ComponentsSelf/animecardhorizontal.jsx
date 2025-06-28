@@ -7,43 +7,73 @@ import {
     CardTitle,
   } from "@/components/ui/card"
   import { Button } from "@/components/ui/button"
-  import React, { useEffect, useState } from "react"
+  import React, { useEffect, useRef, useState,useLayoutEffect } from "react"
   import { CheckCheck } from 'lucide-react';
 import { useRouter } from "next/router";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
 
 function animecardhorizontal(props){
-    
+    const [genrearr_state, Set_genrearr_state] =useState(null)
+    const genre_container_ref = useRef(null)
 
     
     const router = useRouter()
  
        
-   
+   let genrearr = props.genre ?? []
+   useLayoutEffect(()=>{
+    let genrearr = props.genre ?? []
     
-    class object{
-        constructor(name){
-            this.name=name
+    if(window.innerWidth > 768) {
+        if(genrearr.length>4){
+           let exeeeded = genrearr.length-4
+           //console.log('before slice',genrearr)
+           genrearr = genrearr.slice(0,4)
+           //console.log('after slicing',genrearr)
+           genrearr.push({name: `+${exeeeded}`, exeeeded_val: exeeeded})
+           Set_genrearr_state(genrearr)
         }
+        
     }
-        let genrearr = props.genre ?? []
+    else{
+       
         if(genrearr.length>2){
            let exeeeded = genrearr.length-2
            //console.log('before slice',genrearr)
            genrearr = genrearr.slice(0,2)
-           //console.log('after slicing',genrearr)
-           const max = new object('+'+exeeeded.toString())
-           genrearr.push(max)
            
-         
+           //console.log('after slicing',genrearr)
+           genrearr.push({name: `+${exeeeded}`, exeeeded_val: exeeeded})
+            Set_genrearr_state(genrearr)
         }
+        else{
+            Set_genrearr_state(props.genre)
+        }
+    }
+
+   },[])
+    useEffect(()=>{
+        if(genre_container_ref.current.scrollWidth > genre_container_ref.current.clientWidth && genrearr_state){
+            console.log('resize triggered')
+            let genrearr = props.genre
+            let exceeded = genrearr_state[genrearr_state.length - 1].exeeeded_val!=undefined?  genrearr_state[genrearr_state.length - 1].exeeeded_val+1 : 0 
+            genrearr = genrearr.slice(0,genrearr.length-exceeded)
+            //console.log(props.title,'trimming to ',{genrearr:genrearr, ori:props.genre})
+            genrearr.push({name: `+${exceeded}`, exeeeded_val: exceeded})
+            Set_genrearr_state(genrearr)
+        }
+    },[genrearr_state])
+    
+     
+         
+
     return (
         <>
         <Card className='rounded-none w-[100%] overflow-x-hidden border-l-1 hover:bg-zinc-800  text-white border-x-0 border-t-0 py-5 px-1 sm:px-4 mx-0 border-gray-700 bg-black'>
             <CardContent className='flex p-0 flex-row gap-5 max-w-screen items-center'>
                 <Image className="rounded-sm h-55 w-35 sm:w-40 object-cover" loading="lazy" src={props.image} quality={90} height={1000} width={1000} alt={props.title}></Image>
-                <div className="flex flex-col items-start h-55 w-80 overflow-hidden sm:overflow-visible justify-between">
+                <div className="flex flex-col items-start h-55 w-80  sm:overflow-visible justify-between">
                     <div className="flex flex-row gap-1">
                     {props.status=='Finished Airing'?<Button variant="outline" className='bg-black border-1 font-medium text-sm text-green-500 border-gray-700' >{props.status}</Button>:
                     (props.status=='Currently Airing'?<Button variant="outline" className='bg-black border-1 font-medium text-sm text-blue-400 border-gray-700' >{props.status}</Button>:
@@ -79,7 +109,7 @@ function animecardhorizontal(props){
                     </div>
                     
                 </div>
-                <div className="flex flex-row gap-2 w-full items-center">
+                <div ref={genre_container_ref} className="flex flex-row gap-2 overflow-x-scroll w-[95%] items-center">
                     {
                         props.user_episode!=undefined ?(
                             <>
@@ -87,7 +117,7 @@ function animecardhorizontal(props){
                                  <p className="text-gray-400 text-sm ">{props.user_episode+"/"+props.episodes}</p>                          
                             </>
                         ):(
-                            genrearr.map((object) =>(
+                            (genrearr_state ?? genrearr).map((object) =>(
                             <Button variant="secondary"className=' text-sm text-white bg-slate-800' >{object.name}</Button>
                         ))
                         )

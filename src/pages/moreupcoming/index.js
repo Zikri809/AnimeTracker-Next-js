@@ -33,7 +33,7 @@ export const getStaticProps = async () =>{
             throw new Error(`HTTP ${result.status}`)
         }
         data = await result.json()
-        data = top_score(data.data)
+      
     }
     catch(error){
         console.log('error fetching data')
@@ -43,7 +43,7 @@ export const getStaticProps = async () =>{
   let revalidate_time=43200
   return {
       props:{
-        seasonaldata : data,
+        seasonaldata : data.data,
         
 
       },
