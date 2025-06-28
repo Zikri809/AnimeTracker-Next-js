@@ -328,7 +328,7 @@ useEffect(()=>{
   
   function searchhandler(){
      if (navsearchbar.value!=''){
-    router.push(navsearchbar.value.length==0?'/':'/search/'+navsearchbar.value)
+    router.push(navsearchbar.value.length==0?'/':'/search/'+encodeURIComponent(navsearchbar.value.replace(/[\/\\<>'"&]/g,'')))
   }else {
     router.push('/search/')
   }

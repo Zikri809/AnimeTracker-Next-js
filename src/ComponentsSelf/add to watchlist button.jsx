@@ -17,7 +17,7 @@ export default function add_to_watchlist_button (props){
         if (typeof window !== 'undefined' && router.isReady) {
             loadFromLocal(router, Setusersstate);
           }
-        }, [router.isReady, router.query.id]);
+        }, [router.isReady, router.asPath]);
         
     
 

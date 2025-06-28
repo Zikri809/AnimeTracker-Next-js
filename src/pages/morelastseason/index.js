@@ -1,7 +1,7 @@
 import Morenavabr from '@/ComponentsSelf/morenavbar'
 import Horizontalcard from '@/ComponentsSelf/animecardhorizontal'
 import { useState, useEffect, useRef } from "react";
-
+import top_score from '@/Utility/filter/top_score';
 import { useWindowScroll } from "@uidotdev/usehooks";
 
 import { useRouter } from 'next/router';
@@ -31,6 +31,7 @@ export const getStaticProps = async () =>{
             throw new Error(`HTTP ${result.status}`)
         }
         data = await result.json()
+        data = top_score(data.data)
     }
     catch(error){
         console.log('error fetching data')
@@ -40,7 +41,7 @@ export const getStaticProps = async () =>{
   let revalidate_time=43200
   return {
       props:{
-        seasonaldata : data.data,
+        seasonaldata : data,
         
 
       },

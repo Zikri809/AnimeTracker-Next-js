@@ -12,6 +12,7 @@ import seasonaldata from '@/Utility/seasonaldata';
 import scrollsaver from '@/Utility/ScrollSaver';
 import extended_season_data from '@/Utility/seasonal_carousel/extended_season_data';
 import onlythis_season from '@/Utility/seasonal_carousel/onlythisseason';
+import top_score from '@/Utility/filter/top_score';
 
 
 
@@ -72,6 +73,7 @@ export const getStaticProps = async ({params}) =>{
             throw new Error(`HTTP ${result.status}`)
         }
         data = await result.json()
+        data = top_score(data.data)
     }
     catch(error){
         console.log('error fetching data')
@@ -81,7 +83,7 @@ export const getStaticProps = async ({params}) =>{
   let revalidate_time=43200
   return {
       props:{
-        seasonaldata : data.data,
+        seasonaldata : data,
         year: year,
         season: season
         

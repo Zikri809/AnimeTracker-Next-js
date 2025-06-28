@@ -47,7 +47,7 @@ export default function searchnavbar( {set_state, searchtitle}){
             search_resultref.current.classList.remove('hidden')
             search_bar_visibility = false
             if(inputsearch.value!=''){
-              router.push('/search/'+inputsearch.value)
+              router.push(inputsearch.value.length==0?'/':'/search/'+encodeURIComponent(inputsearch.value.replace(/[\/\\<>'"&]/g,'')))
             }
            else {
               router.push('/')
