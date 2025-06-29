@@ -3,6 +3,9 @@ import Link from "next/link"
 import { ArrowLeft } from 'lucide-react';
 export default function error_exceed_retryLimit(props){
     const router = props.router
+    if (!router.isReady) {
+    return <div>Loading...</div> // or null
+}
     const error_page_url =props.url
     const error_page_query = JSON.parse(props.query)
     return(
