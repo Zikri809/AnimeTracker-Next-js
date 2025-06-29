@@ -101,6 +101,7 @@ function dropdown_handler(){
  
     },[])
     useEffect(()=>{
+        let retries = 0
         async function fetchapi(){
             if(router.isReady==true){
                 console.log('router ',router.query)
@@ -119,7 +120,21 @@ function dropdown_handler(){
             }
             catch(error){
                 await sleep(1000)
-               fetchapi()
+                if(retries <=3){
+                    retries++
+                    fetchapi()
+                }
+                else{
+                    router.push(
+                        {
+                            pathname: '/ExceedRetryLimit',
+                            query:{
+                                original_link : router.asPath,
+                                original_query : JSON.stringify(router.query)
+                            }
+                        }
+                    )
+                }
              
                 console.error(error)
             }
@@ -130,8 +145,7 @@ function dropdown_handler(){
     },[router.query.mal_id])
     //console.log('id',id)
     return (
-    <>
-    
+   
         <main className='relative overflow-x-hidden top-0 left-0   m-0   w-screen h-auto overflow-hidden  bg-black text-white font-poppins my-1 antialiased' >
             {isloading? 
             <nav className='flex flex-row justify-between items-center px-4 top-0 fixed bg-black z-4 w-full h-20'>
@@ -278,7 +292,7 @@ function dropdown_handler(){
             </div>
            
         </main>
-    </>
+  
        
           
         

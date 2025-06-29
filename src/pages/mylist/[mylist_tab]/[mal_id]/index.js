@@ -105,6 +105,7 @@ function dropdown_handler(){
     
     },[])
     useEffect(()=>{
+        let retries = 0
         async function fetchapi(){
             if(router.isReady==true){
                 console.log('router ',router.query)
@@ -123,7 +124,21 @@ function dropdown_handler(){
             }
             catch(error){
                 await sleep(1000)
-               fetchapi()
+                if(retries <=3){
+                    retries++
+                    fetchapi()
+                }
+                else{
+                    router.push(
+                        {
+                            pathname: '/ExceedRetryLimit',
+                            query:{
+                                original_link : router.asPath,
+                                original_query : JSON.stringify(router.query)
+                            }
+                        }
+                    )
+                }
              
                 console.error(error)
             }

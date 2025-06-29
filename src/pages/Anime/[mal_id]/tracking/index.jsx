@@ -64,6 +64,7 @@ export default function trackingform(){
 
     useEffect(()=>{
         if(router.isReady){
+            let retries =0
             async function fetchapi(){
                 try{
                 
@@ -78,8 +79,23 @@ export default function trackingform(){
                     Setloading(false)
                 }
                 catch(error){
-                   fetchapi()
-                    console.error(error)
+                   if(retries <=3){
+                    retries++
+                    fetchapi()
+                }
+                else{
+                    router.push(
+                        {
+                            pathname: '/ExceedRetryLimit',
+                            query:{
+                                original_link : router.asPath,
+                                original_query : JSON.stringify(router.query)
+                            }
+                        }
+                    )
+                }
+             
+                console.error(error)
                 }
             }
             fetchapi()

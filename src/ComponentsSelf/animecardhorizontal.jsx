@@ -13,6 +13,7 @@ import { useRouter } from "next/router";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
 
+
 function animecardhorizontal(props){
     const [genrearr_state, Set_genrearr_state] =useState(null)
     const genre_container_ref = useRef(null)
@@ -26,10 +27,10 @@ function animecardhorizontal(props){
     let genrearr = props.genre ?? []
     
     if(window.innerWidth > 768) {
-        if(genrearr.length>4){
-           let exeeeded = genrearr.length-4
+        if(genrearr.length>3){
+           let exeeeded = genrearr.length-3
            //console.log('before slice',genrearr)
-           genrearr = genrearr.slice(0,4)
+           genrearr = genrearr.slice(0,3)
            //console.log('after slicing',genrearr)
            genrearr.push({name: `+${exeeeded}`, exeeeded_val: exeeeded})
            Set_genrearr_state(genrearr)
@@ -109,7 +110,7 @@ function animecardhorizontal(props){
                     </div>
                     
                 </div>
-                <div ref={genre_container_ref} className="flex flex-row gap-2 overflow-x-scroll w-[95%] items-center">
+                <div ref={genre_container_ref} className="flex flex-row gap-2 overflow-x-auto w-[95%] items-center">
                     {
                         props.user_episode!=undefined ?(
                             <>

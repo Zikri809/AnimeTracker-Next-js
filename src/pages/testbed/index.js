@@ -1,19 +1,10 @@
-import { useEffect } from "react";
-import top_score from "@/Utility/filter/top_score";
+import error_exceed_retryLimit from "@/ComponentsSelf/Retry_UI/Error_after_retry"
+import { useRouter } from "next/router"
 export default function testbed (){
-    useEffect(()=>{
-        async function apicall(){
-            const result = await fetch ('/api/seasonal?year=2025&season=spring&limit=500')
-            const resultjson = await result.json()
-            console.log('resultjson is ',resultjson)
-            top_score(resultjson.data)
-        }
-        apicall()
-        })
+   const router = useRouter()
         
 
     return(
-        <>
-        </>
+       error_exceed_retryLimit(router)
     )
 }
