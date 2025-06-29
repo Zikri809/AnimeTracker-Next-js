@@ -1,5 +1,5 @@
 export default function onlythis_season(object, season,year){
-    //this function return one exclusive anime for each season
+    //this function return one exclusive anime for each season from an array of data
  
     //console.log('object is ',object)
       if(object.data == undefined) return

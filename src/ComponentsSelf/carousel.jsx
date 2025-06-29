@@ -57,22 +57,22 @@ export function CarouselDemo(props) {
           <CarouselItem key={index} className='border-none'>
             <div className="p-2 border-none">
               <Card className=" bg-transparent border-none p-0 h-120 flex flex-row justify-center rounded-md overflow-clip border-black">
-                 <img className='h-120 w-fit rounded-md'alt={object.title} src={object.images.webp.large_image_url}></img>
+                 <img className='h-120 w-fit rounded-md'alt={object.node.alternative_titles.en==''?object.node.title:object.node.alternative_titles.en} src={object.node.main_picture.large==undefined?'':object.node.main_picture.large}></img>
                  <div className="fixed top-0  h-145 w-110 border-0 rounded-base bg-transprent bg-gradient-to-t from-black via-transparent to-transparent">
 
                   <div className="relative top-82  z-2 flex flex-col gap-4 items-center">
-                       <div className="line-clamp-1 text-center font-bold overflow-hidden text-ellipsis w-85 text-2xl text-white">{object.title}</div>
+                       <div className="line-clamp-1 text-center font-bold overflow-hidden text-ellipsis w-85 text-2xl text-white">{object.node.alternative_titles.en==''?object.node.title:object.node.alternative_titles.en}</div>
                        <div className="flex flex-row gap-4  rounded-md text-white">
                         {
-                          object.genres.slice(0, 3).map((genre, index) => (
+                          object.node.genres.slice(0, 3).map((genre, index) => (
                             <div key={index}>{genre.name}</div>
                           ))
                           
                         }
                        </div>
                        <div className="flex flex-row gap-4">
-                        <Link href={'/Anime/'+object.mal_id}><Button className='hover:bg-white hover:text-black w-35 h-10'><ArrowRight size={24} />More Details</Button></Link>
-                        <Link  href={'/Anime/'+object.mal_id+'/tracking'}><Button className='hover:bg-black hover:text-white w-35 h-10 backdrop-blur-2xl bg-transparent '>+ Add To Mylist</Button></Link>
+                        <Link href={'/Anime/'+object.node.id}><Button className='hover:bg-white hover:text-black w-35 h-10'><ArrowRight size={24} />More Details</Button></Link>
+                        <Link  href={'/Anime/'+object.node.id+'/tracking'}><Button className='hover:bg-black hover:text-white w-35 h-10 backdrop-blur-2xl bg-transparent '>+ Add To Mylist</Button></Link>
                          
                        </div>
                   </div>

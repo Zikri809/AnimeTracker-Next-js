@@ -10,12 +10,9 @@ import { Input } from "@/components/ui/input"
 import { useEffect, useRef } from "react"
 import Link from 'next/link'
 import { useRouter } from 'next/router' //supposed to import useNavigate also supposed to use useRouter by next
-import checkadder from '@/Utility/checkadder.js'
 
 import { Season_context } from '@/pages/_app'
 import dynamic from "next/dynamic";
-import fs from 'fs/promises';
-import path from 'path';
 import Head from 'next/head'
 import { parseCookies } from 'nookies'
 import tokenrefresh from '@/Utility/refreshjob'
@@ -23,6 +20,8 @@ import Season_carousel from '@/ComponentsSelf/carousel/season_carousel'
 import extended_season_data from '@/Utility/seasonal_carousel/extended_season_data'
 import seasonaldata from '@/Utility/seasonaldata'
 import onlythis_season from '@/Utility/seasonal_carousel/onlythisseason'
+import onlythisseason_list from '@/Utility/seasonal_carousel/onlythiseason_list'
+
 
 
 
@@ -118,51 +117,44 @@ catch(error){
 }
 }
 async function apifetch(){
+    const seasonal_data = seasonaldata()
     
   try {
     //process.cwd() retruns current working directory of the server
     //path .join combine all of it into a working path
-    const filePath = path.join(process.cwd(), 'data', 'anime.json');
-    const rawData = await fs.readFile(filePath, 'utf8');
-    const data = JSON.parse(rawData);
-    const animedata = data.data; // Get the array of anime data
-    
-    // Efficient mapping and returning anime data
-    const deconstructed = animedata.map(({ images: { webp: { large_image_url } }, title, genres, mal_id }) => ({
-      images: { webp: { large_image_url } },
-      title,
-      genres,
-      mal_id
-    }));
-    let filtered =[]
-    for(let i =0 ; i<deconstructed.length; i++){
-      let dupe = false
-      for(let x =0 ; x<filtered.length;x++){
-        if(filtered[x].mal_id==deconstructed[i].mal_id){
-          dupe = true
-          break
-        }
-        }
-        if(!dupe){
-          filtered.push(deconstructed[i])
-      }
-    }
+    const fields='main_picture,status,start_season,num_episodes,title,alternative_titles,mean,num_scoring_users,popularity,genres'
+     const result = await fetch (`https://api.myanimelist.net/v2/anime/season/${seasonal_data.current_year}/${seasonal_data.current_season}?sort=anime_num_list_users&limit=${10}&offset=${0}&fields=${fields}`,{
+                method: 'GET',
+                headers:{
+                   'X-MAL-CLIENT-ID': process.env.Client_ID,
+                }
+
+    })
     //console.log('Carousel API fetch successful', filtered);
-    
+    if(!result.ok){
+        throw new Error
+    }
+    const resultjson = await result.json()
+    //console.log('top carousel data is json',resultjson.data)
+    let season_anime = []
+    season_anime = onlythisseason_list(resultjson,seasonal_data.current_season,seasonal_data.current_year)
+    //console.log('top carousel data is json',season_anime)
+        //console.log(season_anime)
+        //sleep(500)
     return {
-      querydata: filtered,
+      querydata: season_anime,
       isloading: false,
       error: false,
     }
-  }
-    catch{
-      return {
-        querydata : [],
-        isloading : true,
-        error : true
     }
+    catch(error){
+        console.log('error occured fetching exclusive season data error: ',error)
+        return []
     }
+    
+   
   }
+    
   function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
