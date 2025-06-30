@@ -10,6 +10,7 @@ import progress from "@/Utility/progress"
 import { useRouter } from "next/router"
 import { Toaster } from "@/components/ui/sonner"
 import scrollsaver from "@/Utility/ScrollSaver"
+import useSwipeGesture from "@/hooks/useSwipeGesture"
 
 export default function mylist(){
     const [planmap , Setplan] = useState()
@@ -23,7 +24,53 @@ export default function mylist(){
     const router = useRouter()
     const [currentpagearr , setpagearr ] = useState(30)
     const is_scrollrestored = useRef(false)
-     const isupdated = useRef(false)
+    const isupdated = useRef(false)
+    function onswiperight(){
+        //why we dont just use the activetab state var
+        //this is because when first run the function will read the fisrt value of state var on first mount
+        //since the function are not created at every render it will be stale 
+        //thus any function using the state var will be broken
+        //but if we use the setter function it will provide the latest value of the state var
+        //thus we are able to wrok with the fresh value
+        //since setter fucntion will run and get the fresh value of state var
+        Setactivetab((activetab)=>{
+
+            const tabArray = ['Plan To Watch','Completed','Watching','On Hold','Dropped' ]
+            if(activetab == tabArray[tabArray.length-1]){
+                //console.log('active tab is ',activetab)
+                 //console.log('moving to Dropped')
+                 scrollreset()
+                return 'Plan To Watch'
+            }
+            else{
+                const index = tabArray.indexOf(activetab)
+                scrollreset()
+                //console.log('active tab is ',activetab)
+                //console.log('moving to ',tabArray[index +1 ])
+               return tabArray[index +1 ]
+            }
+        })
+    }
+    function onswipeleft(){
+        Setactivetab((activetab)=>{
+
+            const tabArray = ['Plan To Watch','Completed','Watching','On Hold','Dropped' ]
+             if(activetab == tabArray[0]){
+                //console.log('active tab is ',activetab)
+                //console.log('moving to Dropped')
+                scrollreset()
+                return 'Dropped'
+            }
+            else{
+                const index = tabArray.indexOf(activetab)
+                scrollreset()
+                //console.log('active tab is ',activetab)
+                //console.log('moving to ',tabArray[index -1 ])
+                return tabArray[index -1 ]
+            }
+        })
+    }
+    useSwipeGesture('x-axis',[onswiperight,onswipeleft],100)
 
      
     
@@ -46,7 +93,7 @@ export default function mylist(){
               };
         })
 
-    function scrollreset(list_type){
+    function scrollreset(){
         
         console.log('scrollreset triggered')
        sessionStorage.setItem('scrollY', 0)
@@ -131,6 +178,7 @@ export default function mylist(){
         Setactivetab(value)
        
     }
+    
   
     //console.log('completed map', completedmap)
     return (
