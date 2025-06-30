@@ -41,20 +41,14 @@ export default function useSwipeGesture(TypeOfSwipe, onSwipeAction, minimumSwipe
             }
             const minimum_threshold = minimumSwipeActivateThreshold
         function touchstart(event){
-            if(x_swipe){
-                 touchstartX = event.changedTouches[0].screenX;
-            }
-            else{
-                 touchstartY = event.changedTouches[0].screenY;
-            }
+            touchstartX = event.changedTouches[0].screenX;
+            touchstartY = event.changedTouches[0].screenY;
+          
         }
         function touchend(event) {
-            if(x_swipe){
-                 touchendX = event.changedTouches[0].screenX;
-            }
-            else{
-                 touchendY = event.changedTouches[0].screenY;
-            }
+            touchendX = event.changedTouches[0].screenX;
+            touchendY = event.changedTouches[0].screenY;
+
             handleGesture()
         }
         window.addEventListener('touchstart', touchstart,false)
@@ -62,21 +56,21 @@ export default function useSwipeGesture(TypeOfSwipe, onSwipeAction, minimumSwipe
     
         function handleGesture(){
             if(x_swipe){
-                if(touchendX < touchstartX && touchstartX - touchendX >= minimum_threshold){
+                if(touchendX < touchstartX && touchstartX - touchendX >= minimum_threshold && Math.abs(touchendY-touchstartY)<=20){
                     //console.log('swipe right !')
                     onSwipeAction[0]()
                 }
-                else if(touchendX -touchstartX >= minimum_threshold){
+                else if(touchendX -touchstartX >= minimum_threshold && Math.abs(touchendY-touchstartY)<=20){
                     //console.log('swipe left')
                     onSwipeAction[1]()
                 }
             }
             else{
-                if(touchendY < touchstartY && touchstartY - touchendY >= minimum_threshold){
+                if(touchendY < touchstartY && touchstartY - touchendY >= minimum_threshold && Math.abs(touchendX-touchstartX)<=20){
                     //console.log('swipe up')
                      onSwipeAction[0]()
                 }
-                else if(touchendY - touchstartY >= minimum_threshold){
+                else if(touchendY - touchstartY >= minimum_threshold && Math.abs(touchendX-touchstartX)<=20){
                     //console.log('swipe down')
                      onSwipeAction[1]()
                 }
