@@ -135,8 +135,8 @@ async function apifetch(){
     const graphql_variables = {
         "perPage": 10,
         "page": 1,
-        "season": "SPRING",
-        "seasonYear": 2025,
+        "season": seasonal_data.current_season.toUpperCase(),
+        "seasonYear": seasonal_data.current_year,
         "sort": "POPULARITY_DESC",
         "isAdult": false
     }
@@ -423,12 +423,14 @@ return (
       <Nav searchref={navsearchref} buttonref={navbuttonref}  />
      
      
-      
+      <div className='flex flex-col pt-18'>
+
       <CarouselDemo data={carouseldata.querydata} />
       <ThisSeasonSec data={thisseason.querydata} loading={thisseason.isloading} error={thisseason.error}/>
       <LastSeason className='' data={pastSeason.querydata} loading={pastSeason.isloading} error={pastSeason.error}/>
       <UpcomingSec data={upcomingSeason.querydata} loading={upcomingSeason.isloading} error={upcomingSeason.error}/>
       <Season_carousel data={seasonal_carousel_data}/>
+      </div>
       
   </main>
   

@@ -28,7 +28,7 @@ export function CarouselDemo(props) {
  
 
   return (
-    <div className="h-48 md:h-64 mt-15 mb-10">
+    <div className="h-48 md:h-64 mt-0 mb-12">
        <div className="fixed flex h-fullw-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-black border-transparent">
        <GridPattern
         squares={[
@@ -51,20 +51,20 @@ export function CarouselDemo(props) {
         )}
       />
        </div>
-      <Carousel className="aboslute z-1 top-[10] border-none bg-transparent mb-3 w-full mx-auto"  plugins={[plugin.current]}>
+      <Carousel className="aboslute z-1  border-none bg-transparent mb-3 w-full mx-auto"  plugins={[plugin.current]}>
       <CarouselContent className='border-none' >
         {props.data.map((element, index) => (
           
           <CarouselItem key={index} className='border-none'>
             <div className="py-2  border-none">
               <Link href={`/Anime/${element.idMal}`}>
-              <Card className=" bg-transparent border-none rounded-none p-0 h-48 md:h-64 flex flex-row justify-center  overflow-clip border-black">
+              <Card className=" bg-transparent border-none rounded-none p-0 h-55 md:h-64 flex flex-row justify-center  overflow-clip border-black">
                  <Image className='h-full w-full object-cover object-center 'width={500} height={500} quality={100} priority={true} alt={element.title.english ?? element.title.romaji} src={element.bannerImage}></Image>
                  <div className="fixed top-0 px-6 h-full w-full border-0  bg-transprent bg-gradient-to-tr from-black via-neutral-900/50 to-transparent">
 
-                  <div className="relative left-0 top-23 md:top-35 w-full h-full z-2 flex flex-col gap-0 items-center">
-                       <div className="text-white text-lg md:text-xl m-0 h-fit text-left w-full">#{index} Spotlight</div>
-                       <div className="line-clamp-1 mb-3 text-left font-bold overflow-hidden text-ellipsis h-fit w-full text-2xl md:text-4xl text-white">{element.title.english ?? element.title.romaji}</div>
+                  <div className="relative left-0 top-30 md:top-35 w-full h-full z-2 flex flex-col gap-0 items-center">
+                       <div className="text-white text-lg md:text-xl m-0 h-fit text-left w-full">#{index+1} Spotlight</div>
+                       <div className="line-clamp-1 mb-1 text-left font-bold overflow-hidden text-ellipsis h-fit w-full text-2xl md:text-4xl text-white">{element.title.english ?? element.title.romaji}</div>
                        <div className="flex flex-row gap-3 w-full rounded-md text-white md:text-lg">
                         {
                           element.genres.slice(0, 3).map((genre, index) => (
