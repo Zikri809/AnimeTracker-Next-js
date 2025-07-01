@@ -117,36 +117,59 @@ catch(error){
 }
 }
 async function apifetch(){
+  //this one fetch for the carousel
     const seasonal_data = seasonaldata()
+    const graphql_queries = `query Page($perPage: Int, $page: Int, $season: MediaSeason, $seasonYear: Int, $sort: [MediaSort], $isAdult: Boolean) {
+      Page(perPage: $perPage, page: $page) {
+        media(season: $season, seasonYear: $seasonYear, sort: $sort, isAdult: $isAdult) {
+          bannerImage
+          idMal
+          genres
+          title {
+            english
+            romaji
+          }
+        }
+      }
+    }`
+    const graphql_variables = {
+        "perPage": 10,
+        "page": 1,
+        "season": "SPRING",
+        "seasonYear": 2025,
+        "sort": "POPULARITY_DESC",
+        "isAdult": false
+    }
+    
     
   try {
-    //process.cwd() retruns current working directory of the server
-    //path .join combine all of it into a working path
-    const fields='main_picture,status,start_season,num_episodes,title,alternative_titles,mean,num_scoring_users,popularity,genres'
-     const result = await fetch (`https://api.myanimelist.net/v2/anime/season/${seasonal_data.current_year}/${seasonal_data.current_season}?sort=anime_num_list_users&limit=${10}&offset=${0}&fields=${fields}`,{
-                method: 'GET',
-                headers:{
-                   'X-MAL-CLIENT-ID': process.env.Client_ID,
-                }
-
+    const result = await fetch('https://graphql.anilist.co',{
+      method: "POST",
+      headers:{
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        query: graphql_queries,
+        variables: graphql_variables
+      })
     })
-    //console.log('Carousel API fetch successful', filtered);
+
     if(!result.ok){
         throw new Error
     }
     const resultjson = await result.json()
-    //console.log('top carousel data is json',resultjson.data)
-    let season_anime = []
-    season_anime = onlythisseason_list(resultjson,seasonal_data.current_season,seasonal_data.current_year)
-    //console.log('top carousel data is json',season_anime)
-        //console.log(season_anime)
-        //sleep(500)
+    //anime data will be an array
+    const anime_data = resultjson.data.Page.media
+   
     return {
-      querydata: season_anime,
+      querydata: anime_data,
       isloading: false,
       error: false,
     }
     }
+    //console.log('Carousel API fetch successful', filtered);
+    
     catch(error){
         console.log('error occured fetching exclusive season data error: ',error)
         return []
@@ -236,6 +259,7 @@ export const getStaticProps = async () =>{
     const data3 = await season_fetch(upcoming_season,upcoming_year)
     const carouseldata = await apifetch()
     //const seasonal_carousel_data = []
+    
     const seasonal_carousel_data = await seasonal_carousel_data_func()
     //console.log('seaonal carousel data is ',seasonal_carousel_data)
     

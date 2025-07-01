@@ -14,7 +14,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { GridPattern } from "@/components/magicui/grid-pattern.jsx";
 import { Button } from "@/components/ui/button";
-
+import Image from "next/image";
 import { useState } from "react";
  
 
@@ -28,8 +28,8 @@ export function CarouselDemo(props) {
  
 
   return (
-    <div className="h-140 mt-15">
-       <div className="relative flex h-[550px] w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-black border-transparent">
+    <div className="h-48 md:h-64 mt-15 mb-10">
+       <div className="fixed flex h-fullw-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-black border-transparent">
        <GridPattern
         squares={[
           [4, 4],
@@ -51,34 +51,35 @@ export function CarouselDemo(props) {
         )}
       />
        </div>
-      <Carousel className="aboslute z-1 top-[-530px] border-none bg-transparent mb-3 w-full mx-auto"  plugins={[plugin.current]}>
+      <Carousel className="aboslute z-1 top-[10] border-none bg-transparent mb-3 w-full mx-auto"  plugins={[plugin.current]}>
       <CarouselContent className='border-none' >
-        {props.data.map((object, index) => (
+        {props.data.map((element, index) => (
+          
           <CarouselItem key={index} className='border-none'>
-            <div className="p-2 border-none">
-              <Card className=" bg-transparent border-none p-0 h-120 flex flex-row justify-center rounded-md overflow-clip border-black">
-                 <img className='h-120 w-fit rounded-md'alt={object.node.alternative_titles.en==''?object.node.title:object.node.alternative_titles.en} src={object.node.main_picture.large==undefined?'':object.node.main_picture.large}></img>
-                 <div className="fixed top-0  h-145 w-110 border-0 rounded-base bg-transprent bg-gradient-to-t from-black via-transparent to-transparent">
+            <div className="py-2  border-none">
+              <Link href={`/Anime/${element.idMal}`}>
+              <Card className=" bg-transparent border-none rounded-none p-0 h-48 md:h-64 flex flex-row justify-center  overflow-clip border-black">
+                 <Image className='h-full w-full object-cover object-center 'width={500} height={500} quality={100} priority={true} alt={element.title.english ?? element.title.romaji} src={element.bannerImage}></Image>
+                 <div className="fixed top-0 px-6 h-full w-full border-0  bg-transprent bg-gradient-to-tr from-black via-neutral-900/50 to-transparent">
 
-                  <div className="relative top-82  z-2 flex flex-col gap-4 items-center">
-                       <div className="line-clamp-1 text-center font-bold overflow-hidden text-ellipsis w-85 text-2xl text-white">{object.node.alternative_titles.en==''?object.node.title:object.node.alternative_titles.en}</div>
-                       <div className="flex flex-row gap-4  rounded-md text-white">
+                  <div className="relative left-0 top-23 md:top-35 w-full h-full z-2 flex flex-col gap-0 items-center">
+                       <div className="text-white text-lg md:text-xl m-0 h-fit text-left w-full">#{index} Spotlight</div>
+                       <div className="line-clamp-1 mb-3 text-left font-bold overflow-hidden text-ellipsis h-fit w-full text-2xl md:text-4xl text-white">{element.title.english ?? element.title.romaji}</div>
+                       <div className="flex flex-row gap-3 w-full rounded-md text-white md:text-lg">
                         {
-                          object.node.genres.slice(0, 3).map((genre, index) => (
-                            <div key={index}>{genre.name}</div>
+                          element.genres.slice(0, 3).map((genre, index) => (
+                            <div className="px-4 py-1 rounded-xl bg-neutral-800" key={index}>{genre}</div>
                           ))
                           
                         }
                        </div>
-                       <div className="flex flex-row gap-4">
-                        <Link href={'/Anime/'+object.node.id}><Button className='hover:bg-white hover:text-black w-35 h-10'><ArrowRight size={24} />More Details</Button></Link>
-                        <Link  href={'/Anime/'+object.node.id+'/tracking'}><Button className='hover:bg-black hover:text-white w-35 h-10 backdrop-blur-2xl bg-transparent '>+ Add To Mylist</Button></Link>
-                         
-                       </div>
+                    
                   </div>
                  </div>
                  
               </Card>
+          
+             </Link>
             </div>
           </CarouselItem>
         ))}
