@@ -1,19 +1,36 @@
-export default async function handler(req, res){
+export const config = {
+  runtime: 'edge',
+};
+
+
+export default async function handler(req){
     //this means that pages/api/seasonal?year=2025&season=spring&limit=50 can remove the limit and use the default
-    let {year,season,offset,limit} = req.query
+    const url = new URL(req.url)
+    
+    //console.log('url is ',url)
+    
+    const year = url.searchParams.get('year')
+    const season = url.searchParams.get('season')
+    let offset = url.searchParams.get('offset')
+    const limit = url.searchParams.get('limit')
+    
 
     //request field from the server to avoid overfetching
     const fields='main_picture,status,start_season,num_episodes,title,alternative_titles,mean,num_scoring_users,popularity,genres'
 
 
     if(year.length!=4 || isNaN(parseInt(year))) {
-        res.status(400).json({error: 'Invalid api query for year'})
-        return
+       
+        return new Response(JSON.stringify({error: 'Invalid api query for year'}),{
+            status: 400,
+        })
     }
 
     if(!(season=='winter' || season=='spring' || season=='summer' || season=='fall')) {
-        res.status(400).json({error: 'Invalid api query for season'})
-        return 
+       
+        return new Response(JSON.stringify({error: 'Invalid api query for season'}),{
+            status: 400,
+        })
     }
 
     
@@ -30,10 +47,16 @@ export default async function handler(req, res){
         }
         const apifeedback = await result.json()
         console.log('proxy fetched ', apifeedback)
-        res.status(200).json(apifeedback)
+    
+        return new Response(JSON.stringify(apifeedback),{
+            status: 200,
+        })
     }
     catch(error){
-        res.status(500).json({error: `Failed to fetch data error: ${error}`})
+       
+        return new Response(JSON.stringify({error: `Failed to fetch data error: ${error}`}),{
+            status: 500
+        })
 
     }
 }

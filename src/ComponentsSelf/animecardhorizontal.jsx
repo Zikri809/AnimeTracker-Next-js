@@ -56,7 +56,7 @@ function animecardhorizontal(props){
    },[])
     useEffect(()=>{
         if(genre_container_ref.current.scrollWidth > genre_container_ref.current.clientWidth && genrearr_state){
-            console.log('resize triggered')
+            //console.log('resize triggered')
             let genrearr = props.genre
             let exceeded = genrearr_state[genrearr_state.length - 1].exeeeded_val!=undefined?  genrearr_state[genrearr_state.length - 1].exeeeded_val+1 : 0 
             genrearr = genrearr.slice(0,genrearr.length-exceeded)

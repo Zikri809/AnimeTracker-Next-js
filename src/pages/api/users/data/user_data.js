@@ -1,9 +1,14 @@
-import { parseCookies, setCookie } from "nookies"
 
-export default async function handler (req, res) {
+export const config = {
+    runtime: 'edge',
+};
+import { parseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
-    
-     const cookies =parseCookies({req})
+export default async function handler (req) {
+    const rawcookies = req.headers.get('cookie')
+    //console.log('rawcookies', rawcookies)
+    const cookies =parseCookie(rawcookies)
+     
      //http://localhost:3000/api/users/data/user_data
      //ommit the localhost not needed during deploymnent
      //when using the user data cookie make sure to use JSON.parse() then 
@@ -14,23 +19,30 @@ export default async function handler (req, res) {
         const result = await fetch(`https://api.myanimelist.net/v2/users/@me?fields=anime_statistics,picture`,{
             method: 'GET',
             headers:{
-               'Authorization': `Bearer ${cookies.access_token}`,
+               'Authorization': `Bearer ${cookies.get('access_token')}`,
             }
         })
          const resultjson = await result.json()
          if(!result.ok){
             throw new Error(`HTTP ${result.status} error at ${resultjson}`)
         }
-        setCookie({res},'user_data', `${JSON.stringify(resultjson)}`,{
-                    httpOnly: false,
-                    secure: true,
-                    path: '/',
-                    maxAge: 5184000, // use access token expiration time
-                })
+        
+        return new Response(JSON.stringify({succes: 'User data succesfully fetch', user_data: resultjson}),{
+            status: 200,
+            headers:{
+                'Content-Type': 'application/json',
+                'Set-Cookie': `user_data=${encodeURIComponent(JSON.stringify(resultjson))};  HttpOnly; Secure; path=/;Max-Age=5184000`
+            }
+        })
        
-        res.status(200).json({succes: 'User data succesfully fetch'})
     }
     catch(error){
-        res.status(500).json({error: `${error}`})
+        return new Response (JSON.stringify({error: `${error}`}),{
+            status: 500,
+            headers:{
+                'Content-Type': 'application/json'
+            }
+       })
+       
     }
 }

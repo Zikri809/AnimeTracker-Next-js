@@ -1,13 +1,39 @@
-import { parseCookies } from "nookies"
+
+export const config = {
+    runtime: 'edge',
+};
+import { parseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 //http://localhost:3000/api/users/data/save_anime?anime_id=51818&status=watching&episode=0&score=0
-export default async function handler(req, res){
-    const {anime_id,status, episode, score} = req.query
+export default async function handler(req){
+   const rawcookies = req.headers.get('cookie')
+   const cookies = parseCookie(rawcookies)
+   const url = new URL(req.url)
+   const anime_id  = url.searchParams.get('anime_id')
+   const status  = url.searchParams.get('status')
+   const episode = url.searchParams.get('episode')
+   const score = url.searchParams.get('score')
+
+
    if(!(status=='watching' || status=='completed' || status=='on_hold' || status=='dropped' || status=='plan_to_watch')){
-    return res.status(400).json({error : 'syntax error for status query check the spelling !'})}
+
+        return new Response(JSON.stringify({error : 'syntax error for status query check the spelling !'}),{
+            status: 400,
+            headers:{
+                'Content_Type': 'application/json'
+            }
+        })
+   }
    //status query format: watching completed on_hold dropped plan_to_watch
    if(!(parseInt(score)>=0 && parseInt(score)<=10)){ 
-    return res.status(400).json({error: 'the score parameter is out of range only 0-10 is accepted'})}
-    const cookies =parseCookies({req})
+
+    return new Response(JSON.stringify({error: 'the score parameter is out of range only 0-10 is accepted'}),{
+            status: 400,
+            headers:{
+                'Content_Type': 'application/json'
+            }
+        })
+   }
+
    try{
     const body = new URLSearchParams({
         status: status,
@@ -17,7 +43,7 @@ export default async function handler(req, res){
     const result = await fetch(`https://api.myanimelist.net/v2/anime/${anime_id}/my_list_status`,{
         method: 'PUT',
         headers:{
-             'Authorization': `Bearer ${cookies.access_token}`,
+             'Authorization': `Bearer ${cookies.get('access_token')}`,
              'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: body.toString()
@@ -27,10 +53,22 @@ export default async function handler(req, res){
         const errordata = await result.json()
         throw new Error(`error message ${JSON.stringify(errordata)}`)
     }
-     res.status(200).json({message: 'succesfully updated'})
+    return new Response(JSON.stringify({message: 'succesfully updated'}),{
+            status: 200,
+            headers:{
+                'Content-Type': 'application/json'
+            }
+        })
+    
    }
    catch(error){
-    res.status(500).json({error: 'error occured in proxy api ', causes: error})
+    return new Response(JSON.stringify({error: 'error occured in proxy api ', causes: error}),{
+            status: 500,
+            headers:{
+                'Content-Type': 'application/json'
+            }
+        })
+
    }
 
 

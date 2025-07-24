@@ -1,10 +1,22 @@
-import { parseCookies } from "nookies"
 
-export default async function handler (req, res) {
+//import { parseCookies } from "nookies"
+export const config = {
+    runtime: 'edge',
+};
+import { parseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
-    const {sort, offset,status }= req.query
+
+export default async function handler (req) {
+    const rawcookies = req.headers.get('cookie')
+    //console.log('rawcookies',rawcookies)
+    const cookies = parseCookie(rawcookies) //turn the raw cookie string into a map with key value pair
+    const url = new URL(req.url) //construct a url object 
+    const sort = url.searchParams.get('sort')
+    const offset = url.searchParams.get('offset')
+    const status = url.searchParams.get('status')
+    //const {sort, offset,status }= req.query
      const fields='list_status,main_picture,status,start_season,num_episodes,title,alternative_titles,mean,num_scoring_users,popularity,genres'
-     const cookies =parseCookies({req})
+     //const cookies =parseCookies({req})
      //http://localhost:3000/api/users/data/userlist?&sort=list_updated_at&offset=0&status=completed
      //ommit the localhost not needed during deploymnent
      //for status : watching completed on_hold dropped plan_to_watch
@@ -21,16 +33,28 @@ export default async function handler (req, res) {
         const result = await fetch(`https://api.myanimelist.net/v2/users/@me/animelist?status=${status}&sort=${sort}&offset=${offset}&fields=${fields}&limit=100`,{
             method: 'GET',
             headers:{
-               'Authorization': `Bearer ${cookies.access_token}`,
+               'Authorization': `Bearer ${cookies.get('access_token')}`,
             }
         })
          if(!result.ok){
             throw new Error(`HTTP ${result.status}`)
         }
         const resultjson = await result.json()
-        res.status(200).json(resultjson)
+        return new Response(JSON.stringify(resultjson),{
+            status: 200,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        //res.status(200).json(resultjson)
     }
     catch(error){
-        res.status(500).json({error: 'Failed to fetch data'})
+        return new Response(JSON.stringify({error: 'Failed to fetch data'}),{
+            status: 500,
+            headers:{
+                'Content-Type': 'application/json'
+            }
+        })
+        //res.status(500).json()
     }
 }
