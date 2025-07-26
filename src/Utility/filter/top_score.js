@@ -8,7 +8,7 @@ export default function top_score(anime_arr_of_object){
     //map() generate a new array with each elements undergoes transformation from the callback function
      const encoded_arr = anime_arr_of_object.map((element,index) => {
         //needed to round up due to js floating point computation being incorrect even operating on int
-        const encoded = Math.round((element.node.mean ?? 1.0) * 100000 +index)
+        const encoded = Math.round((element.node.mean ?? 1.0) * 1000000 +index)
         //to check for any outlier that fails decoding
         //if(encoded % 1000 != index ){console.log('error decode at ',element.node)console.log('at index ',index)}
         return encoded
@@ -24,7 +24,7 @@ export default function top_score(anime_arr_of_object){
 
     
     const sorted_arr = encoded_arr.map(element => {
-        return anime_arr_of_object[element % 1000]
+        return anime_arr_of_object[element % 10000]
     });
     //console.log('sorted endcoded arr : ',encoded_arr)
     //console.log('unsorted anime : ',anime_arr_of_object)

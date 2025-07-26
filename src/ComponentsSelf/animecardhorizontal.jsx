@@ -27,10 +27,10 @@ function animecardhorizontal(props){
     let genrearr = props.genre ?? []
     
     if(window.innerWidth > 768) {
-        if(genrearr.length>3){
-           let exeeeded = genrearr.length-3
+        if(genrearr.length>2){
+           let exeeeded = genrearr.length-2
            //console.log('before slice',genrearr)
-           genrearr = genrearr.slice(0,3)
+           genrearr = genrearr.slice(0,2)
            //console.log('after slicing',genrearr)
            genrearr.push({name: `+${exeeeded}`, exeeeded_val: exeeeded})
            Set_genrearr_state(genrearr)

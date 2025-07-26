@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button"
 import { ChevronLeft } from "lucide-react"
 import Link from 'next/link'
+import Anime_list_sort from "./sort/anime_list_sort"
 function morenavbar(props){
 function resetslicearr(){
         sessionStorage.setItem('slicearr',JSON.stringify(30))
+        sessionStorage.setItem('sorted_anime', JSON.stringify(''))
+        sessionStorage.setItem('sort_type', JSON.stringify(''))
     }
 return (
     
@@ -15,6 +18,14 @@ return (
        
         <p className="line-clamp-1 overflow-hidden text-ellipsis text-xl ml-2 text-white font-bold text-center">{props.sectionTitle}</p>
         </div>
+        <Anime_list_sort
+            SetAnimeArr= {props.SetAnimeArr}
+            IsUpdateRef= {props.IsUpdateRef}
+            SetpageArr= {props.SetpageArr}
+            season={ props.season }
+            year = {props.year}
+            defaultArr={props.defaultArr}
+        />
     </nav>
 )
 

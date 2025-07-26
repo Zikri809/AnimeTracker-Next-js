@@ -136,7 +136,7 @@ function more({seasonaldata,year,season}){
 
         
           useEffect(() => {
-            setAnimearr(seasonaldata)
+            setAnimearr(JSON.parse(sessionStorage.getItem('sorted_anime')) || seasonaldata)
              if(sessionStorage.getItem('slicearr')!=undefined ) {
               setpagearr(parseInt(sessionStorage.getItem('slicearr')))
               isupdated.current =true
@@ -182,7 +182,7 @@ function more({seasonaldata,year,season}){
     return(
        <div  className='relative top-0 left-0 font-poppins overflow-hidden m-0   w-screen h-auto  bg-black text-white font-poppins ml-1  antialiased' >
          
-            <Morenavabr sectionTitle={`${season.split('_').map(word => word[0].toUpperCase() + word.slice(1)).join(' ')}, ${year}`}/>
+            <Morenavabr sectionTitle={`${season.split('_').map(word => word[0].toUpperCase() + word.slice(1)).join(' ')}, ${year}`} SetAnimeArr={setAnimearr}  IsUpdateRef={isupdated} SetpageArr={setpagearr}  defaultArr={seasonaldata}/>
              { isLoading ?<div className=" w-screen h-screen flex flex-row justify-center items-center "> <div class="loader"></div></div>:
              
              (

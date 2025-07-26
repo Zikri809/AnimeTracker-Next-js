@@ -41,6 +41,7 @@ export const getStaticProps = async () =>{
   return {
       props:{
         seasonaldata : data.data,
+        seasoninfo : seasoninfo
         
 
       },
@@ -49,16 +50,13 @@ export const getStaticProps = async () =>{
 }
 
 
-function more({seasonaldata}){
+function more({seasonaldata, seasoninfo}){
         const [animearr, setAnimearr] = useState([]);
         const [isLoading, setLoading] = useState(false)
         const [currentpagearr , setpagearr ] = useState(30)
         const is_scrollrestored = useRef(false)
-        const is_arrrestored = useRef(false)
         const cardref = useRef(null)
-        const [{ x, y }, scrollTo] = useWindowScroll();
         const isupdated = useRef(false)
-        const isaddedarr = useRef(false)
         const [plantowatchmap, Setplantowatchmap] =useState(new Map())
         const [watchingmap, Setwatchingmap] =useState(new Map())
         const [completedmap, Setcompletedmap] =useState(new Map())
@@ -66,7 +64,6 @@ function more({seasonaldata}){
         const [droppedmap, Setdroppedmap] =useState(new Map())
             
         let router = useRouter()
-        const seasoninfo = useContext(Season_context)
         
         useEffect(()=>{
                 //console.log('api data is ',seasonaldata)
@@ -93,7 +90,7 @@ function more({seasonaldata}){
 
         
           useEffect(() => {
-            setAnimearr(seasonaldata)
+            setAnimearr(JSON.parse(sessionStorage.getItem('sorted_anime')) || seasonaldata)
              if(sessionStorage.getItem('slicearr')!=undefined && currentpagearr<parseInt(sessionStorage.getItem('slicearr'))) {
               setpagearr(parseInt(sessionStorage.getItem('slicearr')))
               console.log('updated the current page arr ')
@@ -119,7 +116,7 @@ function more({seasonaldata}){
                   isupdated.current = true  
                 }
             }
-            window.addEventListener('scroll',scrollhandler,false)
+            window.addEventListener('scroll',scrollhandler)
             return() =>{
                window.removeEventListener('scroll', scrollhandler)
             }
@@ -139,7 +136,7 @@ function more({seasonaldata}){
     return(
        <div  className='relative top-0 left-0 font-poppins overflow-hidden m-0   w-screen h-auto  bg-black text-white font-poppins ml-1  antialiased' >
          
-            <Morenavabr sectionTitle={'This Season'}/>
+            <Morenavabr sectionTitle={'This Season'} SetAnimeArr={setAnimearr}  IsUpdateRef={isupdated} SetpageArr={setpagearr} season={seasoninfo.current_season} year={seasoninfo.current_year} defaultArr={seasonaldata}/>
              { isLoading ?<div className=" w-screen h-screen flex flex-row justify-center items-center "> <div class="loader"></div></div>:
              
              (
