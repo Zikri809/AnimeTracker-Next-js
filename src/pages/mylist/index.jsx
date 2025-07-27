@@ -12,6 +12,11 @@ import { Toaster } from "@/components/ui/sonner"
 import scrollsaver from "@/Utility/ScrollSaver"
 import useSwipeGesture from "@/hooks/useSwipeGesture"
 import { parseCookies } from "nookies"
+import storage_Parser from "@/Utility/safety/storage_parser"
+import airing_sort from "@/Utility/filter/airing_sort"
+import completed_sort from "@/Utility/filter/completed_sort"
+import top_member from "@/Utility/filter/top_members"
+import top_score from "@/Utility/filter/top_score"
 
 export default function mylist(){
     const [planmap , Setplan] = useState()
@@ -26,6 +31,7 @@ export default function mylist(){
     const [currentpagearr , setpagearr ] = useState(30)
     const is_scrollrestored = useRef(false)
     const isupdated = useRef(false)
+    
     function onswiperight(){
         //why we dont just use the activetab state var
         //this is because when first run the function will read the fisrt value of state var on first mount
@@ -99,6 +105,13 @@ export default function mylist(){
         console.log('scrollreset triggered')
        sessionStorage.setItem('scrollY', 0)
        setpagearr(30)
+       sessionStorage.setItem('sort_type', JSON.stringify(''))
+       sessionStorage.setItem('sorted_anime', JSON.stringify(''))
+       Setcompleted(JSON.parse(localStorage.getItem('Completed')))
+       Setplan(JSON.parse(localStorage.getItem('PlanToWatch')))
+       Setwatching(JSON.parse(localStorage.getItem('Watching')))
+       Setonhold(JSON.parse(localStorage.getItem('OnHold')))
+       Setdropped(JSON.parse(localStorage.getItem('Dropped')))
        window.scrollTo(0, 0)
     }
   
@@ -164,12 +177,14 @@ export default function mylist(){
     const current_date = new Date()
     const hasrunned = useRef(false) //function to have a value that presist across rerender
     useEffect(()=>{
+        //allow only run once per entry to page based on my list
      if(cookies.expires_in==undefined || cookies.expires_in == null || current_date.getTime() >= expiry_date.getTime() || hasrunned.current  ) return
     
      const worker = new Worker(
        '/worker/worker.js'
       
      );
+     //Setloading(true)
      worker.postMessage('start')
      //prevent this from being triggered for second time
      hasrunned.current = true
@@ -187,26 +202,53 @@ export default function mylist(){
        localStorage.setItem('OnHold',JSON.stringify(Array.from(onholdmap)))
        localStorage.setItem('Dropped',JSON.stringify(Array.from(droppedmap)))
        localStorage.setItem('PlanToWatch',JSON.stringify(Array.from(plantowatchmap)))
-        Setcompleted(Array.from(completedmap))
-        Setplan(Array.from(plantowatchmap))
-        Setwatching(Array.from(watchingmap))
-        Setonhold(Array.from(onholdmap))
-        Setdropped(Array.from(droppedmap))
+        const selectedValue = storage_Parser(sessionStorage, 'sort_type','')
+        const anime_data =  JSON.parse(localStorage.getItem(activetab.split(' ').join(''))).map((value)=>{return value[1]})
+       let sorted =[]
+        switch(selectedValue){
+            case 'TopScore':{
+                sorted = top_score(anime_data)
+                break
+            }
+            case 'Top Member':{
+                sorted = top_member(anime_data)
+                break
+            }
+            case 'Completed':{
+                sorted = completed_sort(anime_data)
+                break
+            }
+            case 'Airing':{
+                sorted = airing_sort(anime_data)
+                break
+            }
+        }
+        sorted = sorted.map((value)=>{return [value.node.id,value]})
+        sessionStorage.setItem('sorted_anime', JSON.stringify(sorted.length==0?'':sorted))
+
+       Setcompleted(sorted.length!=0?sorted:Array.from(completedmap) )
+       Setplan(sorted.length!=0?sorted:Array.from(plantowatchmap) )
+       Setwatching(sorted.length!=0?sorted:Array.from(watchingmap) )
+       Setonhold(sorted.length!=0?sorted:Array.from(onholdmap))
+       Setdropped(sorted.length!=0?sorted:Array.from(droppedmap) )
+
+        Setloading(false)
       
      }
-        Setcompleted(JSON.parse(localStorage.getItem('Completed')))
-        Setplan(JSON.parse(localStorage.getItem('PlanToWatch')))
-        Setwatching(JSON.parse(localStorage.getItem('Watching')))
-        Setonhold(JSON.parse(localStorage.getItem('OnHold')))
-        Setdropped(JSON.parse(localStorage.getItem('Dropped')))
-        console.log('completed map', completedmap)
-        if(sessionStorage.getItem('activetab')==undefined || sessionStorage.getItem('activetab')==null){
-            Setactivetab('Plan To Watch')
-        }
-        if(sessionStorage.getItem('activetab')!=undefined || sessionStorage.getItem('activetab')!=null){
-            Setactivetab(sessionStorage.getItem('activetab')=='PlanToWatch'?'Plan To Watch':(sessionStorage.getItem('activetab')=='OnHold'?'On Hold':sessionStorage.getItem('activetab')))
-       }
-        Setloading(false)
+     if(sessionStorage.getItem('activetab')==undefined || sessionStorage.getItem('activetab')==null){
+         Setactivetab('Plan To Watch')
+     }
+     if(sessionStorage.getItem('activetab')!=undefined || sessionStorage.getItem('activetab')!=null){
+         Setactivetab(sessionStorage.getItem('activetab')=='PlanToWatch'?'Plan To Watch':(sessionStorage.getItem('activetab')=='OnHold'?'On Hold':sessionStorage.getItem('activetab')))
+    }
+    console.log('returning from reload ',storage_Parser(sessionStorage,'sorted_anime', JSON.parse(localStorage.getItem('Completed'))))
+    Setcompleted(storage_Parser(sessionStorage,'sorted_anime', JSON.parse(localStorage.getItem('Completed'))))
+    Setplan(storage_Parser(sessionStorage,'sorted_anime',JSON.parse(localStorage.getItem('PlanToWatch')) ))
+    Setwatching(storage_Parser(sessionStorage,'sorted_anime',JSON.parse(localStorage.getItem('Watching')) ))
+    Setonhold(storage_Parser(sessionStorage,'sorted_anime', JSON.parse(localStorage.getItem('OnHold')) ))
+    Setdropped(storage_Parser(sessionStorage,'sorted_anime',  JSON.parse(localStorage.getItem('Dropped')) ))
+    console.log('completed map', completedmap)
+    Setloading(false)
     
    return ()=>{
         worker.terminate()
@@ -219,6 +261,17 @@ export default function mylist(){
     },[])
     function handletabchange(value){
         Setactivetab(value)
+        sessionStorage.setItem('activetab',value)
+        const tab_arr = ['Plan To Watch','Completed','Watching','On Hold','Dropped' ]
+        const active_tab_index = tab_arr.indexOf(value)
+        const storage_id = ['PlanToWatch','Completed','Watching','OnHold','Dropped' ]
+        const setters = [Setplan, Setcompleted, Setwatching, Setonhold, Setdropped];
+        for(let index=0; index<storage_id.length; index++){
+            if(index==active_tab_index) continue
+            const defaultArr = JSON.parse(localStorage.getItem(storage_id[index]))
+            setters[index](defaultArr)
+        }        
+        
        
     }
     
@@ -226,7 +279,7 @@ export default function mylist(){
     //console.log('completed map', completedmap)
     return (
         <>
-             <Navbar/>
+             <Navbar isloading={isloading} Setcompleted={Setcompleted} Setplan={Setplan} Setwatching={Setwatching} Setonhold={Setonhold} Setdropped={Setdropped} SetpageArr={setpagearr}/>
              <Toaster className='fixed top-0 z-1000' richColors/>
              <Tabs defaultValue="Plan To Watch" value={activetab} onValueChange={handletabchange} className="relative w-full top-20 border-0 border-blue-500 bg-black">
             <TabsList style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}} className='no-scrollbar::-webkit-scrollbar w-screen justify-start text-xl  z-2 fixed touch-auto  pb-0 rounded-none bg-black text-black border-b-0 overflow-auto border-gray-600 gap-0'>

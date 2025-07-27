@@ -28,6 +28,12 @@ export default function mobile_navbar(props){
             buttonref2.current.style.color =  '#ffffff'
         }
     }
+    function resetState(){
+        //this reset the sort option for seasonal pages
+        console.log('reset soort has occured')
+        sessionStorage.setItem('sorted_anime', JSON.stringify(''))
+        sessionStorage.setItem('sort_type', JSON.stringify(''))
+    }
     useEffect(()=>{
         mobile_nabv_bar_active()
     },[router.asPath])
@@ -38,21 +44,21 @@ export default function mobile_navbar(props){
             
             
             <div ref={buttonref0} className="flex items-center flex-col text-white text-xs">
-                <Link className="flex items-center flex-col" href={'/'}>
+                <Link onClick={resetState} className="flex items-center flex-col" href={'/'}>
                 <House className="w-5 h-5 mb-1" />
                 <div>Home</div>
                 </Link>
                 
             </div>
             <div ref={buttonref1} className=" text-white text-xs">
-                <Link className="flex items-center flex-col" href={'/search/NA'}>
+                <Link onClick={resetState} className="flex items-center flex-col" href={'/search/NA'}>
                 <Search className="w-5 h-5 mb-1" />
                 <div>Search</div>
                 </Link>
                 
             </div>
             <div ref={buttonref2} className="flex items-center flex-col text-white text-xs">
-                <Link className="flex items-center flex-col" href={'/mylist'}>
+                <Link onClick={resetState} className="flex items-center flex-col" href={'/mylist'}>
                 <List className="w-5 h-5 mb-1" />
                 <div>MyList</div>
                 </Link>

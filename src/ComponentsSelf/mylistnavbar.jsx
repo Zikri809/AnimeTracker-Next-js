@@ -32,9 +32,10 @@ import { Toaster } from "sonner"
 import { toast } from "sonner"
 import { useRouter } from 'next/router';
 import { parseCookies } from "nookies"
+import Mylist_sort from "./sort/mylist_sort"
 
   
-function morenavbar(props){
+function morenavbar({Setcompleted,Setplan,Setwatching,Setonhold,Setdropped, SetpageArr,isLoading}){
     const [dialogytpe, Set_dialogtype] = useState()
     const [entries , Set_entries] = useState()
     const [last_modified , Set_lastmodified] = useState()
@@ -148,6 +149,7 @@ return (
        
         <p className="line-clamp-1 overflow-hidden text-ellipsis text-2xl  text-white font-bold text-center">Mylist</p>
         </div>
+        <div className="flex flex-row items-center gap-3">
         <Dialog >
             <DropdownMenu >
                 <DropdownMenuTrigger  className='outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 border-none bg-black' ><EllipsisVertical/></DropdownMenuTrigger>
@@ -228,6 +230,18 @@ return (
                  
        
         </Dialog>
+        <Mylist_sort 
+         
+            Setcompleted={Setcompleted} 
+            Setplan={Setplan}
+            Setwatching={Setwatching}
+            Setonhold={Setonhold}
+            Setdropped={Setdropped}
+            SetpageArr={SetpageArr}
+            isLoading={isLoading}
+        />
+        </div>
+        
        
         
     </nav>
