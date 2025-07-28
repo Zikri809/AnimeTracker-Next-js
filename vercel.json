@@ -3,7 +3,7 @@
   "crons": [
     {
       "path": "/api/cron/isr_warmUp/warmUp",
-      "schedule": "5 */12 * * *"
+      "schedule": "5 12 * * *"
     }
   ]
 }
