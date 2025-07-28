@@ -1,8 +1,9 @@
-
 {
-  "functions": {
-    "api/cron/isr_warmUp/warmUp.js": {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    {
+      "path": "/api/cron/isr_warmUp/warmUp",
       "schedule": "5 */12 * * *"
     }
-  }
+  ]
 }
