@@ -1,3 +1,8 @@
 {
-  
+  "cron": [
+    {
+      "path": "/api/cron/isr_warmUp/warmUp.js",
+      "schedule": "5 */12 * * *"
+    }
+  ]
 }

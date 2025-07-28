@@ -5,8 +5,8 @@ import Anime_list_sort from "./sort/anime_list_sort"
 function morenavbar(props){
 function resetslicearr(){
         sessionStorage.setItem('slicearr',JSON.stringify(30))
-        sessionStorage.setItem('sorted_anime', JSON.stringify(''))
-        sessionStorage.setItem('sort_type', JSON.stringify(''))
+        sessionStorage.removeItem('sort_type')
+        sessionStorage.removeItem('sorted_anime')
     }
 return (
     

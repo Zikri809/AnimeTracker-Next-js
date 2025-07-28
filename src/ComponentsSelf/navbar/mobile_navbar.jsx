@@ -31,8 +31,8 @@ export default function mobile_navbar(props){
     function resetState(){
         //this reset the sort option for seasonal pages
         console.log('reset soort has occured')
-        sessionStorage.setItem('sorted_anime', JSON.stringify(''))
-        sessionStorage.setItem('sort_type', JSON.stringify(''))
+        sessionStorage.removeItem('sort_type')
+        sessionStorage.removeItem('sorted_anime')
     }
     useEffect(()=>{
         mobile_nabv_bar_active()

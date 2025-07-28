@@ -3,7 +3,7 @@ export default function storage_Parser(storage_type, storage_key, fallback) {
       const raw = storage_type.getItem(storage_key);
   
       // Handle null, undefined, or empty string as invalid
-      if (!raw || raw === 'undefined' || raw === 'null') return fallback;
+      if (!raw || raw === 'undefined' || raw === 'null' || raw === '') return fallback;
   
       const parsed = JSON.parse(raw);
   

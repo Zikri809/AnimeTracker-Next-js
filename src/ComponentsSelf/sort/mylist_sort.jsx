@@ -67,8 +67,8 @@ export default function mylist_sort({Setcompleted,Setplan,Setwatching,Setonhold,
                 break
             }
             default:{
-                sessionStorage.setItem('sort_type', JSON.stringify(''))
-                sessionStorage.setItem('sorted_anime', JSON.stringify(''))
+                sessionStorage.removeItem('sort_type')
+                sessionStorage.removeItem('sorted_anime')
                 sessionStorage.setItem('scrollY', JSON.stringify(0))
                 
                 //page setter

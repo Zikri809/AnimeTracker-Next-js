@@ -19,13 +19,12 @@ import top_member from "@/Utility/filter/top_members"
 import top_score from "@/Utility/filter/top_score"
 
 export default function mylist(){
-    const [planmap , Setplan] = useState()
-    const [completedmap, Setcompleted] = useState()
-    const [watchinmap, Setwatching] = useState()
-    const [onholdmap, Setonhold] = useState()
-    const [droppedmap, Setdropped] = useState()
-    const [isloading, Setloading] = useState(true)
-    const [{ x, y }, scrollTo] = useWindowScroll();
+    const [planmap , Setplan] = useState([])
+    const [completedmap, Setcompleted] = useState([])
+    const [watchinmap, Setwatching] = useState([])
+    const [onholdmap, Setonhold] = useState([])
+    const [droppedmap, Setdropped] = useState([])
+    const [isloading, Setloading] = useState(false)
     const [activetab, Setactivetab] = useState('Plan To Watch')
     const router = useRouter()
     const [currentpagearr , setpagearr ] = useState(30)
@@ -179,7 +178,12 @@ export default function mylist(){
     useEffect(()=>{
         //allow only run once per entry to page based on my list
      if(cookies.expires_in==undefined || cookies.expires_in == null || current_date.getTime() >= expiry_date.getTime() || hasrunned.current  ) return
-    
+     const completed_fallback = JSON.parse(localStorage.getItem('Completed'))
+     const plan_fallback = JSON.parse(localStorage.getItem('PlanToWatch'))
+     const watching_fallback = JSON.parse(localStorage.getItem('Watching'))
+     const onhold_fallback = JSON.parse(localStorage.getItem('OnHold'))
+     const dropped_fallback = JSON.parse(localStorage.getItem('Dropped'))
+     
      const worker = new Worker(
        '/worker/worker.js'
       
@@ -189,7 +193,8 @@ export default function mylist(){
      //prevent this from being triggered for second time
      hasrunned.current = true
      worker.onmessage = (e) =>{
-       console.log('data is passed from the worker',e.data.collectionarr)
+       //console.log('data is passed from the worker',e.data.collectionarr)
+       //Setloading(true)
        
        const watchingmap = e.data.collectionarr[0]
        const completedmap = e.data.collectionarr[1]
@@ -224,7 +229,10 @@ export default function mylist(){
             }
         }
         sorted = sorted.map((value)=>{return [value.node.id,value]})
-        sessionStorage.setItem('sorted_anime', JSON.stringify(sorted.length==0?'':sorted))
+        if(sorted.length!=0){
+            sessionStorage.setItem('sorted_anime', JSON.stringify(sorted))
+
+        }
 
        Setcompleted(sorted.length!=0?sorted:Array.from(completedmap) )
        Setplan(sorted.length!=0?sorted:Array.from(plantowatchmap) )
@@ -232,7 +240,7 @@ export default function mylist(){
        Setonhold(sorted.length!=0?sorted:Array.from(onholdmap))
        Setdropped(sorted.length!=0?sorted:Array.from(droppedmap) )
 
-        Setloading(false)
+        //Setloading(false)
       
      }
      if(sessionStorage.getItem('activetab')==undefined || sessionStorage.getItem('activetab')==null){
@@ -242,11 +250,11 @@ export default function mylist(){
          Setactivetab(sessionStorage.getItem('activetab')=='PlanToWatch'?'Plan To Watch':(sessionStorage.getItem('activetab')=='OnHold'?'On Hold':sessionStorage.getItem('activetab')))
     }
     console.log('returning from reload ',storage_Parser(sessionStorage,'sorted_anime', JSON.parse(localStorage.getItem('Completed'))))
-    Setcompleted(storage_Parser(sessionStorage,'sorted_anime', JSON.parse(localStorage.getItem('Completed'))))
-    Setplan(storage_Parser(sessionStorage,'sorted_anime',JSON.parse(localStorage.getItem('PlanToWatch')) ))
-    Setwatching(storage_Parser(sessionStorage,'sorted_anime',JSON.parse(localStorage.getItem('Watching')) ))
-    Setonhold(storage_Parser(sessionStorage,'sorted_anime', JSON.parse(localStorage.getItem('OnHold')) ))
-    Setdropped(storage_Parser(sessionStorage,'sorted_anime',  JSON.parse(localStorage.getItem('Dropped')) ))
+    Setcompleted(storage_Parser(sessionStorage,'sorted_anime', completed_fallback))
+    Setplan(storage_Parser(sessionStorage,'sorted_anime',      plan_fallback     ))
+    Setwatching(storage_Parser(sessionStorage,'sorted_anime',  watching_fallback ))
+    Setonhold(storage_Parser(sessionStorage,'sorted_anime',    onhold_fallback   ))
+    Setdropped(storage_Parser(sessionStorage,'sorted_anime',   dropped_fallback  ))
     console.log('completed map', completedmap)
     Setloading(false)
     
@@ -279,7 +287,7 @@ export default function mylist(){
     //console.log('completed map', completedmap)
     return (
         <>
-             <Navbar isloading={isloading} Setcompleted={Setcompleted} Setplan={Setplan} Setwatching={Setwatching} Setonhold={Setonhold} Setdropped={Setdropped} SetpageArr={setpagearr}/>
+             <Navbar isLoading={isloading} Setcompleted={Setcompleted} Setplan={Setplan} Setwatching={Setwatching} Setonhold={Setonhold} Setdropped={Setdropped} SetpageArr={setpagearr}/>
              <Toaster className='fixed top-0 z-1000' richColors/>
              <Tabs defaultValue="Plan To Watch" value={activetab} onValueChange={handletabchange} className="relative w-full top-20 border-0 border-blue-500 bg-black">
             <TabsList style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}} className='no-scrollbar::-webkit-scrollbar w-screen justify-start text-xl  z-2 fixed touch-auto  pb-0 rounded-none bg-black text-black border-b-0 overflow-auto border-gray-600 gap-0'>

@@ -136,6 +136,10 @@ function morenavbar({Setcompleted,Setplan,Setwatching,Setonhold,Setdropped, Setp
             router.push('/mylist/login_failed')
         }
        }
+       function handleReset(){
+        sessionStorage.removeItem('sort_type')
+        sessionStorage.removeItem('sorted_anime')
+       }
 
 
 return (
@@ -143,7 +147,7 @@ return (
     <nav className="fixed w-screen  z-3 border-0  bg-black  py-4 h-20 px-4  mb-3 top-0 left-0 flex flex-row items-center justify-between">
         
         <div className="flex  items-center gap-5">
-        <Link href={'/'}>
+        <Link onClick={handleReset} href={'/'}>
             <Button className='bg-zinc-800 text-white hover:text-black hover:bg-zinc-400' variant="secondary" size="icon"><ChevronLeft  /></Button> 
         </Link>
        
