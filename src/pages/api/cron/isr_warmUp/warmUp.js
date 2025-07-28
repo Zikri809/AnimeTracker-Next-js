@@ -19,7 +19,7 @@ export default async function warmUp(){
     ]
     let dynamic_routes = []
     for (const element of all_season){
-        dynamic_routes.push(`seasons/${element.year}/${element.season}`)
+        dynamic_routes.push(`seasons/${element.season}/${element.year}`)
     }
     const route_object = [...static_routes,...dynamic_routes].map((value)=>{
         return {
