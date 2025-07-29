@@ -14,7 +14,7 @@
 /coverage
 
 #dev shortcut
-/.bat
+*.bat
 
 # next.js
 /.next/

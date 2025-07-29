@@ -1,8 +1,7 @@
 import extended_season_data from "@/Utility/seasonal_carousel/extended_season_data"
 import seasonaldata from "@/Utility/seasonaldata"
-import { Response } from "@edge-runtime/primitives"
 
-export default async function warmUp(){
+export default async function warmUp(req,res){
     const base_url = process.env.NEXT_PUBLIC_Local_host ?? process.env.Prod_host //the host already ends with /
     const static_routes = [
         'morethiseseason',
@@ -39,18 +38,10 @@ export default async function warmUp(){
             if(!element.success) all_success = false
          }
          //exit the retry if all success
-         if(all_success) return new Response(JSON.stringify({message: 'success warming out all pages '}),{status: 200,
-                                        headers:{
-                                            'Content-Type': 'application/json'
-                                        }
-                                    })
+         if(all_success)  return res.status(200).json({ message: 'success warming all pages' });
          await delay(500)
     }
-    return new Response(JSON.stringify({message: 'fail to warm out all pages '}),{status: 400,
-        headers:{
-            'Content-Type': 'application/json'
-        }
-    })
+    return res.status(400).json({ message: 'fail warming all pages' });
     
 }
 async function fetch_api(element,base_url){
