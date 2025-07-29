@@ -1,14 +1,14 @@
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import {  SlidersHorizontalIcon } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import top_score from "@/Utility/filter/top_score";
 import top_member from "@/Utility/filter/top_members";
 import airing_sort from "@/Utility/filter/airing_sort";
 import completed_sort from "@/Utility/filter/completed_sort";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { UsersRound } from 'lucide-react';
 import { LaptopMinimalCheck,Radio, ArrowDown10 } from 'lucide-react';
+
 
 
 
@@ -81,7 +81,7 @@ export default function anime_list_sort({SetAnimeArr, IsUpdateRef, SetpageArr, s
         <DropdownMenu open={isOpenDropDown} onOpenChange={SetOpenDropDown}  className=''>
             <DropdownMenuTrigger asChild >
                 <Button type='button' onPointerDown={menuTriggerHandler} className=' bg-white text-black w-10 h-10 p-2 rounded-md hover:bg-black hover:text-white hover:border-1 hover:border-neutral-400 transition-colors outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0'>
-                    <SlidersHorizontalIcon size={30}/>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-funnel-icon lucide-funnel"><path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"/></svg>
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent side='left' collisionPadding={40} className='bg-white/10 backdrop-blur-sm border-2 border-neutral-600 p-4 transition-transform  ease-linear w-full'>

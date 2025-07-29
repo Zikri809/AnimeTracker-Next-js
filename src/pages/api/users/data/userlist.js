@@ -30,7 +30,7 @@ export default async function handler (req) {
 
 
     try {
-        const result = await fetch(`https://api.myanimelist.net/v2/users/@me/animelist?status=${status}&sort=${sort}&offset=${offset}&fields=${fields}&limit=100`,{
+        const result = await fetch(`https://api.myanimelist.net/v2/users/@me/animelist?status=${status}&sort=${sort}&offset=${offset}&fields=${fields}&limit=1000`,{
             method: 'GET',
             headers:{
                'Authorization': `Bearer ${cookies.get('access_token')}`,

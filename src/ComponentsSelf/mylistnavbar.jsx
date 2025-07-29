@@ -19,7 +19,7 @@ import {
     DialogTrigger,
   } from "@/components/ui/dialog"
   import { Download } from 'lucide-react';
-  import { EllipsisVertical } from 'lucide-react';
+  import { User } from 'lucide-react';
 import { useState } from "react"
 import Uploadbackup from "./restore components/uploadbackup"
 
@@ -154,9 +154,19 @@ return (
         <p className="line-clamp-1 overflow-hidden text-ellipsis text-2xl  text-white font-bold text-center">Mylist</p>
         </div>
         <div className="flex flex-row items-center gap-3">
+        <Mylist_sort 
+         
+            Setcompleted={Setcompleted} 
+            Setplan={Setplan}
+            Setwatching={Setwatching}
+            Setonhold={Setonhold}
+            Setdropped={Setdropped}
+            SetpageArr={SetpageArr}
+            isLoading={isLoading}
+        />
         <Dialog >
             <DropdownMenu >
-                <DropdownMenuTrigger  className='outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 border-none bg-black' ><EllipsisVertical/></DropdownMenuTrigger>
+                <DropdownMenuTrigger  className='hover:text-white hover:bg-black hover:border-neutral-300 hover:border-1 text-black w-9 h-9 rounded-md flex flex-row items-center justify-center bg-white border-1 border-white outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0  ' ><User size={24} /></DropdownMenuTrigger>
                
                 <DropdownMenuContent side={'left'} align={'start'}  className='text-xl  backdrop-blur-md bg-white/20 border  rounded-md shadow-lg text-white border-neutral-600'>
                 <DropdownMenuLabel>{cookies.expires_in?'My Account':'Local Account'}</DropdownMenuLabel>
@@ -234,16 +244,6 @@ return (
                  
        
         </Dialog>
-        <Mylist_sort 
-         
-            Setcompleted={Setcompleted} 
-            Setplan={Setplan}
-            Setwatching={Setwatching}
-            Setonhold={Setonhold}
-            Setdropped={Setdropped}
-            SetpageArr={SetpageArr}
-            isLoading={isLoading}
-        />
         </div>
         
        
