@@ -36,7 +36,7 @@ export default function user_profile(){
     console.log(joined_date)
     console.log('avatar url is ', avatarurl)
     return(
-        <div className=" sm:h-325 h-330 "> 
+        <div className=" sm:h-380 h-320 "> 
         <User_profile_navbar/>
         {
             

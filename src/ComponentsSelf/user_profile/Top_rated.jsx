@@ -23,10 +23,10 @@ export default function rated_card({title,localStorage_id,score}){
                 <CardTitle className='text-white font-bold '>{title}</CardTitle>
                 <CardDescription  >
                     <Carousel opts={{skipSnaps: true}}>
-                        <CarouselContent className="flex flex-row gap-1 ">
+                        <CarouselContent className=" ">
                         {top_list.map((element)=>{
                                     return (
-                                    <CarouselItem className='basis-1/3 sm:basis-1/7'>
+                                    <CarouselItem className='basis-auto sm:basis-1/9 not-first:pl-2 '>
                                         <Animecard className=' shrink-0'      key={element.node.id+20} title={element.node.title} img={element.node.main_picture.large} user_score={element.list_status.score}/>
                                     </CarouselItem>
                                     )
