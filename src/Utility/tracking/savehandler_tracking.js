@@ -1,12 +1,13 @@
   import { parseCookies } from "nookies"
 import { toast } from "sonner"
 import looping_updater from "./looping_list_updater"
+import cross_check from "./list_cross_check"
 
 export default async function tracking_save(animeinfo,status,api,api2,Setadded,router){
     const cookies =parseCookies({})
     if(status==''){
         console.log('toast')
-        return toast.error("Status has been selected, Please do so!")
+        return toast.error("Status has not been selected, Please do so!")
     }
       
        //change the list status
@@ -14,7 +15,7 @@ export default async function tracking_save(animeinfo,status,api,api2,Setadded,r
     animeinfo.list_status.status = mal_status
     animeinfo.list_status.score = api2.selectedScrollSnap()
     animeinfo.list_status.num_episodes_watched = api.selectedScrollSnap()
-      Setadded(true)
+    Setadded(true)
     if(status=='Watching'){
        
         if(localStorage.getItem('Watching')==null){
@@ -152,10 +153,11 @@ export default async function tracking_save(animeinfo,status,api,api2,Setadded,r
     let vartimer = 1000
     if(cookies.expires_in){
         console.log('api upadte triggered')
-         vartimer = 3000  
+         vartimer =3500 
         const promise = async () => {
             await apicall(); // wait for first to complete
-            await looping_updater(mal_status); // then do second
+            await looping_updater(mal_status);
+            await cross_check(animeinfo.node.id,mal_status) // then do second
             return { name: 'Your'};
         }
            //toast.success('Watchlist saved')
@@ -164,7 +166,7 @@ export default async function tracking_save(animeinfo,status,api,api2,Setadded,r
           success: (data) => {
             return `${data.name} anime has been added`;
           },
-          error: 'Error',
+          error: 'This anime has been added to your MyAnimeList account, but may not be visible on AniJikan due to API limitations. You can still view it directly on the official MAL website.',
         });
     }
    
