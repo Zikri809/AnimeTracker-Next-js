@@ -142,6 +142,18 @@ function dropdown_handler(){
         fetchapi()
        
     },[router.query.mal_id])
+
+    useEffect(()=>{
+        //console.log('api data is ',seasonaldata)
+      Setplantowatchmap(new Map(JSON.parse(localStorage.getItem('PlanToWatch'))))
+      Setwatchingmap (new Map(JSON.parse(localStorage.getItem('Watching'))))
+      Setcompletedmap (new Map(JSON.parse(localStorage.getItem('Completed'))))
+      Setonholdmap (new Map(JSON.parse(localStorage.getItem('OnHold'))))
+      Setdroppedmap (new Map(JSON.parse(localStorage.getItem('Dropped'))))
+      
+    
+  },[])
+
     //console.log('id',id)
     return (
        <div className='relative overflow-x-hidden top-0 left-0   m-0   w-screen h-auto overflow-hidden  bg-black text-white font-poppins my-1 antialiased' >

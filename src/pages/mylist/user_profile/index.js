@@ -3,6 +3,7 @@ import { parseCookies } from "nookies"
 import { useEffect, useState } from "react"
 import User_profile_navbar from '@/ComponentsSelf/user_profile/user_profile_navbar'
 import Stat_card from "@/ComponentsSelf/user_profile/anime_statcard"
+import Top_rated from "@/ComponentsSelf/user_profile/Top_rated"
 
 
 
@@ -13,6 +14,7 @@ export default function user_profile(){
     const[loading , setloading] = useState(true)
     const cookies = parseCookies({})
     useEffect(()=>{
+        console.log(cookies)
         const user_data = JSON.parse(cookies.user_data)
         Set_userobject(user_data)
         
@@ -34,20 +36,21 @@ export default function user_profile(){
     console.log(joined_date)
     console.log('avatar url is ', avatarurl)
     return(
-        <div className="pb-15"> 
+        <div className=" sm:h-325 h-330 "> 
         <User_profile_navbar/>
         {
             
             !loading?
-           <div className="flex flex-col gap-6 mx-4 w-screen h-screen relative top-20">
+           <div className="flex  flex-col gap-4 mx-4 w-screen h-screen relative top-20">
+            <div className="pr-9 flex-col flex gap-4 w-screen">
              <User_card 
                 avatar_src={userobject.picture}
                 username = {userobject.name}
                 join_date={joined_date}
             />
-            <div className="pr-7 grid grid-rows-2 grid-cols-1 sm:grid-rows-1 sm:grid-cols-2 gap-2 w-screen">
                 <Stat_card data={userobject.anime_statistics}/>
-                <Stat_card data={userobject.anime_statistics}/>
+                <Top_rated title={'Top 10 Rated'} localStorage_id={'Completed'} score={true}/>
+                <Top_rated title={'Worst 10 Rated'} localStorage_id={'Completed'} score={false}/>
             </div>
             
            

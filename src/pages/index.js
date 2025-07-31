@@ -309,7 +309,16 @@ export default function Home({thisseason,pastSeason,upcomingSeason,carouseldata,
     if(current_date.getTime() >= internaldeadline.getTime()){
       const func = async () =>{
         console.log('refresh token get')
-         await tokenrefresh()
+         const result = await tokenrefresh()
+         if(result.status != 200){
+            console.log('token refresh failed, purging the localStorage')
+            localStorage.setItem('Watching',JSON.stringify([]))
+            localStorage.setItem('Completed',JSON.stringify([]))
+            localStorage.setItem('OnHold',JSON.stringify([]))
+            localStorage.setItem('Dropped',JSON.stringify([]))
+            localStorage.setItem('PlanToWatch',JSON.stringify([]))
+         }
+         
          router.reload()
       }
       func()

@@ -40,7 +40,7 @@ export default function login_page(){
                     <img className="h-80 w-80 p-0" src="/svg-illustration/Alone-rafiki.svg"></img>
                     <h1 className="text-2xl text-white  text-center font-bold">Your Anime World Has Been Disconnected</h1>
                     <p className="mt-2 text-center text-neutral-400 text-sm">All watchlist on this device has been removed.</p>
-                     <p className="mt-0 text-center text-neutral-400 text-sm">`You will be redirected in {timer} seconds. Doesn't work? Click the top left button.`</p>
+                     <p className="mt-0 text-center text-neutral-400 text-sm">You will be redirected in {timer} seconds. Doesn't work? Click the top left button.</p>
                    
                 </CardContent>
             </Card>

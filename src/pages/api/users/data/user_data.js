@@ -31,7 +31,7 @@ export default async function handler (req) {
             status: 200,
             headers:{
                 'Content-Type': 'application/json',
-                'Set-Cookie': `user_data=${encodeURIComponent(JSON.stringify(resultjson))};  HttpOnly; Secure; path=/;Max-Age=5184000`
+                'Set-Cookie': `user_data=${encodeURIComponent(JSON.stringify(resultjson))}; Secure; path=/;Max-Age=5184000`
             }
         })
        

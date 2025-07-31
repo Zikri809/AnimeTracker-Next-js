@@ -5,13 +5,19 @@ export default function anime_stat_card(props){
     const watchstat =[
         {
             category: 'Completed',
-            icon: <div className="h-2 w-2 bg-green-600 rounded-full"/>,
+            icon: <div className="h-2 w-2 bg-blue-600 rounded-full"/>,
             count: stat_data.num_items_completed
         },
         {
             category: 'Plan To Watch',
-            icon: <div className="h-2 w-2 bg-blue-600 rounded-full"/>,
+            icon: <div className="h-2 w-2 bg-indigo-500 rounded-full"/>,
             count: stat_data.num_items_plan_to_watch
+        },
+        ,
+        {
+            category: 'Watching',
+            icon: <div className="h-2 w-2 bg-emerald-500 rounded-full"/>,
+            count: stat_data.num_items_on_hold
         },
         {
             category: 'On Hold',
@@ -26,12 +32,12 @@ export default function anime_stat_card(props){
     ]
     console.log('state data is ',stat_data)
     return(
-        <Card className='w-full text-white  bg-neutral-900 border-1 border-neutral-600'>
-            <CardContent className='w-full'>
+        <Card className='w-auto h-auto text-white  bg-neutral-900 border-1 border-neutral-600'>
+            <CardContent className='w-auto h-auto'>
                 <CardTitle>Anime Stats</CardTitle>
-                <CardDescription>
+                <CardDescription className='text-neutral-400 sm:justify-center'>
                     <br></br>
-                    <div className="flex flex-row justify-between">
+                    <div className="flex flex-row justify-between ">
                         <p>Days Watched:</p>
                         <p>{stat_data.num_days}</p>
                     </div>
@@ -44,7 +50,7 @@ export default function anime_stat_card(props){
                         <p>Count:</p>
                         <p>{stat_data.num_items}</p>
                     </div>
-                    <div className="my-2 h-[1px]  bg-neutral-600"></div>
+                    <div className="my-2 h-[1px]  bg-neutral-400"></div>
                     {
                         watchstat.map((element)=>(
                             <div className="flex flex-row justify-between">

@@ -9,6 +9,7 @@ export default function login_page(){
     const router = useRouter()
     const [timer, Settimer] = useState(10)
     useEffect(()=>{
+        //localStorage.removeItem('')
         if (!router.isReady) return
         let interval
         let timeout
@@ -64,7 +65,7 @@ export default function login_page(){
                     <img className="h-80 w-80 p-0" src="/svg-illustration/Completed-amico.svg"></img>
                     <h1 className="text-2xl text-white  text-center font-bold">Your Anime World Connected</h1>
                     <p className="mt-2 text-center text-neutral-400 text-sm">MAL account will sync your watchlist across devices.</p>
-                     <p className="mt-0 text-center text-neutral-400 text-sm">`You will be redirected in {timer} seconds. Doesn't work? Click the top left button.`</p>
+                     <p className="mt-0 text-center text-neutral-400 text-sm">You will be redirected in {timer} seconds. Doesn't work? Click the top left button.</p>
                    
                 </CardContent>
             </Card>

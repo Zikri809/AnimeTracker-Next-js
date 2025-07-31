@@ -17,6 +17,11 @@ export default function searchpage(){
         const isaddedarr = useRef(false)
         const [hasScrolled, setHasScrolled] = useState(false);
         const [searchtarget, Set_search_target] = useState(null)
+        const [plantowatchmap, Setplantowatchmap] =useState(new Map())
+        const [watchingmap, Setwatchingmap] =useState(new Map())
+        const [completedmap, Setcompletedmap] =useState(new Map())
+        const [onholdmap, Setonholdmap] =useState(new Map())
+        const [droppedmap, Setdroppedmap] =useState(new Map())
 
         const router = useRouter()
         function clearstate(inputval){
@@ -139,7 +144,16 @@ export default function searchpage(){
         },[currentpage,searchtarget])
         //console.log('fetching ',animearr)
         //console.log('current page is ',currentpage)
-      
+        useEffect(()=>{
+            //console.log('api data is ',seasonaldata)
+          Setplantowatchmap(new Map(JSON.parse(localStorage.getItem('PlanToWatch'))))
+          Setwatchingmap (new Map(JSON.parse(localStorage.getItem('Watching'))))
+          Setcompletedmap (new Map(JSON.parse(localStorage.getItem('Completed'))))
+          Setonholdmap (new Map(JSON.parse(localStorage.getItem('OnHold'))))
+          Setdroppedmap (new Map(JSON.parse(localStorage.getItem('Dropped'))))
+          
+        
+      },[])
     return(
        < >
             <Navbar set_state={clearstate} searchtitle={router.query.title=='NA'?'Search':router.query.title}/>
@@ -158,7 +172,10 @@ export default function searchpage(){
                     score={element.score}
                     users={element.scored_by}
                     ranking={element.popularity}
-                    genre={element.genres}/>
+                    genre={element.genres}
+                    addstatus={plantowatchmap.has(element.node.id) || watchingmap.has(element.node.id) || completedmap.has(element.node.id) || onholdmap.has(element.node.id) || droppedmap.has(element.node.id)}
+                    />
+                    
                     </Link>
                    
               
