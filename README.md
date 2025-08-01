@@ -70,7 +70,7 @@ AniJikan fetches anime data from the following APIs:
 
 ## 👨‍💻 Developer
 
-Built and maintained by [Zikri](https://github.com/your-github).  
+Built and maintained by [Zikri](https://github.com/Zikri809).  
 AniJikan is a personal full-stack anime tracker project created out of curiosity, love for anime, and the desire to build something end-to-end.
 
 ---
