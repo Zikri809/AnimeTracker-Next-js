@@ -1,89 +1,80 @@
+# AniJikan 🎌  
+A minimalist seasonal anime tracker built with Next.js, focusing on fast performance, personalized tracking, and clean UI.
 
-# AniJikan (AnimeTracker-Next-js)
+> 📌 **Note**: This project is no longer under active development. AniJikan is feature-complete and now in maintenance mode for bug fixes and dependency updates.
 
-**AniJikan** is a web application built with **Next.js** for tracking anime series. It features **MyAnimeList (MAL)** authentication, real-time anime search, and a clean, responsive UI powered by **Tailwind CSS** and **shadcn/ui** components. Anime data is fetched from the **Jikan API**, and SVG illustrations are provided by **Storyset**.
+---
 
-## ✨ Features
+## 🚀 Features
 
-- 🔐 **MyAnimeList OAuth2 Integration** – Authenticate and sync your anime lists.
-- 🔎 **Anime Search** – Fast, accurate search using the Jikan API.
-- 📊 **User Dashboard** – Track, manage, and review your anime watchlist.
-- 💅 **Modern UI** – Built with shadcn/ui + Tailwind CSS.
-- 📱 **Responsive Design** – Optimized for both desktop and mobile.
+### ✅ Anime Tracking
+- Add anime to your personal list
+- Update episode progress, status (Watching, Completed, Dropped, etc.), and score
+- Edit and delete existing entries
+- Toast notifications for all changes
 
-## 🚀 Demo
+### 📅 Seasonal Browsing
+- Browse anime by current, past, and upcoming seasons
+- Dedicated season pages with sort functionality
+- Carousels for 4 seasons before and after current/upcoming season
 
-👉 [Live site](https://anime-tracker-next-js.vercel.app)
+### 🧑‍💻 User Experience
+- MyAnimeList OAuth2 login
+- Personalized anime detail buttons (shows tracking status or “Add to Watch List”)
+- Tracking/edit page with pre-filled values
+- Sortable My List page
 
-## 🛠️ Getting Started
+### ⚙️ Performance & Deployment
+- Next.js with serverless functions and Edge API routes
+- Incremental Static Regeneration (ISR) warmed via GitHub Actions and Vercel
+- No CORS issues thanks to server-side API handling
 
-### Prerequisites
+### 🎨 UI Design
+- Built using [shadcn/ui](https://ui.shadcn.com/)
+- Fully responsive and mobile-friendly
+- Compact title layout to avoid wasted space
 
-- Node.js v14+
-- npm or yarn
+### 📎 Other
+- About modal with GitHub link and dev credit
+- Modal used for restore instead of full-page redirect
 
-### Installation
+---
 
-```bash
-git clone https://github.com/Zikri809/AnimeTracker-Next-js.git
-cd AnimeTracker-Next-js
-npm install
-# or
-yarn install
-```
+## 🛠️ Tech Stack
 
-### Setup Environment Variables
+- **Framework**: [Next.js](https://nextjs.org/) (App Router)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
+- **Authentication**: MyAnimeList OAuth2
+- **Deployment**: [Vercel](https://vercel.com/)
+- **Build Automation**: GitHub Actions (for ISR warm-up)
+- **Hosting**: Edge and Serverless API routes via Next.js
 
-Create a `.env` file:
+---
 
-```env
-NEXT_PUBLIC_MAL_CLIENT_ID=your_mal_client_id
-MAL_CLIENT_SECRET=your_mal_client_secret
-```
+## 🌐 External APIs
 
-> 🔑 You need a registered app at [MyAnimeList Developer](https://myanimelist.net/apiconfig) to get your credentials.
+AniJikan fetches anime data from the following APIs:
+- [MyAnimeList API](https://myanimelist.net/apiconfig/references/api/v2)
+- [AniList GraphQL API](https://anilist.gitbook.io/anilist-apiv2-docs/)
+- [Jikan REST API](https://jikan.moe/)
 
-### Start Development
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+## 🎨 Assets & Credits
 
-Then open [http://localhost:3000](http://localhost:3000) in your browser.
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Illustrations**: [Storyset](https://storyset.com/) by Freepik
 
-## 📁 Project Structure
+---
 
-```
-├── public/             # Static files
-├── src/
-│   ├── components/     # Reusable UI components (shadcn/ui)
-│   ├── pages/          # Next.js routes
-│   ├── utils/          # Utility functions (e.g., API helpers)
-│   ├── styles/         # Tailwind CSS styling
-├── .env                # Environment configuration
-├── next.config.js      # Next.js config
-└── README.md
-```
+## 👨‍💻 Developer
 
-## ⚙️ APIs Used
+Built and maintained by [Zikri](https://github.com/your-github).  
+AniJikan is a personal full-stack anime tracker project created out of curiosity, love for anime, and the desire to build something end-to-end.
 
-- **MyAnimeList API v2** – [docs](https://myanimelist.net/apiconfig/references/api/v2)
-- **Jikan REST API (Unofficial)** – [https://docs.api.jikan.moe](https://docs.api.jikan.moe)
-
-## 🧩 Libraries & Tools
-
-- [Next.js](https://nextjs.org/)
-- [React](https://reactjs.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [shadcn/ui](https://ui.shadcn.com/) – Headless, accessible UI components
-- [Lucide Icons](https://lucide.dev/) – Icon set
-
-## 🎨 Attribution
-
-- **Illustrations** by [Storyset](https://storyset.com/) – Licensed under Creative Commons BY 4.0
+---
 
 ## 📄 License
 
-This project is licensed under the [MIT License](LICENSE).
+MIT (or insert your license of choice)
