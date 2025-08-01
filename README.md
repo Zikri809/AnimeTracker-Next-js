@@ -42,7 +42,7 @@ A minimalist seasonal anime tracker built with Next.js, focusing on fast perform
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [Next.js](https://nextjs.org/) (App Router)
+- **Framework**: [Next.js](https://nextjs.org/) (Page Router)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
 - **Authentication**: MyAnimeList OAuth2
