@@ -142,7 +142,7 @@ function more({seasonaldata}){
              { isLoading ?<div className=" w-screen h-screen flex flex-row justify-center items-center "> <div class="loader"></div></div>:
              
              (
-                <div  className='relative top-18 lg:grid lg:grid-cols-2 w-screen pb-33 sm:pb-0 lg:grid-rows '>
+                <div  className='relative top-18 lg:grid lg:grid-cols-2 w-screen pb-33 sm:pb-15 lg:grid-rows '>
            
             {animearr.slice(0,currentpagearr).map((element) =>(
                 <Link  href={'/morelastseason'+'/'+element.node.id}>

@@ -128,7 +128,7 @@ export default function searchpage(){
             }
             setLoading(false)
                     
-                
+            //console.log('fetched data from api',top24)
             }
             catch(error){
             
@@ -157,7 +157,7 @@ export default function searchpage(){
     return(
        < >
             <Navbar set_state={clearstate} searchtitle={router.query.title=='NA'?'Search':router.query.title}/>
-            { isLoading?<div className=" w-screen h-screen flex flex-row justify-center items-center "> <div class="loader"></div></div>:<div  className='relative left-0 mb-18 sm:pb-0 top-18 lg:grid lg:grid-cols-2 w-screen min-h-screen   lg:grid-rows '>
+            { isLoading?<div className=" w-screen h-screen flex flex-row justify-center items-center "> <div class="loader"></div></div>:<div  className='relative left-0 mb-16 h-fit sm:pb-0 pt-18 lg:grid lg:grid-cols-2 w-screen min-h-screen   lg:grid-rows flex flex-col '>
             {
              ( animearr.length!=0 && router.query.title!='NA'?(animearr.map((element) =>(
               
@@ -173,7 +173,7 @@ export default function searchpage(){
                     users={element.scored_by}
                     ranking={element.popularity}
                     genre={element.genres}
-                    addstatus={plantowatchmap.has(element.node.id) || watchingmap.has(element.node.id) || completedmap.has(element.node.id) || onholdmap.has(element.node.id) || droppedmap.has(element.node.id)}
+                    addstatus={plantowatchmap.has(element.mal_id) || watchingmap.has(element.mal_id) || completedmap.has(element.mal_id) || onholdmap.has(element.mal_id) || droppedmap.has(element.mal_id)}
                     />
                     
                     </Link>
@@ -184,7 +184,7 @@ export default function searchpage(){
 
                 
                     
-                )):<div className='flex p-0 h-fit w-screen flex-col gap-0 items-center justify-center'>
+                )):<div className=' flex m-auto p-0  gap-0 items-center justify-center'>
                        
                         <p className="text-neutral-300 text-base font-bold text-center  ">Your anime journey starts here !</p>
                     </div>)

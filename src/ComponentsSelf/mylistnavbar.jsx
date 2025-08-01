@@ -33,6 +33,7 @@ import { toast } from "sonner"
 import { useRouter } from 'next/router';
 import { parseCookies } from "nookies"
 import Mylist_sort from "./sort/mylist_sort"
+import About_card from "./About/about_card"
 
   
 function morenavbar({Setcompleted,Setplan,Setwatching,Setonhold,Setdropped, SetpageArr,isLoading}){
@@ -237,6 +238,13 @@ return (
                    </div>
                       
                    </>
+                }
+                {
+                    dialogytpe=='about' && 
+                    <>
+                        <DialogHeader className='text-white text-xl'>About AniJikan</DialogHeader>
+                        <About_card/>
+                    </>
                 }
                 </DialogContent>
             </DropdownMenu>
