@@ -77,4 +77,4 @@ AniJikan is a personal full-stack anime tracker project created out of curiosity
 
 ## 📄 License
 
-MIT (or insert your license of choice)
+MIT
