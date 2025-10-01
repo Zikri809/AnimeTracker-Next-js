@@ -15,12 +15,14 @@ import { cn } from "@/lib/utils";
 import { GridPattern } from "@/components/magicui/grid-pattern.jsx";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { useState } from "react";
+import {useRef, useState} from "react";
  
 
 
 
 export function CarouselDemo(props) {
+    //this to make sure that the number on spotlight only for those that has its own banner image
+    const index_carousel_ref = useRef(0);
   const plugin = React.useRef(
     Autoplay({ delay: 2000, stopOnInteraction: false })
   )
@@ -54,7 +56,7 @@ export function CarouselDemo(props) {
       <Carousel className="aboslute z-1  border-none bg-transparent mb-3 w-full mx-auto"  plugins={[plugin.current]}>
       <CarouselContent className='border-none' >
         {props.data.map((element, index) => (
-          
+          element.bannerImage ?
           <CarouselItem key={index} className='border-none'>
             <div className="py-2  border-none">
               <Link href={`/Anime/${element.idMal}`}>
@@ -63,7 +65,7 @@ export function CarouselDemo(props) {
                  <div className="fixed top-0 px-6 h-full w-full border-0  bg-transprent bg-gradient-to-tr from-black via-neutral-900/50 to-transparent">
 
                   <div className="relative left-0 top-30 md:top-35 w-full h-full z-2 flex flex-col gap-0 items-center">
-                       <div className="text-white text-lg md:text-xl m-0 h-fit text-left w-full">#{index+1} Spotlight</div>
+                       <div className="text-white text-lg md:text-xl m-0 h-fit text-left w-full">#{index_carousel_ref.current+=1} Spotlight</div>
                        <div className="line-clamp-1 mb-1 text-left font-bold overflow-hidden text-ellipsis h-fit w-full text-2xl md:text-4xl text-white">{element.title.english ?? element.title.romaji}</div>
                        <div className="flex flex-row gap-3 w-full rounded-md text-white md:text-lg">
                         {
@@ -81,7 +83,7 @@ export function CarouselDemo(props) {
           
              </Link>
             </div>
-          </CarouselItem>
+          </CarouselItem>:<></>
         ))}
       </CarouselContent>
     </Carousel>

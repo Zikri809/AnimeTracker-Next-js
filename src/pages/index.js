@@ -161,7 +161,7 @@ async function apifetch(){
     const resultjson = await result.json()
     //anime data will be an array
     const anime_data = resultjson.data.Page.media
-   
+    //console.log('graphql data ',anime_data)
     return {
       querydata: anime_data,
       isloading: false,
