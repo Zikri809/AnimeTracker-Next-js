@@ -7,7 +7,9 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
    images: {
-    remotePatterns: [new URL('https://myanimelist.cdn-dena.com/**'), new URL('https://s4.anilist.co/**')],
+    remotePatterns: [
+        new URL('https://myanimelist.net/**'),
+        new URL('https://myanimelist.cdn-dena.com/**'), new URL('https://s4.anilist.co/**')],
   },
   
 };

@@ -10,7 +10,6 @@ import {
 import React from "react"
 import Image from "next/image"
 function animecard(props){
-
     return (
     <Card className='bg-zinc-800 p-1 border-none rounded-sm w-40 sm:w-55 hover:bg-zinc-700 h-75 sm:h-90'>
         <CardContent className='truncate p-1 '>
