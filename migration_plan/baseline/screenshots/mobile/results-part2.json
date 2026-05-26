@@ -1,0 +1,38 @@
+[
+  {
+    "name": "morethiseseason",
+    "url": "http://localhost:3000/morethiseseason",
+    "file": "C:\\AnimeTracker-Next-js\\migration_plan\\baseline\\screenshots\\mobile\\morethiseseason.png",
+    "innerHeight": 844,
+    "innerWidth": 390,
+    "textSample": "This Season\n\nCurrently Airing\n\n0 episodes\n\nOne Piece\n\n8.73\n\n1533908 users\n\n#17\n\nRanking\n\nAction\n+3\nCurrently Airing\n\n0 episodes\n\nCase Closed\n\n8.19\n\n170831 users\n\n#728\n\nRanking\n\nAdventure\n+4\nCurrently Airing\n\n13 episodes\n\nWitch Hat Atelier\n\n",
+    "title": ""
+  },
+  {
+    "name": "morelastseason",
+    "url": "http://localhost:3000/morelastseason",
+    "file": "C:\\AnimeTracker-Next-js\\migration_plan\\baseline\\screenshots\\mobile\\morelastseason.png",
+    "innerHeight": 844,
+    "innerWidth": 390,
+    "textSample": "Last Season\n\nCurrently Airing\n\n0 episodes\n\nOne Piece\n\n8.73\n\n1533908 users\n\n#17\n\nRanking\n\nAction\n+3\nFinished Airing\n\n10 episodes\n\nFrieren: Beyond Journey's End Season 2\n\n8.89\n\n236486 users\n\n#463\n\nRanking\n\nAdventure\n+3\nFinished Airing\n\n12 epi",
+    "title": ""
+  },
+  {
+    "name": "moreupcoming",
+    "url": "http://localhost:3000/moreupcoming",
+    "file": "C:\\AnimeTracker-Next-js\\migration_plan\\baseline\\screenshots\\mobile\\moreupcoming.png",
+    "innerHeight": 844,
+    "innerWidth": 390,
+    "textSample": "Upcoming Season\n\nNot Yet Aired\n\n0 episodes\n\nSaga of Tanya the Evil II\n\nNo Rating\n\n6 users\n\n#1370\n\nRanking\n\nAction\n+4\nNot Yet Aired\n\n0 episodes\n\nMushoku Tensei: Jobless Reincarnation Season 3\n\nNo Rating\n\n4 users\n\n#1486\n\nRanking\n\nAdventure\n+5",
+    "title": ""
+  },
+  {
+    "name": "seasons-spring-2026",
+    "url": "http://localhost:3000/seasons/spring/2026",
+    "file": "C:\\AnimeTracker-Next-js\\migration_plan\\baseline\\screenshots\\mobile\\seasons-spring-2026.png",
+    "innerHeight": 844,
+    "innerWidth": 390,
+    "textSample": "Spring, 2026\n\nCurrently Airing\n\n0 episodes\n\nOne Piece\n\n8.73\n\n1533908 users\n\n#17\n\nRanking\n\nAction\n+3\nCurrently Airing\n\n0 episodes\n\nCase Closed\n\n8.19\n\n170831 users\n\n#728\n\nRanking\n\nAdventure\n+4\nCurrently Airing\n\n13 episodes\n\nWitch Hat Atelier\n",
+    "title": ""
+  }
+]

@@ -1,0 +1,41 @@
+{
+  "PlanToWatch": [
+    [
+      1,
+      {
+        "node": {
+          "id": 1,
+          "title": "Cowboy Bebop",
+          "main_picture": {
+            "medium": "https://cdn.myanimelist.net/images/anime/1357/145984.webp",
+            "large": "https://cdn.myanimelist.net/images/anime/1357/145984l.webp"
+          },
+          "status": "finished_airing",
+          "num_episodes": 26,
+          "mean": 8.75,
+          "num_scoring_users": 1063584,
+          "popularity": 41,
+          "genres": [
+            {
+              "id": 1,
+              "name": "Action"
+            },
+            {
+              "id": 24,
+              "name": "Sci-Fi"
+            }
+          ]
+        },
+        "list_status": {
+          "status": "plan_to_watch",
+          "score": 0,
+          "num_episodes_watched": 0
+        }
+      }
+    ]
+  ],
+  "Watching": [],
+  "Completed": [],
+  "OnHold": [],
+  "Dropped": []
+}
