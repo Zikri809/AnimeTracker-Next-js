@@ -31,6 +31,7 @@ Migrate `/mylist` and related auth/status pages after lower-risk routes are stab
 - Preserve sort and slice persistence.
 - Ensure token refresh logic still runs once per relevant lifecycle.
 - Verify user profile fetch and statistics rendering.
+- Replace `swiper` and `embla-carousel-react` with built-in/shadcn alternatives (e.g., shadcn/ui `Carousel` which relies on embla under the hood, or native CSS scroll snap points).
 
 ## Deliverables
 

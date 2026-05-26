@@ -26,7 +26,8 @@ Move `src/pages/api` to App Router route handlers while preserving current publi
   - `src/pages/api/users/data/userlist.js` to `src/app/api/users/data/userlist/route.ts`.
   - `src/pages/api/users/data/save_anime.js` to `src/app/api/users/data/save_anime/route.ts`.
   - `src/pages/api/users/data/delete_anime.js` to `src/app/api/users/data/delete_anime/route.ts`.
-- Replace `nookies` server usage with `NextRequest`, `NextResponse`, and public cookie APIs.
+- Replace `nookies` server usage with `next/headers` (`cookies()`), `NextRequest`, and `NextResponse`.
+- Replace `nookies` client usage with lightweight native alternatives (e.g., `document.cookie` or JS-cookie).
 - Replace internal `next/dist/compiled/@edge-runtime/cookies` imports.
 - Add typed validation helpers for query params and request bodies.
 - Ensure OAuth state mismatch returns immediately.
