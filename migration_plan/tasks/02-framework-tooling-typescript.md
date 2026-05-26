@@ -24,11 +24,15 @@ Upgrade the project foundation to support the latest Next.js App Router and Type
   - `@types/react`
   - `@types/react-dom`
   - Vitest and Playwright packages listed in `testing_strategy.md`.
+  - Use Vite's native `resolve.tsconfigPaths` support for Vitest path alias resolution.
 - Replace `next lint` with `eslint .`.
-- Rewrite `eslint.config.mjs` as valid ESLint flat config.
-- Remove `eslint.ignoreDuringBuilds` from `next.config.mjs`.
+- Rewrite `eslint.config.mjs` as valid ESLint flat config, removing the displaced Next.js configuration.
+- Relocate Next.js build-time linting directory limits to `next.config.mjs` if needed, and remove `eslint.ignoreDuringBuilds` from `next.config.mjs`.
+- Standardize `images.remotePatterns` syntax in `next.config.mjs` to use plain objects rather than `new URL()`.
 - Create `tsconfig.json` and migrate the alias from `jsconfig.json`.
 - Add `next-env.d.ts`.
+- Add `src/types/env.d.ts` with explicit type definitions for the application's environment variables.
+- Run `npx playwright install` to set up Playwright browser binaries.
 - Add scripts:
   - `typecheck`
   - `test`
@@ -46,6 +50,7 @@ Upgrade the project foundation to support the latest Next.js App Router and Type
 - Updated `next.config.mjs`.
 - New `tsconfig.json`.
 - New `next-env.d.ts`.
+- New `src/types/env.d.ts` type definition file.
 - New `vitest.config.ts`.
 - New `playwright.config.ts`.
 - Minimal test setup files if needed.
