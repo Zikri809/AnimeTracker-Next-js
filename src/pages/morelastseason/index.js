@@ -7,7 +7,7 @@ import { useWindowScroll } from "@uidotdev/usehooks";
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useContext } from 'react';
-import { Season_context } from '@/pages/_app';
+import { Season_context } from '@/context/season-context';
 import seasonaldata from '@/Utility/seasonaldata';
 import scrollsaver from '@/Utility/ScrollSaver';
 

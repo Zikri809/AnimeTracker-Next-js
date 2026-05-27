@@ -1,17 +1,17 @@
 
 import { useContext, useState } from 'react'
 import Nav from '@/ComponentsSelf/navbar.jsx'
-import LastSeason from '@/ComponentsSelf/LastSeason.jsx'
+import LastSeason from '@/ComponentsSelf/LastSeason'
 import { CarouselDemo } from '@/ComponentsSelf/carousel.jsx'
-import  ThisSeasonSec from '@/ComponentsSelf/ThisSeasonSec.jsx'
-import UpcomingSec from '@/ComponentsSelf/Upcoming.jsx'
+import  ThisSeasonSec from '@/ComponentsSelf/ThisSeasonSec'
+import UpcomingSec from '@/ComponentsSelf/Upcoming'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useEffect, useRef } from "react"
 import Link from 'next/link'
 import { useRouter } from 'next/router' //supposed to import useNavigate also supposed to use useRouter by next
 
-import { Season_context } from '@/pages/_app'
+import { Season_context } from '@/context/season-context'
 import dynamic from "next/dynamic";
 import Head from 'next/head'
 import { parseCookies } from 'nookies'
