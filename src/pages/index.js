@@ -1,8 +1,8 @@
 
 import { useContext, useState } from 'react'
-import Nav from '@/ComponentsSelf/navbar.jsx'
+import Nav from '@/ComponentsSelf/navbar'
 import LastSeason from '@/ComponentsSelf/LastSeason'
-import { CarouselDemo } from '@/ComponentsSelf/carousel.jsx'
+import { CarouselDemo } from '@/ComponentsSelf/carousel'
 import  ThisSeasonSec from '@/ComponentsSelf/ThisSeasonSec'
 import UpcomingSec from '@/ComponentsSelf/Upcoming'
 import { Button } from "@/components/ui/button"
@@ -29,7 +29,7 @@ async function seasonal_carousel_data_func (){
   const seasonal_data = seasonaldata()
         const extended = extended_season_data()
         const all_season = [
-            ...extended.past_4_season, 
+            ...extended.past_4_season,
             {season: seasonal_data.past_season,year: seasonal_data.past_year},
             {season: seasonal_data.current_season,year: seasonal_data.current_year},
             {season: seasonal_data.upcoming_season,year: seasonal_data.upcoming_year},
@@ -61,22 +61,22 @@ async function seasonal_carousel_data_func (){
                 console.log('error occured fetching exclusive season data error: ',error)
                 return []
             }
-           
+
         }
         //resolved all the promises in the array to obtain the value
-    
+
         //season_anime = await season_anime.json()
         //console.log('all 11 season data ',season_anime)
         return {
           season_anime: season_anime,
           seasonal_data: all_season
         }
-      
+
 }
 
 async function season_fetch(season,year){
   try{
-   
+
     const response = await fetch('https://api.jikan.moe/v4/seasons/'+year+'/'+season+'?')
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
     const apifeedback = await response.json()
@@ -97,15 +97,15 @@ async function season_fetch(season,year){
         deconstructed.add({status,mal_id,images:{webp:{large_image_url}}, year,title,score,title_english})
         )
     )
-   
+
     return {
             querydata : [...deconstructed],
             isloading : false,
             error: false
         }
     }
-   
-        
+
+
 catch(error){
     console.error(error)
     return {
@@ -140,8 +140,8 @@ async function apifetch(){
         "sort": "POPULARITY_DESC",
         "isAdult": false
     }
-    
-    
+
+
   try {
     const result = await fetch('https://graphql.anilist.co',{
       method: "POST",
@@ -169,21 +169,21 @@ async function apifetch(){
     }
     }
     //console.log('Carousel API fetch successful', filtered);
-    
+
     catch(error){
         console.log('error occured fetching exclusive season data error: ',error)
         return []
     }
-    
-   
+
+
   }
-    
+
   function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
 
 export const getStaticProps = async () =>{
-  
+
   const dateobject = new Date()
   let current_month = dateobject.getMonth()+1
   let current_year = dateobject.getFullYear()
@@ -213,7 +213,7 @@ export const getStaticProps = async () =>{
       return seasons[seasons.indexOf(current_season)-1]
     }
   }
-  
+
   const upcoming_season_funct = (seasons, current_season,current_year) =>{
     if(seasons.indexOf(current_season) == seasons.length-1){
       upcoming_year = current_year+1
@@ -224,30 +224,30 @@ export const getStaticProps = async () =>{
       return seasons[seasons.indexOf(current_season)+1]
     }
   }
-  
+
   const past_year_funct = (seasons, current_season,current_year) =>{
     if(seasons.indexOf(current_season)==0){
       return past_year = current_year-1
-    
+
     }
     else{
       return past_year = current_year
-     
-    }
-  }
-  
-  const upcoming_year_funct = (seasons, current_season,current_year) =>{
-    if(seasons.indexOf(current_season) == seasons.length-1){
-      return upcoming_year = current_year+1
-  
-    }
-    else{
-      return upcoming_year = current_year
-     
+
     }
   }
 
-  
+  const upcoming_year_funct = (seasons, current_season,current_year) =>{
+    if(seasons.indexOf(current_season) == seasons.length-1){
+      return upcoming_year = current_year+1
+
+    }
+    else{
+      return upcoming_year = current_year
+
+    }
+  }
+
+
   const past_season = past_season_funct(seasons, current_season)
   const upcoming_season = upcoming_season_funct(seasons,current_season)
   past_year = past_year_funct(seasons,current_season,current_year)
@@ -259,11 +259,11 @@ export const getStaticProps = async () =>{
     const data3 = await season_fetch(upcoming_season,upcoming_year)
     const carouseldata = await apifetch()
     //const seasonal_carousel_data = []
-    
+
     const seasonal_carousel_data = await seasonal_carousel_data_func()
     //console.log('seaonal carousel data is ',seasonal_carousel_data)
-    
-    
+
+
     let revalidate_time
     if(carouseldata.querydata.length == 0){
        revalidate_time = 60
@@ -284,7 +284,7 @@ export const getStaticProps = async () =>{
       },
       revalidate:revalidate_time //12 hours  in seconds
     }
-  
+
 }
 
 
@@ -302,8 +302,8 @@ export default function Home({thisseason,pastSeason,upcomingSeason,carouseldata,
   const internaldeadline = new Date(cookies.expires_in)
   internaldeadline.setDate(expiry_date.getDate()-2);
   const current_date = new Date()
-  
-  
+
+
  useEffect(()=>{
     //console.log('current date is ', current_date, ' expiry date is ',internaldeadline,' compare current_date >= expiry_date', current_date.getTime() >= internaldeadline.getTime())
     if(current_date.getTime() >= internaldeadline.getTime()){
@@ -318,39 +318,39 @@ export default function Home({thisseason,pastSeason,upcomingSeason,carouseldata,
             localStorage.setItem('Dropped',JSON.stringify([]))
             localStorage.setItem('PlanToWatch',JSON.stringify([]))
          }
-         
+
          router.reload()
       }
       func()
-     
+
     }
   },[])
 
 
-  
 
- 
+
+
 
 
 useEffect(()=>{
- 
+
   if(!router.isReady) return
   const navsearchbar = navsearchref.current
   const navbutton = navbuttonref.current
 
 
-  
+
   navbutton.addEventListener('click',searchhandler)
- 
+
   window.addEventListener('keydown',enterhandler)
 
   function enterhandler(e){
    if(e.key =="Enter"){
     searchhandler()
-    
+
    }
   }
-  
+
   function searchhandler(){
      if (navsearchbar.value!=''){
     router.push(navsearchbar.value.length==0?'/':'/search/'+encodeURIComponent(navsearchbar.value.replace(/[\/\\<>'"&]/g,'')))
@@ -367,8 +367,8 @@ useEffect(()=>{
   sessionStorage.setItem('scrollY', 0)
   sessionStorage.setItem('slicearr',JSON.stringify(30))
 
- 
- 
+
+
 
   if(localStorage.getItem('Watching')==null){
     const Watching = new Map()
@@ -390,10 +390,10 @@ if(localStorage.getItem('Completed')==null){
     const Dropped = new Map()
     localStorage.setItem('Dropped',JSON.stringify([...Dropped]))
 }
-  
+
 return () =>{
   navbutton.removeEventListener('click',searchhandler)
-  
+
   window.removeEventListener('keydown',enterhandler)
 }
 },[router.isReady])
@@ -425,13 +425,13 @@ return (
   />
   <meta property="og:url" content="https://anime-tracker-next-js.vercel.app/" />
   <meta property="og:type" content="website" />
-        
+
   </Head>
    <main className='relative top-0 left-0  overflow-x-clip m-0   w-[100%] h-fit pb-13  bg-black text-white font-poppins my-1 ' >
-      
+
       <Nav searchref={navsearchref} buttonref={navbuttonref}  />
-     
-     
+
+
       <div className='flex flex-col pt-18'>
 
       <CarouselDemo data={carouseldata.querydata} />
@@ -440,10 +440,10 @@ return (
       <UpcomingSec data={upcomingSeason.querydata} loading={upcomingSeason.isloading} error={upcomingSeason.error}/>
       <Season_carousel data={seasonal_carousel_data}/>
       </div>
-      
+
   </main>
-  
+
   </>
- 
+
 )
 }
