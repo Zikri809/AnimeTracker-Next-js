@@ -61,8 +61,7 @@ export default async function dataValidity(storage_key,api_status){
 async function fetchapi(api_status){
     //http://localhost:3000/api/users/data/userlist?&sort=list_updated_at&offset=0&status=completed
     try{
-        console.log(`${process.env.NEXT_PUBLIC_Local_host ?? process.env.Prod_host}api/users/data/userlist?&sort=list_updated_at&offset=0&status=${api_status}`)
-        const result = await fetch(`${process.env.NEXT_PUBLIC_Local_host ?? process.env.Prod_host}api/users/data/userlist?&sort=list_updated_at&offset=0&status=${api_status}`)
+        const result = await fetch(`/api/users/data/userlist?&sort=list_updated_at&offset=0&status=${api_status}`)
         if(!result.ok){
             throw new Error(`HTTP ${result.status}`)
         }

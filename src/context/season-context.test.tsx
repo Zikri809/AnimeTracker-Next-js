@@ -1,16 +1,21 @@
 import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { parseCookies } from "nookies";
+import { fetchAuthSession } from '@/lib/auth-session';
 import { getSeasonContextValue, SeasonProvider, useSeasonContext } from "./season-context";
 import Providers from "../app/providers";
 import PersistentWorker, {
   __resetPersistentWorkerForTests,
 } from "../ComponentsSelf/persistent_worker/persistent_worker";
 
-vi.mock("nookies", () => ({
-  parseCookies: vi.fn(() => ({})),
+vi.mock("@/lib/auth-session", () => ({
+  fetchAuthSession: vi.fn(() => Promise.resolve({
+    authenticated: false,
+    accessTokenExpiresAt: null,
+    hasRefreshToken: false,
+    userData: null,
+  })),
 }));
 
 // Mock next/navigation for MobileNavbar pathname resolution
@@ -30,7 +35,12 @@ describe("season-context date calculations", () => {
   beforeEach(() => {
     __resetPersistentWorkerForTests();
     vi.clearAllMocks();
-    vi.mocked(parseCookies).mockReturnValue({});
+    vi.mocked(fetchAuthSession).mockResolvedValue({
+      authenticated: false,
+      accessTokenExpiresAt: null,
+      hasRefreshToken: false,
+      userData: null,
+    });
     global.Worker = vi.fn(function WorkerMock(this: Worker) {
       this.postMessage = vi.fn();
       this.terminate = vi.fn();
@@ -169,9 +179,12 @@ describe("season-context date calculations", () => {
     expect(global.Worker).not.toHaveBeenCalled();
   });
 
-  it("PersistentWorker starts once across a Strict-Mode-like remount", () => {
-    vi.mocked(parseCookies).mockReturnValue({
-      expires_in: new Date(Date.now() + 86400000).toISOString(),
+  it("PersistentWorker starts once across a Strict-Mode-like remount", async () => {
+    vi.mocked(fetchAuthSession).mockResolvedValue({
+      authenticated: true,
+      accessTokenExpiresAt: new Date(Date.now() + 86400000).toISOString(),
+      hasRefreshToken: true,
+      userData: null,
     });
 
     const first = render(
@@ -187,6 +200,8 @@ describe("season-context date calculations", () => {
       </PersistentWorker>
     );
 
-    expect(global.Worker).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(global.Worker).toHaveBeenCalledTimes(1);
+    });
   });
 });

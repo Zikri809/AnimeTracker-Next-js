@@ -1,4 +1,4 @@
-import { parseCookies } from "nookies";
+import { fetchAuthSession } from "@/lib/auth-session";
 import { toast } from "sonner";
 import looping_updater from "./looping_list_updater";
 import cross_check from "./list_cross_check";
@@ -14,7 +14,7 @@ export default async function tracking_save(
   malId?: string | number,
   relationId?: string | number
 ): Promise<any> {
-  const cookies = parseCookies({});
+  const session = await fetchAuthSession();
   if (status === '') {
     console.log('toast');
     return toast.error("Status has not been selected, Please do so!");
@@ -143,7 +143,7 @@ export default async function tracking_save(
   };
 
   let vartimer = 1000;
-  if (cookies.expires_in) {
+  if (session.authenticated) {
     console.log('api update triggered');
     vartimer = 3500;
     const promise = async () => {

@@ -15,7 +15,7 @@ import Navbar from '@/ComponentsSelf/trackingformnavbar'
 
 
   import { useRouter } from 'next/router'
-import { parseCookies } from 'nookies'
+import { fetchAuthSession } from '@/lib/auth-session'
 
 
 export default function TrackingForm(){
@@ -28,10 +28,16 @@ export default function TrackingForm(){
     const [isloading, Setloading] = useState(true)
     const[isadded, Setadded] = useState(false)
     const btnref = useRef<any[]>([])
-    const cookie = parseCookies({})
+    const [isSessionAuthenticated, setIsSessionAuthenticated] = useState(false)
 
     //const animeid ='50346'
     const router = useRouter()
+
+    useEffect(() => {
+        fetchAuthSession().then((session) => {
+            setIsSessionAuthenticated(session.authenticated);
+        });
+    }, [])
 
 
     useEffect(()=>{
@@ -156,7 +162,7 @@ export default function TrackingForm(){
                 <Numberedcarousel apiref={Setapi2}  length={10+1}/>
                 <div className='w-full flex mb-4 bg-gray-800 text-gray-200 rounded-md py-5 px-5 flex-col'>
                     <p>Note:</p>
-                    <p>{cookie.expires_in?'Your watchlist are saved locally and on your MAL account be aware that cross synchronization is possible you can access your watchlist on other devices':'Your Watchlist are saved exclusively on this device please be aware that cross syncronization is not possible as of now'}</p>
+                    <p>{isSessionAuthenticated?'Your watchlist are saved locally and on your MAL account be aware that cross synchronization is possible you can access your watchlist on other devices':'Your Watchlist are saved exclusively on this device please be aware that cross syncronization is not possible as of now'}</p>
                 </div>
               {
                 isadded?<Button variant='destructive' onClick={deleteshow} className='sm:w-60'><Trash size={32} />Remove from Watchlist</Button>:<Button variant='destructive' disabled className='sm:w-60'><Trash size={32} />Remove from Watchlist</Button>}

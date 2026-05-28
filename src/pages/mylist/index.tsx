@@ -9,7 +9,7 @@ import { useRouter } from "next/router";
 import { Toaster } from "@/components/ui/sonner";
 import scrollsaver from "@/Utility/ScrollSaver";
 import useSwipeGesture from "@/hooks/useSwipeGesture";
-import { parseCookies } from "nookies";
+import { fetchAuthSession } from "@/lib/auth-session";
 import storage_Parser from "@/Utility/safety/storage_parser";
 import airing_sort from "@/Utility/filter/airing_sort";
 import completed_sort from "@/Utility/filter/completed_sort";
@@ -106,90 +106,91 @@ export default function MyList() {
 
   scrollsaver([currentpagearr, planmap, watchinmap, droppedmap, onholdmap, completedmap]);
 
-  const cookies = parseCookies({});
-  const expiry_in = cookies.expires_in;
-  const expiry_date = expiry_in ? new Date(expiry_in) : new Date();
-  const internaldeadline = expiry_in ? new Date(expiry_in) : new Date();
-  internaldeadline.setDate(expiry_date.getDate() - 2);
-  const current_date = new Date();
   const hasrunned = useRef(false);
 
   useEffect(() => {
-    if (expiry_in === undefined || expiry_in === null || current_date.getTime() >= expiry_date.getTime() || hasrunned.current) return;
-    const completed_fallback = JSON.parse(localStorage.getItem('Completed') || '[]' || '[]');
-    const plan_fallback = JSON.parse(localStorage.getItem('PlanToWatch') || '[]' || '[]');
-    const watching_fallback = JSON.parse(localStorage.getItem('Watching') || '[]' || '[]');
-    const onhold_fallback = JSON.parse(localStorage.getItem('OnHold') || '[]' || '[]');
-    const dropped_fallback = JSON.parse(localStorage.getItem('Dropped') || '[]' || '[]');
+    let worker: Worker | undefined;
+    let cancelled = false;
 
-    const worker = new Worker('/worker/worker.js');
-    worker.postMessage('start');
-    hasrunned.current = true;
+    fetchAuthSession().then((session) => {
+      if (cancelled || !session.authenticated || hasrunned.current) return;
 
-    worker.onmessage = (e) => {
-      const watchingmapData = e.data.collectionarr[0];
-      const completedmapData = e.data.collectionarr[1];
-      const onholdmapData = e.data.collectionarr[2];
-      const droppedmapData = e.data.collectionarr[3];
-      const plantowatchmapData = e.data.collectionarr[4];
+      const completed_fallback = JSON.parse(localStorage.getItem('Completed') || '[]' || '[]');
+      const plan_fallback = JSON.parse(localStorage.getItem('PlanToWatch') || '[]' || '[]');
+      const watching_fallback = JSON.parse(localStorage.getItem('Watching') || '[]' || '[]');
+      const onhold_fallback = JSON.parse(localStorage.getItem('OnHold') || '[]' || '[]');
+      const dropped_fallback = JSON.parse(localStorage.getItem('Dropped') || '[]' || '[]');
 
-      localStorage.setItem('Watching', JSON.stringify(Array.from(watchingmapData)));
-      localStorage.setItem('Completed', JSON.stringify(Array.from(completedmapData)));
-      localStorage.setItem('OnHold', JSON.stringify(Array.from(onholdmapData)));
-      localStorage.setItem('Dropped', JSON.stringify(Array.from(droppedmapData)));
-      localStorage.setItem('PlanToWatch', JSON.stringify(Array.from(plantowatchmapData)));
+      worker = new Worker('/worker/worker.js');
+      worker.postMessage('start');
+      hasrunned.current = true;
 
-      const selectedValue = storage_Parser(sessionStorage, 'sort_type', '');
-      const rawTabItems = localStorage.getItem(activetab.split(' ').join(''));
-      const anime_data = JSON.parse(rawTabItems || '[]').map((value: any) => value[1]);
-      let sorted: any[] = [];
-      switch (selectedValue) {
-        case 'TopScore': {
-          sorted = top_score(anime_data);
-          break;
+      worker.onmessage = (e) => {
+        const watchingmapData = e.data.collectionarr[0];
+        const completedmapData = e.data.collectionarr[1];
+        const onholdmapData = e.data.collectionarr[2];
+        const droppedmapData = e.data.collectionarr[3];
+        const plantowatchmapData = e.data.collectionarr[4];
+
+        localStorage.setItem('Watching', JSON.stringify(Array.from(watchingmapData)));
+        localStorage.setItem('Completed', JSON.stringify(Array.from(completedmapData)));
+        localStorage.setItem('OnHold', JSON.stringify(Array.from(onholdmapData)));
+        localStorage.setItem('Dropped', JSON.stringify(Array.from(droppedmapData)));
+        localStorage.setItem('PlanToWatch', JSON.stringify(Array.from(plantowatchmapData)));
+
+        const selectedValue = storage_Parser(sessionStorage, 'sort_type', '');
+        const rawTabItems = localStorage.getItem(activetab.split(' ').join(''));
+        const anime_data = JSON.parse(rawTabItems || '[]').map((value: any) => value[1]);
+        let sorted: any[] = [];
+        switch (selectedValue) {
+          case 'TopScore': {
+            sorted = top_score(anime_data);
+            break;
+          }
+          case 'Top Member': {
+            sorted = top_member(anime_data);
+            break;
+          }
+          case 'Completed': {
+            sorted = completed_sort(anime_data);
+            break;
+          }
+          case 'Airing': {
+            sorted = airing_sort(anime_data);
+            break;
+          }
         }
-        case 'Top Member': {
-          sorted = top_member(anime_data);
-          break;
+        const sortedMapped = sorted.map((value) => [value.node.id, value]);
+        if (sortedMapped.length !== 0) {
+          sessionStorage.setItem('sorted_anime', JSON.stringify(sortedMapped));
         }
-        case 'Completed': {
-          sorted = completed_sort(anime_data);
-          break;
-        }
-        case 'Airing': {
-          sorted = airing_sort(anime_data);
-          break;
-        }
-      }
-      const sortedMapped = sorted.map((value) => [value.node.id, value]);
-      if (sortedMapped.length !== 0) {
-        sessionStorage.setItem('sorted_anime', JSON.stringify(sortedMapped));
-      }
 
-      Setcompleted(sortedMapped.length !== 0 ? sortedMapped : Array.from(completedmapData));
-      Setplan(sortedMapped.length !== 0 ? sortedMapped : Array.from(plantowatchmapData));
-      Setwatching(sortedMapped.length !== 0 ? sortedMapped : Array.from(watchingmapData));
-      Setonhold(sortedMapped.length !== 0 ? sortedMapped : Array.from(onholdmapData));
-      Setdropped(sortedMapped.length !== 0 ? sortedMapped : Array.from(droppedmapData));
-    };
+        Setcompleted(sortedMapped.length !== 0 ? sortedMapped : Array.from(completedmapData));
+        Setplan(sortedMapped.length !== 0 ? sortedMapped : Array.from(plantowatchmapData));
+        Setwatching(sortedMapped.length !== 0 ? sortedMapped : Array.from(watchingmapData));
+        Setonhold(sortedMapped.length !== 0 ? sortedMapped : Array.from(onholdmapData));
+        Setdropped(sortedMapped.length !== 0 ? sortedMapped : Array.from(droppedmapData));
+      };
 
-    Promise.resolve().then(() => {
-      if (sessionStorage.getItem('activetab') === undefined || sessionStorage.getItem('activetab') === null) {
-        Setactivetab('Plan To Watch');
-      } else {
-        const savedTab = sessionStorage.getItem('activetab');
-        Setactivetab(savedTab === 'PlanToWatch' ? 'Plan To Watch' : (savedTab === 'OnHold' ? 'On Hold' : savedTab!));
-      }
-      Setcompleted(storage_Parser(sessionStorage, 'sorted_anime', completed_fallback));
-      Setplan(storage_Parser(sessionStorage, 'sorted_anime', plan_fallback));
-      Setwatching(storage_Parser(sessionStorage, 'sorted_anime', watching_fallback));
-      Setonhold(storage_Parser(sessionStorage, 'sorted_anime', onhold_fallback));
-      Setdropped(storage_Parser(sessionStorage, 'sorted_anime', dropped_fallback));
-      Setloading(false);
+      Promise.resolve().then(() => {
+        if (sessionStorage.getItem('activetab') === undefined || sessionStorage.getItem('activetab') === null) {
+          Setactivetab('Plan To Watch');
+        } else {
+          const savedTab = sessionStorage.getItem('activetab');
+          Setactivetab(savedTab === 'PlanToWatch' ? 'Plan To Watch' : (savedTab === 'OnHold' ? 'On Hold' : savedTab!));
+        }
+        Setcompleted(storage_Parser(sessionStorage, 'sorted_anime', completed_fallback));
+        Setplan(storage_Parser(sessionStorage, 'sorted_anime', plan_fallback));
+        Setwatching(storage_Parser(sessionStorage, 'sorted_anime', watching_fallback));
+        Setonhold(storage_Parser(sessionStorage, 'sorted_anime', onhold_fallback));
+        Setdropped(storage_Parser(sessionStorage, 'sorted_anime', dropped_fallback));
+        Setloading(false);
+      });
     });
 
     return () => {
-      worker.terminate();
+      cancelled = true;
+      worker?.terminate();
     };
   }, []);
 

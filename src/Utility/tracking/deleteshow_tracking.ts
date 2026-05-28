@@ -1,4 +1,4 @@
-import { parseCookies } from "nookies";
+import { fetchAuthSession } from "@/lib/auth-session";
 import { toast } from "sonner";
 import looping_updater from "./looping_list_updater";
 import { buildTrackingBackHref } from "@/lib/routing/path-utils";
@@ -16,7 +16,7 @@ export default async function delete_show(
   let deleteplantowatchmap = new Map(JSON.parse(localStorage.getItem('PlanToWatch') || '[]'));
   let deleteonholdmap = new Map(JSON.parse(localStorage.getItem('OnHold') || '[]'));
   let deletedroppedmap = new Map(JSON.parse(localStorage.getItem('Dropped') || '[]'));
-  const cookies = parseCookies({});
+  const session = await fetchAuthSession();
   const mal_status = status.split(' ').map(word => word[0].toLowerCase() + word.slice(1)).join('_');
 
   if (deletewatchingmap.has(animeinfo.node.id)) {
@@ -52,7 +52,7 @@ export default async function delete_show(
   };
 
   let vartimer = 1000;
-  if (cookies.expires_in) {
+  if (session.authenticated) {
     vartimer = 3000; // to let the toast stay longer on the screen
     const promise = async () => {
       await apicall(); // wait for first to complete

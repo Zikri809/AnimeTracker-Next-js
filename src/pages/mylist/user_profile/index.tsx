@@ -1,7 +1,7 @@
 'use client';
 
 import User_card from "@/ComponentsSelf/user_profile/user_card"
-import { parseCookies } from "nookies"
+import { fetchAuthSession } from "@/lib/auth-session"
 import { useEffect, useState } from "react"
 import User_profile_navbar from '@/ComponentsSelf/user_profile/user_profile_navbar'
 import Stat_card from "@/ComponentsSelf/user_profile/anime_statcard"
@@ -11,15 +11,19 @@ export default function UserProfile() {
     const [userobject, Set_userobject] = useState<any>('')
     const [joined_date, Set_joined_date] = useState<any>('')
     const [loading, setloading] = useState(true)
-    const cookies = parseCookies({})
 
     useEffect(() => {
-        if (cookies.user_data) {
+        let cancelled = false
+
+        fetchAuthSession().then((session) => {
+            if (cancelled) return
+            const user_data = session.userData
+            if (!user_data) {
+                setloading(false)
+                return
+            }
             try {
-                const user_data = JSON.parse(cookies.user_data)
-                Promise.resolve().then(() => {
-                    Set_userobject(user_data)
-                })
+                Set_userobject(user_data)
 
                 const date = new Date(user_data.joined_at)
                 const year = date.getFullYear()
@@ -30,17 +34,18 @@ export default function UserProfile() {
                     month: month,
                     day: day
                 }
-                Promise.resolve().then(() => {
-                    Set_joined_date(dateformat)
-                })
+                Set_joined_date(dateformat)
             } catch (e) {
                 console.error(e)
+            } finally {
+                setloading(false)
             }
-        }
-        Promise.resolve().then(() => {
-            setloading(false)
         })
-    }, [cookies.user_data])
+
+        return () => {
+            cancelled = true
+        }
+    }, [])
 
     return (
         <div className=" sm:h-380 h-320 ">

@@ -14,7 +14,7 @@ import { useRouter } from 'next/router' //supposed to import useNavigate also su
 import { Season_context } from '@/context/season-context'
 import dynamic from "next/dynamic";
 import Head from 'next/head'
-import { parseCookies } from 'nookies'
+import { fetchAuthSession, isSessionExpiringSoon } from '@/lib/auth-session'
 import tokenrefresh from '@/Utility/refreshjob'
 import Season_carousel from '@/ComponentsSelf/carousel/season_carousel'
 import extended_season_data from '@/Utility/seasonal_carousel/extended_season_data'
@@ -297,17 +297,12 @@ export default function Home({thisseason,pastSeason,upcomingSeason,carouseldata,
   const seasoninfo = useContext(Season_context)
   const router = useRouter()
   const [token_refresh, Set_token_refresh] = useState(false)
-  const cookies =parseCookies({})
-  const expiry_date = new Date(cookies.expires_in) // real expiry
-  const internaldeadline = new Date(cookies.expires_in)
-  internaldeadline.setDate(expiry_date.getDate()-2);
-  const current_date = new Date()
 
 
  useEffect(()=>{
-    //console.log('current date is ', current_date, ' expiry date is ',internaldeadline,' compare current_date >= expiry_date', current_date.getTime() >= internaldeadline.getTime())
-    if(current_date.getTime() >= internaldeadline.getTime()){
       const func = async () =>{
+        const session = await fetchAuthSession()
+        if(!session.hasRefreshToken || !isSessionExpiringSoon(session)) return
         console.log('refresh token get')
          const result = await tokenrefresh()
          if(result.status != 200){
@@ -322,8 +317,6 @@ export default function Home({thisseason,pastSeason,upcomingSeason,carouseldata,
          router.reload()
       }
       func()
-
-    }
   },[])
 
 

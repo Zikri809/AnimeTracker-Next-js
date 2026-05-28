@@ -24,7 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useCurrentRoute } from '@/hooks/use-current-route';
-import { parseCookies } from "nookies";
+import { fetchAuthSession, type AuthSession } from "@/lib/auth-session";
 import Mylist_sort from "./sort/mylist_sort";
 import About_card from "./About/about_card";
 
@@ -51,14 +51,17 @@ export default function MyListNavbar({
   const [entries, Set_entries] = useState<number>();
   const [last_modified, Set_lastmodified] = useState<string>();
   const [animearr, Setanimearr] = useState<any>();
-  const [cookies, setCookies] = useState<Record<string, string>>({});
+  const [session, setSession] = useState<AuthSession>({
+    authenticated: false,
+    accessTokenExpiresAt: null,
+    hasRefreshToken: false,
+    userData: null,
+  });
   const inputref = useRef<HTMLInputElement>(null);
   const { push, hardReload } = useCurrentRoute();
 
   useEffect(() => {
-    Promise.resolve().then(() => {
-      setCookies(parseCookies({}));
-    });
+    fetchAuthSession().then(setSession);
   }, []);
 
   function backup() {
@@ -190,24 +193,24 @@ export default function MyListNavbar({
             </DropdownMenuTrigger>
 
             <DropdownMenuContent side="left" align="start" className="text-xl backdrop-blur-md bg-white/20 border rounded-md shadow-lg text-white border-neutral-600">
-              <DropdownMenuLabel>{cookies.expires_in ? 'My Account' : 'Local Account'}</DropdownMenuLabel>
+              <DropdownMenuLabel>{session.authenticated ? 'My Account' : 'Local Account'}</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-neutral-400" />
-              {!cookies.expires_in && (
+              {!session.authenticated && (
                 <DropdownMenuItem className="focus:bg-neutral-600 focus:text-white" asChild>
                   <Link href="/mylist/login">Log In</Link>
                 </DropdownMenuItem>
               )}
-              {!cookies.expires_in && (
+              {!session.authenticated && (
                 <DialogTrigger asChild>
                   <DropdownMenuItem onClick={() => { Set_dialogtype('backup'); }} className="focus:bg-neutral-600 focus:text-white">Backup</DropdownMenuItem>
                 </DialogTrigger>
               )}
-              {!cookies.expires_in && (
+              {!session.authenticated && (
                 <DialogTrigger asChild>
                   <DropdownMenuItem onClick={() => { Set_dialogtype('restore'); }} className="focus:bg-neutral-600 focus:text-white">Restore</DropdownMenuItem>
                 </DialogTrigger>
               )}
-              {cookies.expires_in && (
+              {session.authenticated && (
                 <DropdownMenuItem className="text-white focus:text-white focus:bg-neutral-600" asChild>
                   <Link href="/mylist/user_profile">User Profile</Link>
                 </DropdownMenuItem>
@@ -215,7 +218,7 @@ export default function MyListNavbar({
               <DialogTrigger asChild>
                 <DropdownMenuItem onClick={() => { Set_dialogtype('about'); }} className="focus:bg-neutral-600 focus:text-white">About Dev</DropdownMenuItem>
               </DialogTrigger>
-              {cookies.expires_in && (
+              {session.authenticated && (
                 <DropdownMenuItem onClick={log_out} className="text-red-600 focus:text-red-400 focus:bg-neutral-600">Log Out</DropdownMenuItem>
               )}
             </DropdownMenuContent>
