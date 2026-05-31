@@ -22,6 +22,32 @@ export function generateSecureRandomString(length: number): string {
 }
 
 /**
+ * Encode string to URL-safe base64.
+ */
+export function encodeUrlSafeBase64(str: string): string {
+  return Buffer.from(str, 'utf8')
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
+/**
+ * Decode string from URL-safe base64.
+ */
+export function decodeUrlSafeBase64(encoded: string): string {
+  try {
+    let str = encoded.replace(/-/g, '+').replace(/_/g, '/');
+    while (str.length % 4) {
+      str += '=';
+    }
+    return Buffer.from(str, 'base64').toString('utf8');
+  } catch {
+    return '';
+  }
+}
+
+/**
  * Generate PKCE code verifier and challenge.
  * Since MyAnimeList uses 'plain' method, the challenge is the verifier itself.
  */

@@ -40,8 +40,8 @@ export function CarouselDemo({ data }: CarouselDemoProps) {
   }, [data]);
 
   return (
-    <div className="h-48 md:h-64 mt-0 mb-12">
-      <div className="fixed flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-black border-transparent">
+    <div className="relative h-48 md:h-64 mt-0 mb-12">
+      <div className="absolute flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-black border-transparent">
         <GridPattern
           squares={[
             [4, 4],
@@ -53,9 +53,6 @@ export function CarouselDemo({ data }: CarouselDemoProps) {
             [12, 15],
             [15, 10],
             [10, 15],
-            [15, 10],
-            [10, 15],
-            [15, 10],
           ]}
           className={cn(
             "[mask-image:radial-gradient(1000px_circle_at_center,white,transparent)]",
@@ -64,7 +61,7 @@ export function CarouselDemo({ data }: CarouselDemoProps) {
         />
       </div>
       <Carousel
-        className="aboslute z-1 border-none bg-transparent mb-3 w-full mx-auto"
+        className="relative z-10 border-none bg-transparent mb-3 w-full mx-auto"
         plugins={[autoplayPlugin]}
       >
         <CarouselContent className='border-none'>

@@ -155,4 +155,19 @@ describe('mylist worker sync', () => {
     expect(onError).toHaveBeenCalled();
     expect(instances[0].terminate).toHaveBeenCalled();
   });
+
+  it('dispatches watchlist-sync-complete event on successful sync', () => {
+    const onComplete = vi.fn();
+    const eventSpy = vi.fn();
+    window.addEventListener('watchlist-sync-complete', eventSpy);
+
+    startWatchlistSync(onComplete);
+    instances[0].onmessage?.({
+      data: successPayload(),
+    } as MessageEvent);
+
+    expect(onComplete).toHaveBeenCalled();
+    expect(eventSpy).toHaveBeenCalled();
+    window.removeEventListener('watchlist-sync-complete', eventSpy);
+  });
 });

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { exchangeAuthCode } from '@/server/mal/oauth';
+import { exchangeAuthCode, decodeUrlSafeBase64 } from '@/server/mal/oauth';
 import { setAuthCookies, clearOAuthTransientCookies, COOKIES } from '@/server/http/cookies';
 import { getAuthRedirectUri, getBaseUrl } from '@/server/env';
 import { NO_CACHE_HEADERS } from '@/server/http/responses';
@@ -8,10 +8,71 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
+function isAllowedOrigin(origin: string): boolean {
+  try {
+    const url = new URL(origin);
+    const hostname = url.hostname;
+    
+    // Allow localhost / 127.0.0.1
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return true;
+    }
+    
+    // Allow Prod_host
+    if (process.env.Prod_host) {
+      try {
+        const prodUrl = new URL(process.env.Prod_host);
+        if (hostname === prodUrl.hostname) {
+          return true;
+        }
+      } catch {}
+    }
+    
+    // Allow NEXT_PUBLIC_Local_host
+    if (process.env.NEXT_PUBLIC_Local_host) {
+      try {
+        const localUrl = new URL(process.env.NEXT_PUBLIC_Local_host);
+        if (hostname === localUrl.hostname) {
+          return true;
+        }
+      } catch {}
+    }
+    
+    // Allow Vercel domains
+    if (hostname.endsWith('.vercel.app') || hostname === 'anime-tracker-next-js.vercel.app') {
+      return true;
+    }
+    
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 export async function GET(request: NextRequest) {
   const url = request.nextUrl;
   const code = url.searchParams.get('code');
-  const queryState = url.searchParams.get('state');
+  const queryState = url.searchParams.get('state') || '';
+
+  // Parse state to check if we need to bounce to local development origin
+  const stateParts = queryState.split(':');
+  const encodedOrigin = stateParts[1];
+  const encodedRedirectUri = stateParts[2];
+
+  let decodedOrigin = '';
+  let decodedRedirectUri = '';
+  if (encodedOrigin) {
+    decodedOrigin = decodeUrlSafeBase64(encodedOrigin);
+  }
+  if (encodedRedirectUri) {
+    decodedRedirectUri = decodeUrlSafeBase64(encodedRedirectUri);
+  }
+
+  // Cross-origin redirect fallback for local development using production MAL client settings
+  if (decodedOrigin && decodedOrigin !== url.origin && isAllowedOrigin(decodedOrigin)) {
+    const targetUrl = new URL(url.pathname + url.search, decodedOrigin);
+    return NextResponse.redirect(targetUrl, 302);
+  }
 
   const cookies = request.cookies;
   const cookieState = cookies.get(COOKIES.STATE)?.value;
@@ -41,8 +102,20 @@ export async function GET(request: NextRequest) {
     return fail();
   }
 
+  // Validate decoded redirect URI origin if present (defense in depth)
+  if (decodedRedirectUri) {
+    try {
+      const redirectOrigin = new URL(decodedRedirectUri).origin;
+      if (!isAllowedOrigin(redirectOrigin)) {
+        return fail();
+      }
+    } catch {
+      return fail();
+    }
+  }
+
   try {
-    const redirectUri = getAuthRedirectUri();
+    const redirectUri = decodedRedirectUri || getAuthRedirectUri();
     
     // 3. Exchange auth code (throws on failure or invalid payload shape)
     const tokenData = await exchangeAuthCode(code, codeVerifier, redirectUri);

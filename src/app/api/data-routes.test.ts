@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import { GET as seasonalGET } from './seasonal/route';
 import { GET as detailsGET } from './anime/anime_details/route';
+import { GET as searchGET } from './anime/search/route';
 import { GET as userDataGET } from './users/data/user_data/route';
 import { GET as userListGET } from './users/data/userlist/route';
 import { GET as saveGET, POST as savePOST } from './users/data/save_anime/route';
@@ -12,6 +13,7 @@ import { COOKIES } from '@/server/http/cookies';
 vi.mock('@/server/mal/client', () => ({
   fetchSeasonal: vi.fn(),
   fetchAnimeDetails: vi.fn(),
+  fetchSearch: vi.fn(),
   fetchUserData: vi.fn(),
   fetchUserList: vi.fn(),
   saveAnime: vi.fn(),
@@ -189,6 +191,53 @@ describe('Data Proxy Route Handlers', () => {
       const body = await res.json();
       expect(body.message).toBe('successfully deleted');
       expect(malClient.deleteAnime).toHaveBeenCalledWith('access123', '123');
+    });
+  });
+
+  describe('GET /api/anime/search', () => {
+    it('returns empty array if q is missing, empty, or NA', async () => {
+      const reqEmpty = new NextRequest('http://localhost/api/anime/search');
+      const resEmpty = await searchGET(reqEmpty);
+      expect(resEmpty.status).toBe(200);
+      expect(await resEmpty.json()).toEqual({ data: [] });
+
+      const reqNA = new NextRequest('http://localhost/api/anime/search?q=NA');
+      const resNA = await searchGET(reqNA);
+      expect(resNA.status).toBe(200);
+      expect(await resNA.json()).toEqual({ data: [] });
+    });
+
+    it('returns search data from Jikan successfully with caching headers', async () => {
+      const mockJikanResponse = {
+        data: [
+          {
+            mal_id: 12345,
+            title: 'Test Jikan Anime',
+            score: 8.9
+          }
+        ]
+      };
+
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockJikanResponse)
+      });
+      vi.stubGlobal('fetch', fetchMock);
+
+      const req = new NextRequest('http://localhost/api/anime/search?q=test&page=2');
+      const res = await searchGET(req);
+      
+      expect(res.status).toBe(200);
+      expect(res.headers.get('Cache-Control')).toBe('public, max-age=3600, s-maxage=86400, stale-while-revalidate=60');
+      
+      const body = await res.json();
+      expect(body).toEqual(mockJikanResponse);
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://api.jikan.moe/v4/anime?limit=24&sfw=true&page=2&q=test',
+        expect.objectContaining({ method: 'GET' })
+      );
+
+      vi.unstubAllGlobals();
     });
   });
 });

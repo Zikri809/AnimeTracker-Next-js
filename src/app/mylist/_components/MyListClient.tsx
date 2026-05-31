@@ -168,43 +168,27 @@ export default function MyListClient() {
     });
   }, []);
 
-  // background sync on mount
+  // Listen for watchlist sync completion events to silently refresh data in the UI
   useEffect(() => {
     if (!mounted) return;
 
-    let activeSync: any = null;
-    let isUnmounted = false;
+    const handleSyncComplete = () => {
+      const watchingMap = getWatchlistMap('Watching');
+      const completedMap = getWatchlistMap('Completed');
+      const onHoldMap = getWatchlistMap('OnHold');
+      const droppedMap = getWatchlistMap('Dropped');
+      const planToWatchMap = getWatchlistMap('PlanToWatch');
 
-    fetchAuthSessionWithRefresh().then((session) => {
-      if (isUnmounted) return;
-      if (session.authenticated) {
-        Setloading(true);
-        activeSync = startWatchlistSync(() => {
-          if (isUnmounted) return;
-          const watchingMap = getWatchlistMap('Watching');
-          const completedMap = getWatchlistMap('Completed');
-          const onHoldMap = getWatchlistMap('OnHold');
-          const droppedMap = getWatchlistMap('Dropped');
-          const planToWatchMap = getWatchlistMap('PlanToWatch');
+      Setwatching(Array.from(watchingMap.entries()));
+      Setcompleted(Array.from(completedMap.entries()));
+      Setonhold(Array.from(onHoldMap.entries()));
+      Setdropped(Array.from(droppedMap.entries()));
+      Setplan(Array.from(planToWatchMap.entries()));
+    };
 
-          Setwatching(Array.from(watchingMap.entries()));
-          Setcompleted(Array.from(completedMap.entries()));
-          Setonhold(Array.from(onHoldMap.entries()));
-          Setdropped(Array.from(droppedMap.entries()));
-          Setplan(Array.from(planToWatchMap.entries()));
-          Setloading(false);
-        }, () => {
-          if (isUnmounted) return;
-          Setloading(false);
-        });
-      }
-    });
-
+    window.addEventListener('watchlist-sync-complete', handleSyncComplete);
     return () => {
-      isUnmounted = true;
-      if (activeSync) {
-        activeSync.terminate();
-      }
+      window.removeEventListener('watchlist-sync-complete', handleSyncComplete);
     };
   }, [mounted]);
 

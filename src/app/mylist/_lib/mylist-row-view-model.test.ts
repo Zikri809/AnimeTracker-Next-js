@@ -88,5 +88,25 @@ describe('mylist-row-view-model helpers', () => {
       expect(worst[3].node.id).toBe(1);
       expect(worst[4].node.id).toBe(2);
     });
+
+    it('should sort by updated_at descending when scores are tied', () => {
+      const tiedItems = [
+        { node: { id: 1, mean: 9.0 }, list_status: { score: 10, updated_at: '2026-05-31T10:00:00Z' } },
+        { node: { id: 2, mean: 8.5 }, list_status: { score: 10, updated_at: '2026-05-31T12:00:00Z' } },
+        { node: { id: 3, mean: 9.5 }, list_status: { score: 10, updated_at: '2026-05-31T11:00:00Z' } },
+      ];
+      
+      const top = getTopOrWorstRated(tiedItems, true);
+      // Expected order (latest first): id 2, id 3, id 1
+      expect(top[0].node.id).toBe(2);
+      expect(top[1].node.id).toBe(3);
+      expect(top[2].node.id).toBe(1);
+
+      const worst = getTopOrWorstRated(tiedItems, false);
+      // Expected order for worst when scores are tied: still latest first (id 2, id 3, id 1)
+      expect(worst[0].node.id).toBe(2);
+      expect(worst[1].node.id).toBe(3);
+      expect(worst[2].node.id).toBe(1);
+    });
   });
 });

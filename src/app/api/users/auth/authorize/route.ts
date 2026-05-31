@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateSecureRandomString, generatePkcePlain, buildAuthorizeUrl } from '@/server/mal/oauth';
+import { generateSecureRandomString, generatePkcePlain, buildAuthorizeUrl, encodeUrlSafeBase64 } from '@/server/mal/oauth';
 import { setOAuthTransientCookies } from '@/server/http/cookies';
 import { getAuthRedirectUri } from '@/server/env';
 import { jsonError, NO_CACHE_HEADERS } from '@/server/http/responses';
@@ -10,9 +10,16 @@ export const fetchCache = 'force-no-store';
 
 export async function GET(request: NextRequest) {
   try {
-    const state = generateSecureRandomString(32);
-    const { code_verifier } = generatePkcePlain();
+    const url = request.nextUrl;
+    const origin = url.origin;
     const redirectUri = getAuthRedirectUri();
+    
+    const stateRandom = generateSecureRandomString(24);
+    const encodedOrigin = encodeUrlSafeBase64(origin);
+    const encodedRedirectUri = encodeUrlSafeBase64(redirectUri);
+    const state = `${stateRandom}:${encodedOrigin}:${encodedRedirectUri}`;
+
+    const { code_verifier } = generatePkcePlain();
     
     const authorizeUrl = buildAuthorizeUrl(state, code_verifier, redirectUri);
     

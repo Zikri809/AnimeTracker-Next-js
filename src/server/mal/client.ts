@@ -243,3 +243,45 @@ export async function deleteAnime(
   // MAL DELETE returns 200/204, return parsed or true
   return true;
 }
+
+export async function fetchSearch(
+  q: string,
+  limitVal?: string | number | null | undefined,
+  offsetVal?: string | number | null | undefined
+) {
+  if (!q) {
+    throw new Error('Query string is required');
+  }
+
+  const limit = validateLimit(limitVal);
+  const offset = validateOffset(offsetVal);
+  const clientId = getRequiredEnv('Client_ID');
+
+  const fields = 'main_picture,status,start_season,num_episodes,title,alternative_titles,mean,num_scoring_users,popularity,genres';
+
+  const params = new URLSearchParams({
+    q,
+    limit: limit.toString(),
+    offset: offset.toString(),
+    fields,
+  });
+
+  const url = `${MAL_API_BASE}/anime?${params.toString()}`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'X-MAL-CLIENT-ID': clientId,
+    },
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => 'Unknown error');
+    const err: any = new Error(`MAL Search API returned status ${response.status}: ${errorText}`);
+    err.status = response.status;
+    throw err;
+  }
+
+  return response.json();
+}

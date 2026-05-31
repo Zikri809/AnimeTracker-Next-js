@@ -306,7 +306,9 @@ export default function MyListNavbar({
               )}
               {dialogtype === 'restore' && (
                 <>
-                  <DialogHeader className="text-white text-xl text-justify w-full font-bold border-0">Restore Your Anime World</DialogHeader>
+                  <DialogHeader>
+                    <DialogTitle className="text-white text-xl text-justify w-full font-bold border-0">Restore Your Anime World</DialogTitle>
+                  </DialogHeader>
                   <div className="border-0">
                     <p className="mt-1 text-sm text-neutral-500 text-left">
                       Upload your saved data file to continue tracking your favourite anime.
@@ -322,7 +324,9 @@ export default function MyListNavbar({
               )}
               {dialogtype === 'about' && (
                 <>
-                  <DialogHeader className="text-white text-xl">About AniJikan</DialogHeader>
+                  <DialogHeader>
+                    <DialogTitle className="text-white text-xl">About AniJikan</DialogTitle>
+                  </DialogHeader>
                   <About_card />
                 </>
               )}

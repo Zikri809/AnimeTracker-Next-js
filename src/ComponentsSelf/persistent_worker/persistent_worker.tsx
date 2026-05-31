@@ -20,10 +20,6 @@ export default function PersistentWorker({ children }: { children: ReactNode }) 
             return;
         }
 
-        if (typeof window !== "undefined" && window.location.pathname.startsWith("/mylist")) {
-            return;
-        }
-
         let cancelled = false;
         let sync: ReturnType<typeof startWatchlistSync> | null = null;
 

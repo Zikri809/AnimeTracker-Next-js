@@ -96,6 +96,66 @@ describe('Auth Route Handlers', () => {
       expect(cookiesStr).toContain(COOKIES.REFRESH_TOKEN);
       expect(cookiesStr).toContain(COOKIES.EXPIRES_IN);
     });
+
+    it('redirects to decoded origin if it is different from current origin and is allowed', async () => {
+      const targetOrigin = 'http://localhost:3000';
+      const encodedOrigin = Buffer.from(targetOrigin).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      const state = `random123:${encodedOrigin}`;
+
+      // Request lands on production domain: https://anime-tracker.vercel.app
+      const req = new NextRequest(`https://anime-tracker.vercel.app/api/users/auth/callback?code=code123&state=${state}`);
+      const res = await callbackGET(req);
+
+      expect(res.status).toBe(302);
+      expect(res.headers.get('Location')).toBe(`http://localhost:3000/api/users/auth/callback?code=code123&state=${state}`);
+      expect(oauthHelpers.exchangeAuthCode).not.toHaveBeenCalled();
+    });
+
+    it('exchanges code using the decoded redirect_uri when on the correct origin', async () => {
+      vi.mocked(oauthHelpers.exchangeAuthCode).mockResolvedValue({
+        access_token: 'accessX',
+        refresh_token: 'refreshY',
+        expires_in: 3600,
+        token_type: 'Bearer',
+      });
+
+      const currentOrigin = 'http://localhost:3000';
+      const redirectUri = 'https://anime-tracker.vercel.app/api/users/auth/callback';
+      const encodedOrigin = Buffer.from(currentOrigin).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      const encodedRedirect = Buffer.from(redirectUri).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      const state = `random123:${encodedOrigin}:${encodedRedirect}`;
+
+      const req = new NextRequest(`http://localhost:3000/api/users/auth/callback?code=code123&state=${state}`, {
+        headers: {
+          cookie: `${COOKIES.STATE}=${state}; ${COOKIES.CODE_VERIFIER}=verifier123`,
+        },
+      });
+      const res = await callbackGET(req);
+
+      expect(res.status).toBe(302);
+      expect(res.headers.get('Location')).toContain('login_success');
+      // Should use the decoded redirectUri instead of getAuthRedirectUri()
+      expect(oauthHelpers.exchangeAuthCode).toHaveBeenCalledWith('code123', 'verifier123', 'https://anime-tracker.vercel.app/api/users/auth/callback');
+    });
+
+    it('rejects authorization with redirect_uri if decoded redirect_uri is from an unallowed origin', async () => {
+      const currentOrigin = 'http://localhost:3000';
+      const maliciousRedirect = 'https://malicious-site.com/api/users/auth/callback';
+      const encodedOrigin = Buffer.from(currentOrigin).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      const encodedRedirect = Buffer.from(maliciousRedirect).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      const state = `random123:${encodedOrigin}:${encodedRedirect}`;
+
+      const req = new NextRequest(`http://localhost:3000/api/users/auth/callback?code=code123&state=${state}`, {
+        headers: {
+          cookie: `${COOKIES.STATE}=${state}; ${COOKIES.CODE_VERIFIER}=verifier123`,
+        },
+      });
+      const res = await callbackGET(req);
+
+      expect(res.status).toBe(302);
+      expect(res.headers.get('Location')).toContain('login_failed');
+      expect(oauthHelpers.exchangeAuthCode).not.toHaveBeenCalled();
+    });
   });
 
   describe('GET /api/users/auth/log_out', () => {

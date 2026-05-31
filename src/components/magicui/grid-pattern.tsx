@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useId, useMemo } from "react";
 import type { SVGProps } from "react";
 
 import { cn } from "@/lib/utils";
@@ -24,6 +24,17 @@ export function GridPattern({
 }: GridPatternProps) {
   const id = useId();
 
+  const uniqueSquares = useMemo(() => {
+    if (!squares) return [];
+    const seen = new Set<string>();
+    return squares.filter(([sX, sY]) => {
+      const key = `${sX}-${sY}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [squares]);
+
   return (
     <svg
       aria-hidden="true"
@@ -46,9 +57,9 @@ export function GridPattern({
         </pattern>
       </defs>
       <rect width="100%" height="100%" strokeWidth={0} fill={`url(#${id})`} />
-      {squares && (
+      {uniqueSquares.length > 0 && (
         <svg x={x} y={y} className="overflow-visible">
-          {squares.map(([squareX, squareY]) => (
+          {uniqueSquares.map(([squareX, squareY]) => (
             <rect
               strokeWidth="0"
               key={`${squareX}-${squareY}`}

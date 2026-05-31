@@ -84,6 +84,11 @@ export function startWatchlistSync(onComplete?: (result: SyncResult) => void, on
     if (finished) return;
     finished = true;
     clearActiveWorker();
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('watchlist-sync-complete', { detail: result }));
+    }
+
     onComplete?.(result);
   }
 

@@ -54,6 +54,12 @@ export default function SearchPage() {
 
   const fetchapi = React.useCallback(async (currpage: number) => {
     try {
+      const q = searchtarget === null ? queryTitle : searchtarget;
+      if (!q || q === 'NA' || (typeof q === 'string' && !q.trim())) {
+        setLoading(false);
+        return;
+      }
+
       const storeddata = JSON.parse(sessionStorage.getItem('animedatasearch') || 'null');
       if (storeddata !== null) {
         const lastUpdate = JSON.parse(sessionStorage.getItem('lastupdatetimesearch') || '0');
@@ -71,13 +77,7 @@ export default function SearchPage() {
         }
       }
 
-      const q = searchtarget === null ? queryTitle : searchtarget;
-      if (!q) {
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch('https://api.jikan.moe/v4/anime?letter&limit=24&sfw=true&page=' + currpage + '&q=' + encodeURIComponent(q));
+      const response = await fetch('/api/anime/search?page=' + currpage + '&q=' + encodeURIComponent(q));
       const apifeedback = await response.json();
       const top24 = apifeedback.data || [];
 

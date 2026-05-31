@@ -83,6 +83,18 @@ export function getTopOrWorstRated(items: any[], isTop: boolean): any[] {
       return isTop ? scoreB - scoreA : scoreA - scoreB;
     }
     
+    // Break ties with update time (latest updated first for both top and worst)
+    const parseTime = (dateStr: any) => {
+      if (!dateStr) return 0;
+      const parsed = Date.parse(dateStr);
+      return isNaN(parsed) ? 0 : parsed;
+    };
+    const timeA = parseTime(a.list_status?.updated_at);
+    const timeB = parseTime(b.list_status?.updated_at);
+    if (timeA !== timeB) {
+      return timeB - timeA;
+    }
+
     // Break ties with community mean score
     const meanA = a.node?.mean ?? 0;
     const meanB = b.node?.mean ?? 0;
