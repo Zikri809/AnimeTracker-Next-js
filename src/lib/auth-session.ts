@@ -40,6 +40,41 @@ export async function fetchAuthSession(): Promise<AuthSession> {
   }
 }
 
+let refreshSessionPromise: Promise<AuthSession> | null = null;
+
+async function refreshAccessToken(): Promise<boolean> {
+  try {
+    const response = await fetch('/api/users/auth/refresh_accesstoken', {
+      method: 'POST',
+      cache: 'no-store',
+      credentials: 'same-origin',
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function fetchAuthSessionWithRefresh(): Promise<AuthSession> {
+  const session = await fetchAuthSession();
+  if (session.authenticated && !isSessionExpiringSoon(session)) {
+    return session;
+  }
+  if (!session.hasRefreshToken) {
+    return session;
+  }
+
+  if (!refreshSessionPromise) {
+    refreshSessionPromise = refreshAccessToken()
+      .then((refreshed) => (refreshed ? fetchAuthSession() : session))
+      .finally(() => {
+        refreshSessionPromise = null;
+      });
+  }
+
+  return refreshSessionPromise;
+}
+
 export function isSessionExpiringSoon(session: AuthSession, daysBeforeExpiry = 2): boolean {
   if (!session.accessTokenExpiresAt) return false;
 

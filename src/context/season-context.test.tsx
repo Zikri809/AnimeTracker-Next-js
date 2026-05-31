@@ -2,7 +2,7 @@ import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { fetchAuthSession } from '@/lib/auth-session';
+import { fetchAuthSession, fetchAuthSessionWithRefresh } from '@/lib/auth-session';
 import { getSeasonContextValue, SeasonProvider, useSeasonContext } from "./season-context";
 import Providers from "../app/providers";
 import PersistentWorker, {
@@ -11,6 +11,12 @@ import PersistentWorker, {
 
 vi.mock("@/lib/auth-session", () => ({
   fetchAuthSession: vi.fn(() => Promise.resolve({
+    authenticated: false,
+    accessTokenExpiresAt: null,
+    hasRefreshToken: false,
+    userData: null,
+  })),
+  fetchAuthSessionWithRefresh: vi.fn(() => Promise.resolve({
     authenticated: false,
     accessTokenExpiresAt: null,
     hasRefreshToken: false,
@@ -36,6 +42,12 @@ describe("season-context date calculations", () => {
     __resetPersistentWorkerForTests();
     vi.clearAllMocks();
     vi.mocked(fetchAuthSession).mockResolvedValue({
+      authenticated: false,
+      accessTokenExpiresAt: null,
+      hasRefreshToken: false,
+      userData: null,
+    });
+    vi.mocked(fetchAuthSessionWithRefresh).mockResolvedValue({
       authenticated: false,
       accessTokenExpiresAt: null,
       hasRefreshToken: false,
@@ -180,7 +192,7 @@ describe("season-context date calculations", () => {
   });
 
   it("PersistentWorker starts once across a Strict-Mode-like remount", async () => {
-    vi.mocked(fetchAuthSession).mockResolvedValue({
+    vi.mocked(fetchAuthSessionWithRefresh).mockResolvedValue({
       authenticated: true,
       accessTokenExpiresAt: new Date(Date.now() + 86400000).toISOString(),
       hasRefreshToken: true,

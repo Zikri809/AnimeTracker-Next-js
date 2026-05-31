@@ -69,8 +69,14 @@ export function useScrollSaver(deps: DependencyList = []): void {
       saveScrollPosition();
     };
 
+    const handleUserInteraction = () => {
+      isRestored.current = true;
+    };
+
     window.addEventListener("pagehide", handleSave);
     window.addEventListener("beforeunload", handleSave);
+    window.addEventListener("wheel", handleUserInteraction, { passive: true });
+    window.addEventListener("touchmove", handleUserInteraction, { passive: true });
 
     const handleLinkClick = (e: MouseEvent) => {
       let target = e.target as HTMLElement | null;
@@ -91,6 +97,8 @@ export function useScrollSaver(deps: DependencyList = []): void {
     return () => {
       window.removeEventListener("pagehide", handleSave);
       window.removeEventListener("beforeunload", handleSave);
+      window.removeEventListener("wheel", handleUserInteraction);
+      window.removeEventListener("touchmove", handleUserInteraction);
       document.removeEventListener("click", handleLinkClick, { capture: true });
     };
   }, []);
@@ -102,5 +110,6 @@ export function useScrollSaver(deps: DependencyList = []): void {
         isRestored.current = true;
       }
     }
-  });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
 }

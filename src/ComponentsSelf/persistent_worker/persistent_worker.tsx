@@ -1,15 +1,15 @@
 "use client";
 
-import { fetchAuthSession } from "@/lib/auth-session";
+import { fetchAuthSessionWithRefresh } from "@/lib/auth-session";
+import { invalidateSyncSession, startWatchlistSync } from "@/app/mylist/_lib/mylist-worker-sync";
 import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 
-let syncWorker: Worker | null = null;
 let workerStarted = false;
 
 export function __resetPersistentWorkerForTests() {
-    syncWorker = null;
     workerStarted = false;
+    invalidateSyncSession();
 }
 
 export default function PersistentWorker({ children }: { children: ReactNode }) {
@@ -20,39 +20,34 @@ export default function PersistentWorker({ children }: { children: ReactNode }) 
             return;
         }
 
-        let cancelled = false;
+        if (typeof window !== "undefined" && window.location.pathname.startsWith("/mylist")) {
+            return;
+        }
 
-        fetchAuthSession().then((session) => {
+        let cancelled = false;
+        let sync: ReturnType<typeof startWatchlistSync> | null = null;
+
+        fetchAuthSessionWithRefresh().then((session) => {
             if (cancelled || workerStarted || hasrunned.current || !session.authenticated) return;
 
-            syncWorker = new Worker('/worker/worker.js');
             workerStarted = true;
             hasrunned.current = true;
-            syncWorker.postMessage('start');
-
-            syncWorker.onmessage = (e) => {
-                if (!Array.isArray(e.data.collectionarr) || e.data.collectionarr.length < 5) {
-                    console.warn("Worker sync returned an unexpected payload shape");
-                    return;
+            sync = startWatchlistSync(
+                () => {
+                    workerStarted = false;
+                },
+                () => {
+                    workerStarted = false;
                 }
-
-                const watchingmap = e.data.collectionarr[0];
-                const completedmap = e.data.collectionarr[1];
-                const onholdmap = e.data.collectionarr[2];
-                const droppedmap = e.data.collectionarr[3];
-                const plantowatchmap = e.data.collectionarr[4];
-
-                localStorage.setItem('Watching', JSON.stringify(Array.from(watchingmap)));
-                localStorage.setItem('Completed', JSON.stringify(Array.from(completedmap)));
-                localStorage.setItem('OnHold', JSON.stringify(Array.from(onholdmap)));
-                localStorage.setItem('Dropped', JSON.stringify(Array.from(droppedmap)));
-                localStorage.setItem('PlanToWatch', JSON.stringify(Array.from(plantowatchmap)));
-            };
+            );
         });
 
         return () => {
             cancelled = true;
-            // no terminate to help it persists across pages
+            if (sync && typeof window !== "undefined" && window.location.pathname.startsWith("/mylist")) {
+                sync.terminate();
+                workerStarted = false;
+            }
         };
     }, []);
 

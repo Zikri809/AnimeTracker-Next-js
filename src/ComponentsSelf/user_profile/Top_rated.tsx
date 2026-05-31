@@ -1,8 +1,9 @@
 import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import top_score from "@/Utility/filter/top_score";
 import Animecard from "./anime_card";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { getWatchlistMap } from "@/Utility/tracking/watchlist-storage";
+import { getTopOrWorstRated } from "@/app/mylist/_lib/mylist-row-view-model";
 
 interface RatedCardProps {
     title: string;
@@ -14,47 +15,42 @@ export default function RatedCard({ title, localStorage_id, score }: RatedCardPr
     const [top_list, Setlist] = useState<any[]>([])
 
     useEffect(() => {
-        const storedStr = localStorage.getItem(localStorage_id);
-        if (!storedStr) return;
+        try {
+            const map = getWatchlistMap(localStorage_id as any);
+            const anime_arr = Array.from(map.values());
+            const sorted_anime = getTopOrWorstRated(anime_arr, score);
+            const sliced = sorted_anime.slice(0, 10);
 
-        let anime_arr = JSON.parse(storedStr)
-        anime_arr = anime_arr.map((element: any) => {
-            return element[1]
-        })
-        const top_anime = top_score(anime_arr)
-        const sliced = score ? top_anime.slice(0, 10) : top_anime.slice(top_anime.length - 10, top_anime.length);
-
-        Promise.resolve().then(() => {
-            Setlist(sliced);
-        });
-
-        console.log('anime arr is ', anime_arr)
+            Promise.resolve().then(() => {
+                Setlist(sliced);
+            });
+        } catch (e) {
+            console.error('Failed to parse top rated completion list:', e);
+        }
     }, [localStorage_id, score])
-
-    console.log('top arr ', top_list)
 
     return (
         <Card className='bg-neutral-900 border-1 border-neutral-600 overflow-x-auto h-fit'>
             <CardContent className=''>
                 <CardTitle className='text-white font-bold'>{title}</CardTitle>
-                <CardDescription>
+                <div className="text-sm text-neutral-400 mt-4">
                     <Carousel opts={{ skipSnaps: true }}>
                         <CarouselContent className=" ">
                             {top_list.map((element) => {
                                 return (
-                                    <CarouselItem key={element.node.id + 20} className='basis-auto sm:basis-1/9 not-first:pl-2'>
+                                    <CarouselItem key={element.node.id + 20} className='basis-auto sm:basis-1/6 pl-2 first:pl-0'>
                                         <Animecard
                                             className='shrink-0'
                                             title={element.node.title}
-                                            img={element.node.main_picture.large}
-                                            user_score={element.list_status.score}
+                                            img={element.node.main_picture?.large ?? element.node.main_picture?.medium ?? ''}
+                                            user_score={element.list_status?.score ?? 0}
                                         />
                                     </CarouselItem>
                                 )
                             })}
                         </CarouselContent>
                     </Carousel>
-                </CardDescription>
+                </div>
             </CardContent>
         </Card>
     )

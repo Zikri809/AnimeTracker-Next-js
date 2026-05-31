@@ -1,13 +1,14 @@
 'use client';
 
-import Login_navbar from "@/ComponentsSelf/navbar/log_in_navbar"
-import { Button } from "@/components/ui/button"
+import Login_navbar from "@/ComponentsSelf/navbar/log_in_navbar";
+import { Button } from "@/components/ui/button";
 import { LogIn } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
-import { useCurrentRoute } from "@/hooks/use-current-route";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-    const router = useCurrentRoute();
+    const router = useRouter();
+    
     async function log_in() {
         try {
             router.push('/api/users/auth/authorize');

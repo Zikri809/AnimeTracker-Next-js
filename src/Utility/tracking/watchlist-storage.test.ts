@@ -1,10 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   addToWatchlist,
   removeFromAllWatchlists,
   getWatchlistMap,
   getAnimeWatchlistStatus,
   WATCHLIST_KEYS,
+  saveWatchlistMap,
 } from './watchlist-storage';
 import { MalTrackingItem } from './mal-tracking-item';
 
@@ -14,6 +15,7 @@ describe('Watchlist Storage Helper', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     localStorage.clear();
   });
 
@@ -41,6 +43,46 @@ describe('Watchlist Storage Helper', () => {
     localStorage.setItem('Watching', 'corrupted data');
     const map = getWatchlistMap('Watching');
     expect(map.size).toBe(0);
+  });
+
+  it('should handle storage getItem throwing safely', () => {
+    const getItem = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('blocked');
+    });
+
+    expect(() => getWatchlistMap('Watching')).not.toThrow();
+    expect(getWatchlistMap('Watching').size).toBe(0);
+    getItem.mockRestore();
+  });
+
+  it('should report false when storage setItem throws', () => {
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('quota');
+    });
+
+    const map = new Map<number, MalTrackingItem>();
+    map.set(12345, testItem);
+
+    expect(saveWatchlistMap('Watching', map)).toBe(false);
+    setItem.mockRestore();
+  });
+
+  it('should drop invalid, zero, negative, decimal, or NaN IDs and mismatched node IDs', () => {
+    const mixedData = [
+      [123, { node: { id: 123, title: 'Valid' } }],
+      [0, { node: { id: 0, title: 'Zero ID' } }],
+      [-5, { node: { id: -5, title: 'Negative ID' } }],
+      [12.5, { node: { id: 12.5, title: 'Decimal ID' } }],
+      [NaN, { node: { id: NaN, title: 'NaN ID' } }],
+      [456, { node: { id: 999, title: 'Mismatched ID' } }],
+      [789, null],
+      [789, { node: null }],
+    ];
+    localStorage.setItem('Watching', JSON.stringify(mixedData));
+    const map = getWatchlistMap('Watching');
+    expect(map.size).toBe(1);
+    expect(map.has(123)).toBe(true);
+    expect(map.get(123)?.node.title).toBe('Valid');
   });
 
   it('should handle wrong-shape storage values (array of items) safely', () => {

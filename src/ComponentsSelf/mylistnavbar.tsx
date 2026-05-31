@@ -27,6 +27,12 @@ import { useCurrentRoute } from '@/hooks/use-current-route';
 import { fetchAuthSession, type AuthSession } from "@/lib/auth-session";
 import Mylist_sort from "./sort/mylist_sort";
 import About_card from "./About/about_card";
+import {
+  getWatchlistMap,
+  normalizeWatchlistEntries,
+  serializeWatchlistMap,
+  type WatchlistKey,
+} from "@/Utility/tracking/watchlist-storage";
 
 interface MyListNavbarProps {
   Setcompleted: (val: any) => void;
@@ -59,6 +65,7 @@ export default function MyListNavbar({
   });
   const inputref = useRef<HTMLInputElement>(null);
   const { push, hardReload } = useCurrentRoute();
+  const backupKeyOrder: WatchlistKey[] = ['PlanToWatch', 'Watching', 'Completed', 'OnHold', 'Dropped'];
 
   useEffect(() => {
     fetchAuthSession().then(setSession);
@@ -66,12 +73,7 @@ export default function MyListNavbar({
 
   function backup() {
     try {
-      const plantowatch = JSON.parse(localStorage.getItem('PlanToWatch') || '[]');
-      const watching = JSON.parse(localStorage.getItem('Watching') || '[]');
-      const completed = JSON.parse(localStorage.getItem('Completed') || '[]');
-      const onhold = JSON.parse(localStorage.getItem('OnHold') || '[]');
-      const dropped = JSON.parse(localStorage.getItem('Dropped') || '[]');
-      const watchlistarr = [plantowatch, watching, completed, onhold, dropped];
+      const watchlistarr = backupKeyOrder.map((key) => Array.from(getWatchlistMap(key).entries()));
       console.log('backup clicked');
       const downloadable = JSON.stringify(watchlistarr, null, 2);
       const blob = new Blob([downloadable], { type: 'application/json' });
@@ -80,10 +82,48 @@ export default function MyListNavbar({
       a.href = url;
       a.download = "watchlist-backup.json";
       a.click();
+      URL.revokeObjectURL(url);
       toast.success('Watchlist Downloading');
     } catch (e) {
       toast.error('Failed to create backup file');
     }
+  }
+
+  function validateBackupPayload(payload: unknown) {
+    if (!Array.isArray(payload) || payload.length < 5) {
+      return null;
+    }
+
+    const maps = payload.slice(0, 5).map((category) => {
+      if (!Array.isArray(category)) return null;
+      for (const entry of category) {
+        const isPair = Array.isArray(entry) &&
+          entry.length === 2 &&
+          typeof entry[0] === 'number' &&
+          Number.isInteger(entry[0]) &&
+          entry[0] > 0 &&
+          entry[1]?.node?.id === entry[0];
+        const isLegacyItem = !Array.isArray(entry) &&
+          typeof entry?.node?.id === 'number' &&
+          Number.isInteger(entry.node.id) &&
+          entry.node.id > 0;
+
+        if (!isPair && !isLegacyItem) return null;
+      }
+      return normalizeWatchlistEntries(category);
+    });
+    if (maps.some((map) => map === null)) {
+      return null;
+    }
+
+    return maps as Array<NonNullable<ReturnType<typeof normalizeWatchlistEntries>>>;
+  }
+
+  function clearMyListSessionKeys() {
+    sessionStorage.removeItem('sort_type');
+    sessionStorage.removeItem('sorted_anime');
+    sessionStorage.removeItem('slicearr');
+    sessionStorage.removeItem('scrollY');
   }
 
   function Filereader(e: React.ChangeEvent<HTMLInputElement>) {
@@ -109,14 +149,15 @@ export default function MyListNavbar({
     reader.onload = () => {
       try {
         const watchlistarr = JSON.parse(reader.result as string);
-        if (Array.isArray(watchlistarr) && watchlistarr.length >= 5) {
-          Setanimearr(watchlistarr);
+        const validated = validateBackupPayload(watchlistarr);
+        if (validated) {
+          Setanimearr(validated);
           const totalEntries =
-            (watchlistarr[0]?.length || 0) +
-            (watchlistarr[1]?.length || 0) +
-            (watchlistarr[2]?.length || 0) +
-            (watchlistarr[3]?.length || 0) +
-            (watchlistarr[4]?.length || 0);
+            validated[0].size +
+            validated[1].size +
+            validated[2].size +
+            validated[3].size +
+            validated[4].size;
           Set_entries(totalEntries);
         } else {
           toast.error('Invalid backup format');
@@ -131,17 +172,39 @@ export default function MyListNavbar({
   function submitrestore() {
     if (animearr === undefined) return;
     try {
-      const plantowatcharr = animearr[0] || [];
-      const watchingarr = animearr[1] || [];
-      const completedarr = animearr[2] || [];
-      const onholdarr = animearr[3] || [];
-      const droppedarr = animearr[4] || [];
+      const previous = new Map<WatchlistKey, string | null>();
+      const serialized = new Map<WatchlistKey, string>();
+      backupKeyOrder.forEach((key, index) => {
+        previous.set(key, localStorage.getItem(key));
+        serialized.set(key, serializeWatchlistMap(animearr[index]));
+      });
 
-      localStorage.setItem('PlanToWatch', JSON.stringify(plantowatcharr));
-      localStorage.setItem('Watching', JSON.stringify(watchingarr));
-      localStorage.setItem('Completed', JSON.stringify(completedarr));
-      localStorage.setItem('OnHold', JSON.stringify(onholdarr));
-      localStorage.setItem('Dropped', JSON.stringify(droppedarr));
+      const written: WatchlistKey[] = [];
+      try {
+        backupKeyOrder.forEach((key) => {
+          localStorage.setItem(key, serialized.get(key)!);
+          written.push(key);
+        });
+      } catch (writeError) {
+        written.reverse().forEach((key) => {
+          const oldValue = previous.get(key);
+          try {
+            if (oldValue === null || oldValue === undefined) {
+              localStorage.removeItem(key);
+            } else {
+              localStorage.setItem(key, oldValue);
+            }
+          } catch {
+            // Best-effort rollback.
+          }
+        });
+        throw writeError;
+      }
+
+      clearMyListSessionKeys();
+      if (inputref.current) {
+        inputref.current.value = '';
+      }
       toast.success('Watchlist restored');
       console.log('data restored');
       setTimeout(() => {
@@ -167,7 +230,7 @@ export default function MyListNavbar({
   }
 
   return (
-    <nav className="fixed w-screen z-3 border-0 bg-black py-4 h-20 px-4 mb-3 top-0 left-0 flex flex-row items-center justify-between">
+    <nav className="fixed w-full z-10 border-0 bg-black py-4 h-20 px-4 mb-3 top-0 left-0 flex flex-row items-center justify-between">
       <div className="flex items-center gap-5">
         <Link onClick={handleReset} href="/">
           <Button className="bg-zinc-800 text-white hover:text-black hover:bg-zinc-400" variant="secondary" size="icon">

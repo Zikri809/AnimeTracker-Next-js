@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { UsersRound } from 'lucide-react';
 import { LaptopMinimalCheck, Radio, ArrowDown10 } from 'lucide-react';
+import { getWatchlistMap, MYLIST_TABS } from "@/Utility/tracking/watchlist-storage";
 
 interface MylistSortProps {
     Setcompleted: (data: any) => void;
@@ -30,6 +31,29 @@ export default function MylistSort({
 }: MylistSortProps) {
     const [toggleValue, SetTogglevalue] = useState('')
     const [isOpenDropDown, SetOpenDropDown] = useState(false)
+
+    function getStorageKeyForTab(tabLabel: string) {
+        return MYLIST_TABS.find((tab) => tab.label === tabLabel)?.storageKey ?? 'PlanToWatch'
+    }
+
+    function restoreAllLists() {
+        Setcompleted(Array.from(getWatchlistMap('Completed').entries()))
+        Setplan(Array.from(getWatchlistMap('PlanToWatch').entries()))
+        Setwatching(Array.from(getWatchlistMap('Watching').entries()))
+        Setonhold(Array.from(getWatchlistMap('OnHold').entries()))
+        Setdropped(Array.from(getWatchlistMap('Dropped').entries()))
+    }
+
+    function parseStoredSortType() {
+        const raw = sessionStorage.getItem('sort_type')
+        if (!raw) return ''
+        try {
+            const parsed = JSON.parse(raw)
+            return typeof parsed === 'string' ? parsed : ''
+        } catch {
+            return raw
+        }
+    }
 
     function findSetter(sorted_anime_map: any[], activetab: string) {
         switch (activetab) {
@@ -61,11 +85,8 @@ export default function MylistSort({
         const activetab = sessionStorage.getItem('activetab')
         if (!activetab) return;
 
-        // since the data from the local storage are in map format we had to turn it into regular array of anime then parse it back into a map
-        const storedTab = localStorage.getItem(activetab.split(' ').join(''));
-        if (!storedTab) return;
-
-        const anime_data = JSON.parse(storedTab).map((value: any) => { return value[1] })
+        const activeStorageKey = getStorageKeyForTab(activetab)
+        const anime_data = Array.from(getWatchlistMap(activeStorageKey).values())
         console.log('sorter anime data ', anime_data)
         let sorted: any[] = []
         switch (selectedValue) {
@@ -90,14 +111,10 @@ export default function MylistSort({
                 sessionStorage.removeItem('sorted_anime')
                 sessionStorage.setItem('scrollY', JSON.stringify(0))
 
-                Setcompleted(JSON.parse(localStorage.getItem('Completed') || '[]'))
-                Setplan(JSON.parse(localStorage.getItem('PlanToWatch') || '[]'))
-                Setwatching(JSON.parse(localStorage.getItem('Watching') || '[]'))
-                Setonhold(JSON.parse(localStorage.getItem('OnHold') || '[]'))
-                Setdropped(JSON.parse(localStorage.getItem('Dropped') || '[]'))
+                restoreAllLists()
                 SetpageArr(30)
 
-                sessionStorage.setItem('slicearr', '31')
+                sessionStorage.setItem('slicearr', '30')
                 window.scrollTo(0, 0);
                 SetOpenDropDown(false)
                 return
@@ -113,14 +130,14 @@ export default function MylistSort({
         sessionStorage.setItem('sorted_anime', JSON.stringify(sorted.length === 0 ? '' : sorted_anime_map))
         SetpageArr(30)
 
-        sessionStorage.setItem('slicearr', '31')
+        sessionStorage.setItem('slicearr', '30')
         SetOpenDropDown(false)
         window.scrollTo(0, 0);
     }
 
     function menuTriggerHandler() {
         console.log('click trigger the restore')
-        SetTogglevalue(JSON.parse(sessionStorage.getItem('sort_type') || 'null') ?? '')
+        SetTogglevalue(parseStoredSortType())
         SetOpenDropDown(!isOpenDropDown)
     }
 

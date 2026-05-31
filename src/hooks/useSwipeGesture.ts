@@ -1,12 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function useSwipeGesture(
   TypeOfSwipe: "x-axis" | "y-axis",
   onSwipeAction: [() => void, () => void],
   minimumSwipeActivateThreshold: number
 ): void {
+  const onSwipeActionRef = useRef(onSwipeAction);
+
+  useEffect(() => {
+    onSwipeActionRef.current = onSwipeAction;
+  }, [onSwipeAction]);
+
   useEffect(() => {
     let x_swipe = false;
     let y_swipe = false;
@@ -37,31 +43,57 @@ export default function useSwipeGesture(
     const minimum_threshold = minimumSwipeActivateThreshold;
 
     function touchstart(event: TouchEvent) {
+      const target = event.target as HTMLElement | null;
+      if (target) {
+        const ignoredSelectors = [
+          'a',
+          'button',
+          'input',
+          'select',
+          'textarea',
+          '[role="tablist"]',
+          '[role="tab"]',
+          '[role="menu"]',
+          '[role="menuitem"]',
+          '[role="dialog"]',
+          '.no-swipe'
+        ];
+        const isIgnored = ignoredSelectors.some(selector => target.closest(selector));
+        if (isIgnored) {
+          touchstartX = 0;
+          touchstartY = 0;
+          return;
+        }
+      }
       touchstartX = event.changedTouches[0].screenX;
       touchstartY = event.changedTouches[0].screenY;
     }
 
     function touchend(event: TouchEvent) {
+      if (touchstartX === 0 && touchstartY === 0) return;
       touchendX = event.changedTouches[0].screenX;
       touchendY = event.changedTouches[0].screenY;
       handleGesture();
+      touchstartX = 0;
+      touchstartY = 0;
     }
 
     window.addEventListener('touchstart', touchstart, false);
     window.addEventListener('touchend', touchend, false);
 
     function handleGesture() {
+      if (touchstartX === 0 && touchstartY === 0) return;
       if (x_swipe) {
-        if (touchendX < touchstartX && touchstartX - touchendX >= minimum_threshold && Math.abs(touchendY - touchstartY) <= 20) {
-          onSwipeAction[0]();
-        } else if (touchendX - touchstartX >= minimum_threshold && Math.abs(touchendY - touchstartY) <= 20) {
-          onSwipeAction[1]();
+        if (touchendX < touchstartX && touchstartX - touchendX >= minimum_threshold && Math.abs(touchendY - touchstartY) <= 80) {
+          onSwipeActionRef.current[0]();
+        } else if (touchendX - touchstartX >= minimum_threshold && Math.abs(touchendY - touchstartY) <= 80) {
+          onSwipeActionRef.current[1]();
         }
       } else {
-        if (touchendY < touchstartY && touchstartY - touchendY >= minimum_threshold && Math.abs(touchendX - touchstartX) <= 20) {
-          onSwipeAction[0]();
-        } else if (touchendY - touchstartY >= minimum_threshold && Math.abs(touchendX - touchstartX) <= 20) {
-          onSwipeAction[1]();
+        if (touchendY < touchstartY && touchstartY - touchendY >= minimum_threshold && Math.abs(touchendX - touchstartX) <= 80) {
+          onSwipeActionRef.current[0]();
+        } else if (touchendY - touchstartY >= minimum_threshold && Math.abs(touchendX - touchstartX) <= 80) {
+          onSwipeActionRef.current[1]();
         }
       }
     }
@@ -70,5 +102,6 @@ export default function useSwipeGesture(
       window.removeEventListener('touchstart', touchstart);
       window.removeEventListener('touchend', touchend);
     };
-  }, [TypeOfSwipe, onSwipeAction, minimumSwipeActivateThreshold]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [TypeOfSwipe, minimumSwipeActivateThreshold]);
 }

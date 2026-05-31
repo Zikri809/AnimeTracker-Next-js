@@ -7,6 +7,7 @@ interface StatData {
     num_items_plan_to_watch: number;
     num_items_on_hold: number;
     num_items_dropped: number;
+    num_items_watching: number;
     num_days: number;
     mean_score: number;
     num_items: number;
@@ -32,8 +33,7 @@ export default function AnimeStatCard(props: AnimeStatCardProps) {
         {
             category: 'Watching',
             icon: <div className="h-2 w-2 bg-emerald-500 rounded-full"/>,
-            // Note: The original code mapped Watching to num_items_on_hold, we preserve that behavior but we can typecheck it.
-            count: stat_data.num_items_on_hold
+            count: stat_data.num_items_watching
         },
         {
             category: 'On Hold',

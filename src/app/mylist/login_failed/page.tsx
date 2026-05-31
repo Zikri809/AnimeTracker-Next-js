@@ -1,25 +1,27 @@
 'use client';
 
-import Login_navbar from "@/ComponentsSelf/navbar/log_in_navbar"
+import Login_navbar from "@/ComponentsSelf/navbar/log_in_navbar";
 import { Card, CardContent } from "@/components/ui/card";
-import { useCurrentRoute } from "@/hooks/use-current-route";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginFailedPage() {
-    const router = useCurrentRoute();
+    const router = useRouter();
     const [timer, Settimer] = useState(5);
+
     useEffect(() => {
         const interval = setInterval(() => {
             Settimer((t) => t - 1);
         }, 1000);
         const timeout = setTimeout(() => {
-            window.location.href = '/mylist';
+            router.push('/mylist');
         }, 5000);
         return () => {
             clearInterval(interval);
             clearTimeout(timeout);
         };
-    }, []);
+    }, [router]);
+
     return (
         <div className="bg-black w-screen h-[100svh]  flex flex-col items-center">
             <Login_navbar/>
