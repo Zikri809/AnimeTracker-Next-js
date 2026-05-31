@@ -20,6 +20,11 @@ jobs:
       - run: npm run typecheck
       - run: npm run test
       - run: npm run build
+        env:
+          Client_ID: ${{ secrets.MAL_CLIENT_ID_FOR_TESTS }}
+          Client_Secret: ${{ secrets.MAL_CLIENT_SECRET_FOR_TESTS }}
+          dev_auth_redirect: http://localhost:3000/api/users/auth/callback
+          prod_auth_redirect: https://example.invalid/api/users/auth/callback
       - run: npm run test:e2e
         env:
           PLAYWRIGHT_TEST: "true"
