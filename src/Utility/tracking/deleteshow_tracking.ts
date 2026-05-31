@@ -2,6 +2,14 @@ import { fetchAuthSession } from "@/lib/auth-session";
 import { toast } from "sonner";
 import looping_updater from "./looping_list_updater";
 import { buildTrackingBackHref } from "@/lib/routing/path-utils";
+import { removeFromAllWatchlists } from "./watchlist-storage";
+
+function toMalStatus(status: string, fallback?: string | null): string {
+  if (status) {
+    return status.split(' ').map(word => word[0].toLowerCase() + word.slice(1)).join('_');
+  }
+  return fallback || '';
+}
 
 export default async function delete_show(
   animeinfo: any,
@@ -11,31 +19,10 @@ export default async function delete_show(
   malId?: string | number,
   relationId?: string | number
 ): Promise<any> {
-  let deletewatchingmap = new Map(JSON.parse(localStorage.getItem('Watching') || '[]'));
-  let deletecompletedmap = new Map(JSON.parse(localStorage.getItem('Completed') || '[]'));
-  let deleteplantowatchmap = new Map(JSON.parse(localStorage.getItem('PlanToWatch') || '[]'));
-  let deleteonholdmap = new Map(JSON.parse(localStorage.getItem('OnHold') || '[]'));
-  let deletedroppedmap = new Map(JSON.parse(localStorage.getItem('Dropped') || '[]'));
   const session = await fetchAuthSession();
-  const mal_status = status.split(' ').map(word => word[0].toLowerCase() + word.slice(1)).join('_');
+  const mal_status = toMalStatus(status, animeinfo.list_status?.status);
 
-  if (deletewatchingmap.has(animeinfo.node.id)) {
-    console.log('condition triggered');
-    deletewatchingmap.delete(animeinfo.node.id);
-    localStorage.setItem('Watching', JSON.stringify([...deletewatchingmap]));
-  } else if (deletecompletedmap.has(animeinfo.node.id)) {
-    deletecompletedmap.delete(animeinfo.node.id);
-    localStorage.setItem('Completed', JSON.stringify([...deletecompletedmap]));
-  } else if (deleteplantowatchmap.has(animeinfo.node.id)) {
-    deleteplantowatchmap.delete(animeinfo.node.id);
-    localStorage.setItem('PlanToWatch', JSON.stringify([...deleteplantowatchmap]));
-  } else if (deleteonholdmap.has(animeinfo.node.id)) {
-    deleteonholdmap.delete(animeinfo.node.id);
-    localStorage.setItem('OnHold', JSON.stringify([...deleteonholdmap]));
-  } else {
-    deletedroppedmap.delete(animeinfo.node.id);
-    localStorage.setItem('Dropped', JSON.stringify([...deletedroppedmap]));
-  }
+  removeFromAllWatchlists(animeinfo.node.id);
 
   Setadded(false);
 
@@ -56,7 +43,9 @@ export default async function delete_show(
     vartimer = 3000; // to let the toast stay longer on the screen
     const promise = async () => {
       await apicall(); // wait for first to complete
-      await looping_updater(mal_status); // then do second
+      if (mal_status) {
+        await looping_updater(mal_status); // then do second
+      }
       return { name: 'Your' };
     };
 

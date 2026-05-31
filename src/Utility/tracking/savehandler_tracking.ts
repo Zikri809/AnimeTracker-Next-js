@@ -3,6 +3,17 @@ import { toast } from "sonner";
 import looping_updater from "./looping_list_updater";
 import cross_check from "./list_cross_check";
 import { buildTrackingBackHref } from "@/lib/routing/path-utils";
+import { addToWatchlist } from "./watchlist-storage";
+
+function clampNumber(value: unknown, min: number, max: number): number {
+  const numericValue = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(numericValue)) return min;
+  return Math.min(Math.max(Math.trunc(numericValue), min), max);
+}
+
+function selectedSnap(api: any): number {
+  return typeof api?.selectedScrollSnap === 'function' ? api.selectedScrollSnap() : 0;
+}
 
 export default async function tracking_save(
   animeinfo: any,
@@ -22,112 +33,18 @@ export default async function tracking_save(
 
   // change the list status
   const mal_status = status.split(' ').map(word => word[0].toLowerCase() + word.slice(1)).join('_');
+  const safeEpisodeCount = Math.max(0, animeinfo.node.num_episodes ?? 0);
   animeinfo.list_status.status = mal_status;
-  animeinfo.list_status.score = api2.selectedScrollSnap();
-  animeinfo.list_status.num_episodes_watched = api.selectedScrollSnap();
+  animeinfo.list_status.score = clampNumber(selectedSnap(api2), 0, 10);
+  animeinfo.list_status.num_episodes_watched = clampNumber(selectedSnap(api), 0, safeEpisodeCount);
   Setadded(true);
 
-  if (status === 'Watching') {
-    if (localStorage.getItem('Watching') === null) {
-      const Watching = new Map();
-      localStorage.setItem('Watching', JSON.stringify([...Watching]));
-    }
-    let watchingmap = new Map(JSON.parse(localStorage.getItem('Watching')!));
-    watchingmap.set(animeinfo.node.id, animeinfo);
-    localStorage.setItem('Watching', JSON.stringify([...watchingmap]));
-    let deletecompletedmap = new Map(JSON.parse(localStorage.getItem('Completed')!));
-    deletecompletedmap.delete(animeinfo.node.id);
-    localStorage.setItem('Completed', JSON.stringify([...deletecompletedmap]));
-    let deleteplantowatchmap = new Map(JSON.parse(localStorage.getItem('PlanToWatch')!));
-    deleteplantowatchmap.delete(animeinfo.node.id);
-    localStorage.setItem('PlanToWatch', JSON.stringify([...deleteplantowatchmap]));
-    let deleteonholdmap = new Map(JSON.parse(localStorage.getItem('OnHold')!));
-    deleteonholdmap.delete(animeinfo.node.id);
-    localStorage.setItem('OnHold', JSON.stringify([...deleteonholdmap]));
-    let deletedroppedmap = new Map(JSON.parse(localStorage.getItem('Dropped')!));
-    deletedroppedmap.delete(animeinfo.node.id);
-    localStorage.setItem('Dropped', JSON.stringify([...deletedroppedmap]));
-  } else if (status === 'Completed') {
-    if (localStorage.getItem('Completed') === null) {
-      const Completed = new Map();
-      localStorage.setItem('Completed', JSON.stringify([...Completed]));
-    }
-    let completedmap = new Map(JSON.parse(localStorage.getItem('Completed')!));
-    completedmap.set(animeinfo.node.id, animeinfo);
-    localStorage.setItem('Completed', JSON.stringify([...completedmap]));
-    let deletewatchingmap = new Map(JSON.parse(localStorage.getItem('Watching')!));
-    deletewatchingmap.delete(animeinfo.node.id);
-    localStorage.setItem('Watching', JSON.stringify([...deletewatchingmap]));
-    let deleteplantowatchmap = new Map(JSON.parse(localStorage.getItem('PlanToWatch')!));
-    deleteplantowatchmap.delete(animeinfo.node.id);
-    localStorage.setItem('PlanToWatch', JSON.stringify([...deleteplantowatchmap]));
-    let deleteonholdmap = new Map(JSON.parse(localStorage.getItem('OnHold')!));
-    deleteonholdmap.delete(animeinfo.node.id);
-    localStorage.setItem('OnHold', JSON.stringify([...deleteonholdmap]));
-    let deletedroppedmap = new Map(JSON.parse(localStorage.getItem('Dropped')!));
-    deletedroppedmap.delete(animeinfo.node.id);
-    localStorage.setItem('Dropped', JSON.stringify([...deletedroppedmap]));
-  } else if (status === 'Plan To Watch') {
-    if (localStorage.getItem('PlanToWatch') === null) {
-      const PlanToWatch = new Map();
-      localStorage.setItem('PlanToWatch', JSON.stringify([...PlanToWatch]));
-    }
-    let plantowatchmap = new Map(JSON.parse(localStorage.getItem('PlanToWatch')!));
-    plantowatchmap.set(animeinfo.node.id, animeinfo);
-    localStorage.setItem('PlanToWatch', JSON.stringify([...plantowatchmap]));
-    let deletewatchingmap = new Map(JSON.parse(localStorage.getItem('Watching')!));
-    deletewatchingmap.delete(animeinfo.node.id);
-    localStorage.setItem('Watching', JSON.stringify([...deletewatchingmap]));
-    let deletecompletedmap = new Map(JSON.parse(localStorage.getItem('Completed')!));
-    deletecompletedmap.delete(animeinfo.node.id);
-    localStorage.setItem('Completed', JSON.stringify([...deletecompletedmap]));
-    let deleteonholdmap = new Map(JSON.parse(localStorage.getItem('OnHold')!));
-    deleteonholdmap.delete(animeinfo.node.id);
-    localStorage.setItem('OnHold', JSON.stringify([...deleteonholdmap]));
-    let deletedroppedmap = new Map(JSON.parse(localStorage.getItem('Dropped')!));
-    deletedroppedmap.delete(animeinfo.node.id);
-    localStorage.setItem('Dropped', JSON.stringify([...deletedroppedmap]));
-  } else if (status === 'On Hold') {
-    if (localStorage.getItem('OnHold') === null) {
-      const OnHold = new Map();
-      localStorage.setItem('OnHold', JSON.stringify([...OnHold]));
-    }
-    let onholdmap = new Map(JSON.parse(localStorage.getItem('OnHold')!));
-    onholdmap.set(animeinfo.node.id, animeinfo);
-    localStorage.setItem('OnHold', JSON.stringify([...onholdmap]));
-    let deletewatchingmap = new Map(JSON.parse(localStorage.getItem('Watching')!));
-    deletewatchingmap.delete(animeinfo.node.id);
-    localStorage.setItem('Watching', JSON.stringify([...deletewatchingmap]));
-    let deletecompletedmap = new Map(JSON.parse(localStorage.getItem('Completed')!));
-    deletecompletedmap.delete(animeinfo.node.id);
-    localStorage.setItem('Completed', JSON.stringify([...deletecompletedmap]));
-    let deleteplantowatchmap = new Map(JSON.parse(localStorage.getItem('PlanToWatch')!));
-    deleteplantowatchmap.delete(animeinfo.node.id);
-    localStorage.setItem('PlanToWatch', JSON.stringify([...deleteplantowatchmap]));
-    let deletedroppedmap = new Map(JSON.parse(localStorage.getItem('Dropped')!));
-    deletedroppedmap.delete(animeinfo.node.id);
-    localStorage.setItem('Dropped', JSON.stringify([...deletedroppedmap]));
-  } else {
-    if (localStorage.getItem('Dropped') === null) {
-      const Dropped = new Map();
-      localStorage.setItem('Dropped', JSON.stringify([...Dropped]));
-    }
-    let droppedmap = new Map(JSON.parse(localStorage.getItem('Dropped')!));
-    droppedmap.set(animeinfo.node.id, animeinfo);
-    localStorage.setItem('Dropped', JSON.stringify([...droppedmap]));
-    let deletewatchingmap = new Map(JSON.parse(localStorage.getItem('Watching')!));
-    deletewatchingmap.delete(animeinfo.node.id);
-    localStorage.setItem('Watching', JSON.stringify([...deletewatchingmap]));
-    let deletecompletedmap = new Map(JSON.parse(localStorage.getItem('Completed')!));
-    deletecompletedmap.delete(animeinfo.node.id);
-    localStorage.setItem('Completed', JSON.stringify([...deletecompletedmap]));
-    let deleteplantowatchmap = new Map(JSON.parse(localStorage.getItem('PlanToWatch')!));
-    deleteplantowatchmap.delete(animeinfo.node.id);
-    localStorage.setItem('PlanToWatch', JSON.stringify([...deleteplantowatchmap]));
-    let deleteonholdmap = new Map(JSON.parse(localStorage.getItem('OnHold')!));
-    deleteonholdmap.delete(animeinfo.node.id);
-    localStorage.setItem('OnHold', JSON.stringify([...deleteonholdmap]));
-  }
+  const statusToKey = (s: string) => {
+    if (s === 'Plan To Watch') return 'PlanToWatch';
+    if (s === 'On Hold') return 'OnHold';
+    return s as any;
+  };
+  addToWatchlist(animeinfo, statusToKey(status));
 
   const apicall = async () => {
     try {

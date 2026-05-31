@@ -29,5 +29,8 @@ export default defineConfig({
     timeout: 120000,
     stdout: 'ignore',
     stderr: 'pipe',
+    env: {
+      PLAYWRIGHT_TEST: 'true',
+    },
   },
 });
