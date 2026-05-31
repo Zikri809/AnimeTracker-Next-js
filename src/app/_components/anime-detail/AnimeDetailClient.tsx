@@ -8,6 +8,7 @@ import { useDebounce } from "@uidotdev/usehooks";
 import { JikanAnimeDetailViewModel } from "@/server/anime/jikan-detail-normalize";
 import {
   DetailRouteContext,
+  buildRelationHrefFromContext,
   buildTrackingHrefFromContext,
 } from "@/lib/routing/detail-route-context";
 import Link from "next/link";
@@ -224,7 +225,7 @@ export default function AnimeDetailClient({ detail, context }: Props) {
                     isAnimeRelation(entry.type) ? (
                       <Link
                         key={`${relation.relation}-${entry.malId}`}
-                        href={`/Anime/${entry.malId}`}
+                        href={buildRelationHrefFromContext(context, entry.malId)}
                       >
                         <p className="text-primary hover:underline">
                           {entry.name}

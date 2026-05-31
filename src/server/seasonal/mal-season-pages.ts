@@ -1,5 +1,6 @@
 import { getRequiredEnv } from "../env";
 import { validateYear, validateSeason } from "../mal/validation";
+import { buildMalSeasonUrl } from "../mal/urls";
 import type { AnimeSeason } from "./page-season";
 
 export const SEASONAL_PAGE_REVALIDATE_SECONDS = 43200;
@@ -43,7 +44,7 @@ export async function fetchCachedMalSeason(input: {
     fields: MAL_SEASON_FIELDS,
   });
 
-  const url = `https://api.myanimelist.net/v2/anime/season/${year}/${season}?${params.toString()}`;
+  const url = buildMalSeasonUrl(year, season, params);
 
   const response = await fetch(url, {
     method: "GET",

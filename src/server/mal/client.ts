@@ -10,12 +10,16 @@ import {
   validateScore,
   validateEpisode,
 } from './validation';
+import {
+  buildMalAnimeDetailsUrl,
+  buildMalAnimeListStatusUrl,
+  buildMalApiUrl,
+  buildMalSeasonUrl,
+} from './urls';
 
 /**
  * Proxy client for MyAnimeList REST API v2 endpoints.
  */
-
-const MAL_API_BASE = 'https://api.myanimelist.net/v2';
 
 export async function fetchSeasonal(
   yearVal: string | number | null | undefined,
@@ -39,7 +43,7 @@ export async function fetchSeasonal(
     fields,
   });
 
-  const url = `${MAL_API_BASE}/anime/season/${year}/${season}?${params.toString()}`;
+  const url = buildMalSeasonUrl(year, season, params);
   
   const response = await fetch(url, {
     method: 'GET',
@@ -70,7 +74,7 @@ export async function fetchAnimeDetails(
     throw err;
   }
 
-  const url = `${MAL_API_BASE}/anime/${animeId}`;
+  const url = buildMalAnimeDetailsUrl(animeId);
 
   const response = await fetch(url, {
     method: 'GET',
@@ -97,7 +101,10 @@ export async function fetchUserData(accessToken: string) {
     throw err;
   }
 
-  const url = `${MAL_API_BASE}/users/@me?fields=anime_statistics,picture`;
+  const url = buildMalApiUrl(
+    ['users', '@me'],
+    new URLSearchParams({ fields: 'anime_statistics,picture' }),
+  );
 
   const response = await fetch(url, {
     method: 'GET',
@@ -144,7 +151,7 @@ export async function fetchUserList(
     limit: '1000',
   });
 
-  const url = `${MAL_API_BASE}/users/@me/animelist?${params.toString()}`;
+  const url = buildMalApiUrl(['users', '@me', 'animelist'], params);
 
   const response = await fetch(url, {
     method: 'GET',
@@ -182,7 +189,7 @@ export async function saveAnime(
   const score = validateScore(scoreVal);
   const numWatchedEpisodes = validateEpisode(episodeVal);
 
-  const url = `${MAL_API_BASE}/anime/${animeId}/my_list_status`;
+  const url = buildMalAnimeListStatusUrl(animeId);
   
   const body = new URLSearchParams({
     status,
@@ -222,7 +229,7 @@ export async function deleteAnime(
 
   const animeId = validateAnimeId(animeIdVal);
 
-  const url = `${MAL_API_BASE}/anime/${animeId}/my_list_status`;
+  const url = buildMalAnimeListStatusUrl(animeId);
 
   const response = await fetch(url, {
     method: 'DELETE',
@@ -266,7 +273,7 @@ export async function fetchSearch(
     fields,
   });
 
-  const url = `${MAL_API_BASE}/anime?${params.toString()}`;
+  const url = buildMalApiUrl(['anime'], params);
 
   const response = await fetch(url, {
     method: 'GET',

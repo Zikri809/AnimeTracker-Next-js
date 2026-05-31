@@ -41,6 +41,15 @@ describe("Data Proxy Route Handlers", () => {
       expect(malClient.fetchSeasonal).not.toHaveBeenCalled();
     });
 
+    it("rejects seasonal path traversal before calling MAL", async () => {
+      const req = new NextRequest(
+        "http://localhost/api/seasonal?year=2026&season=../admin",
+      );
+      const res = await seasonalGET(req);
+      expect(res.status).toBe(400);
+      expect(malClient.fetchSeasonal).not.toHaveBeenCalled();
+    });
+
     it("returns MAL seasonal data on success", async () => {
       vi.mocked(malClient.fetchSeasonal).mockResolvedValue({ data: [] });
       const req = new NextRequest(
@@ -164,11 +173,26 @@ describe("Data Proxy Route Handlers", () => {
       expect(body.message).toBe("successfully updated");
       expect(malClient.saveAnime).toHaveBeenCalledWith(
         "access123",
-        "123",
+        123,
         "watching",
-        "9",
-        "4",
+        9,
+        4,
       );
+    });
+
+    it("rejects GET anime id path traversal before calling MAL", async () => {
+      const req = new NextRequest(
+        "http://localhost/api/users/data/save_anime?anime_id=../admin&status=watching&score=9&episode=4",
+        {
+          headers: {
+            cookie: `${COOKIES.ACCESS_TOKEN}=access123`,
+            origin: "http://localhost",
+          },
+        },
+      );
+      const res = await saveGET(req);
+      expect(res.status).toBe(400);
+      expect(malClient.saveAnime).not.toHaveBeenCalled();
     });
 
     it("keeps legacy GET mutation compatibility when Origin and Referer are absent", async () => {
@@ -187,10 +211,10 @@ describe("Data Proxy Route Handlers", () => {
       expect(res.headers.get("Vary")).toBe("Cookie");
       expect(malClient.saveAnime).toHaveBeenCalledWith(
         "access123",
-        "123",
+        123,
         "watching",
-        "9",
-        "4",
+        9,
+        4,
       );
     });
 
@@ -224,6 +248,29 @@ describe("Data Proxy Route Handlers", () => {
         9,
         4,
       );
+    });
+
+    it("rejects POST anime id path traversal before calling MAL", async () => {
+      const req = new NextRequest(
+        "http://localhost/api/users/data/save_anime",
+        {
+          method: "POST",
+          headers: {
+            cookie: `${COOKIES.ACCESS_TOKEN}=access123`,
+            origin: "http://localhost",
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            anime_id: "../admin",
+            status: "watching",
+            score: 9,
+            episode: 4,
+          }),
+        },
+      );
+      const res = await savePOST(req);
+      expect(res.status).toBe(400);
+      expect(malClient.saveAnime).not.toHaveBeenCalled();
     });
   });
 

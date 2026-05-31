@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { saveAnime } from '@/server/mal/client';
+import { validateAnimeId, validateEpisode, validateScore, validateUserListStatus } from '@/server/mal/validation';
 import { COOKIES } from '@/server/http/cookies';
 import { jsonError, jsonOk, handleUpstreamError } from '@/server/http/responses';
 
@@ -38,7 +39,18 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    await saveAnime(accessToken, animeId, status, score, episode);
+    const validatedAnimeId = validateAnimeId(animeId);
+    const validatedStatus = validateUserListStatus(status);
+    const validatedScore = validateScore(score);
+    const validatedEpisode = validateEpisode(episode);
+
+    await saveAnime(
+      accessToken,
+      validatedAnimeId,
+      validatedStatus,
+      validatedScore,
+      validatedEpisode,
+    );
     return jsonOk({ message: 'successfully updated' });
   } catch (error: any) {
     if (error.message.includes('Missing') || error.message.includes('Invalid') || error.message.includes('must be')) {
@@ -72,7 +84,18 @@ export async function POST(request: NextRequest) {
 
     const { anime_id, status, score, episode } = body;
 
-    await saveAnime(accessToken, anime_id, status, score, episode);
+    const validatedAnimeId = validateAnimeId(anime_id);
+    const validatedStatus = validateUserListStatus(status);
+    const validatedScore = validateScore(score);
+    const validatedEpisode = validateEpisode(episode);
+
+    await saveAnime(
+      accessToken,
+      validatedAnimeId,
+      validatedStatus,
+      validatedScore,
+      validatedEpisode,
+    );
     return jsonOk({ message: 'successfully updated' });
   } catch (error: any) {
     if (error instanceof SyntaxError) {
