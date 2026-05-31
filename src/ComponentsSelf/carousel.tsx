@@ -8,7 +8,7 @@ import {
 import Autoplay from "embla-carousel-autoplay"
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { GridPattern } from "@/components/magicui/grid-pattern.jsx";
+import { GridPattern } from "@/components/magicui/grid-pattern";
 import Image from "next/image";
 
 interface AnimeTitle {

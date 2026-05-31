@@ -9,6 +9,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { CheckCheck } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
+import { FALLBACK_POSTER_SRC } from "./animecard";
 
 interface Genre {
   name: string;
@@ -36,7 +37,7 @@ const AnimeCardHorizontal = React.forwardRef<HTMLDivElement, AnimeCardHorizontal
   const [genrearr_state, Set_genrearr_state] = useState<Genre[] | null>(null);
   const genre_container_ref = useRef<HTMLDivElement>(null);
 
-  const rawGenres = props.genre ?? [];
+  const rawGenres = React.useMemo(() => props.genre ?? [], [props.genre]);
 
   useEffect(() => {
     let genrearr = [...rawGenres];
@@ -48,7 +49,7 @@ const AnimeCardHorizontal = React.forwardRef<HTMLDivElement, AnimeCardHorizontal
       }
       Set_genrearr_state(genrearr);
     }
-  }, [props.genre]);
+  }, [rawGenres]);
 
   useEffect(() => {
     if (
@@ -66,7 +67,7 @@ const AnimeCardHorizontal = React.forwardRef<HTMLDivElement, AnimeCardHorizontal
         Set_genrearr_state(genrearr);
       }
     }
-  }, [genrearr_state, props.genre]);
+  }, [genrearr_state, rawGenres]);
 
   const displayGenres = genrearr_state ?? rawGenres;
 
@@ -77,7 +78,7 @@ const AnimeCardHorizontal = React.forwardRef<HTMLDivElement, AnimeCardHorizontal
           <Image
             className="rounded-sm h-55 w-35 sm:w-40 object-cover"
             loading="lazy"
-            src={props.image || "/placeholder.png"}
+            src={props.image || FALLBACK_POSTER_SRC}
             quality={90}
             height={1000}
             width={1000}

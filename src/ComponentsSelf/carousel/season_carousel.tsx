@@ -29,7 +29,7 @@ export default function SeasonCarousel(props: SeasonCarouselProps) {
                 <CarouselContent className="ml-0 md:ml-0 last:mr-2">
                     {data.season_anime?.map((element, index) => {
                         const seasonal = data.seasonal_data[index];
-                        if (!seasonal) return null;
+                        if (!seasonal || !element) return null;
 
                         const bg = seasonal.season === 'fall'
                             ? '#b91c1c66'

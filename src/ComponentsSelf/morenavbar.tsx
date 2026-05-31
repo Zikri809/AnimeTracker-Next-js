@@ -24,9 +24,12 @@ export default function MoreNavbar({
   defaultArr
 }: MoreNavbarProps) {
   function resetslicearr() {
-    sessionStorage.setItem('slicearr', JSON.stringify(30));
-    sessionStorage.removeItem('sort_type');
-    sessionStorage.removeItem('sorted_anime');
+    const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+    if (pathname) {
+      sessionStorage.setItem(`season-list:${pathname}:slicearr`, JSON.stringify(30));
+      sessionStorage.removeItem(`season-list:${pathname}:sort_type`);
+      sessionStorage.removeItem(`season-list:${pathname}:sorted_anime`);
+    }
   }
 
   return (

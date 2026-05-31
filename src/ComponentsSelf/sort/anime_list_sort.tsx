@@ -30,6 +30,7 @@ export default function AnimeListSort({
     console.log('this works when value of the radio changes');
     const anime_data = defaultArr;
     let sorted: any[] = [];
+    const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
     switch (selectedValue) {
       case 'TopScore': {
         sorted = top_score(anime_data);
@@ -48,34 +49,45 @@ export default function AnimeListSort({
         break;
       }
       default: {
-        sessionStorage.removeItem('sort_type');
-        sessionStorage.removeItem('sorted_anime');
+        if (pathname) {
+          sessionStorage.removeItem(`season-list:${pathname}:sort_type`);
+          sessionStorage.removeItem(`season-list:${pathname}:sorted_anime`);
+          sessionStorage.removeItem(`season-list:${pathname}:slicearr`);
+        }
         sessionStorage.setItem('scrollY', JSON.stringify(0));
 
         SetAnimeArr(defaultArr);
         SetpageArr(30);
         IsUpdateRef.current = true;
-        sessionStorage.setItem('slicearr', '31');
+        if (pathname) {
+          sessionStorage.setItem(`season-list:${pathname}:slicearr`, '30');
+        }
         window.scrollTo(0, 0);
         SetOpenDropDown(false);
         return;
       }
     }
 
-    sessionStorage.setItem('sort_type', JSON.stringify(selectedValue));
-    sessionStorage.setItem('sorted_anime', JSON.stringify(sorted.length === 0 ? '' : sorted));
+    if (pathname) {
+      sessionStorage.setItem(`season-list:${pathname}:sort_type`, JSON.stringify(selectedValue));
+      sessionStorage.setItem(`season-list:${pathname}:sorted_anime`, JSON.stringify(sorted.length === 0 ? '' : sorted));
+      sessionStorage.setItem(`season-list:${pathname}:slicearr`, '30');
+    }
 
     SetAnimeArr(sorted);
     SetpageArr(30);
     IsUpdateRef.current = true;
-    sessionStorage.setItem('slicearr', '31');
     SetOpenDropDown(false);
     window.scrollTo(0, 0);
   }
 
   function menuTriggerHandler() {
     console.log('click trigger the restore');
-    SetTogglevalue(JSON.parse(sessionStorage.getItem('sort_type') || 'null') ?? '');
+    const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+    const storedSortType = pathname
+      ? sessionStorage.getItem(`season-list:${pathname}:sort_type`)
+      : null;
+    SetTogglevalue(JSON.parse(storedSortType || 'null') ?? '');
     SetOpenDropDown(!isOpenDropDown);
   }
 

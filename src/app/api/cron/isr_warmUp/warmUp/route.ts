@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import extended_season_data from '@/Utility/seasonal_carousel/extended_season_data';
-import seasonaldata from '@/Utility/seasonaldata';
+import { getSeasonCarouselWindow } from '@/server/seasonal/page-season';
 import { getBaseUrl } from '@/server/env';
 import { jsonOk, NO_CACHE_HEADERS } from '@/server/http/responses';
 
@@ -48,15 +47,7 @@ export async function GET(request: NextRequest) {
     'moreupcoming',
   ];
 
-  const seasonal_data = seasonaldata();
-  const extended = extended_season_data();
-  const all_season = [
-    ...extended.past_4_season,
-    { season: seasonal_data.past_season, year: seasonal_data.past_year },
-    { season: seasonal_data.current_season, year: seasonal_data.current_year },
-    { season: seasonal_data.upcoming_season, year: seasonal_data.upcoming_year },
-    ...extended.future_4_season,
-  ];
+  const all_season = getSeasonCarouselWindow();
 
   const dynamic_routes: string[] = [];
   for (const element of all_season) {
