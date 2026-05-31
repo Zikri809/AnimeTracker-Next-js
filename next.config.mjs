@@ -1,17 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
-  eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
-    ignoreDuringBuilds: true,
-  },
-   images: {
+  images: {
+    qualities: [75, 85, 90, 100],
     remotePatterns: [
-        new URL('https://myanimelist.net/**'),
-        new URL('https://myanimelist.cdn-dena.com/**'), new URL('https://s4.anilist.co/**')],
+      { protocol: 'https', hostname: 'myanimelist.net' },
+      { protocol: 'https', hostname: 'cdn.myanimelist.net' },
+      { protocol: 'https', hostname: 'myanimelist.cdn-dena.com' },
+      { protocol: 'https', hostname: 's4.anilist.co' },
+    ],
   },
-  
 };
 
 export default nextConfig;

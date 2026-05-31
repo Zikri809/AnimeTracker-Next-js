@@ -20,7 +20,7 @@ export default async function seasonal_data(){
             try{
                 //console.log(`/api/seasonal?year=${year}&season=${season}&limit=${10}`)
                 //this will be called by static path thus need for the host
-                const result = await fetch(`${process.env.NEXT_PUBLIC_Local_host }/api/seasonal?year=${element.year}&season=${element.season}&limit=${10}`)
+                const result = await fetch(`/api/seasonal?year=${element.year}&season=${element.season}&limit=${10}`)
                 const resultjson = await result.json()
                 season_anime.push(onlythis_season(resultjson,element.season,element.year))
                 //console.log(season_anime)

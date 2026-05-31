@@ -1,0 +1,47 @@
+[
+  {
+    "name": "home",
+    "url": "http://localhost:3000/",
+    "file": "C:\\AnimeTracker-Next-js\\migration_plan\\baseline\\screenshots\\mobile\\home.png",
+    "innerHeight": 844,
+    "innerWidth": 390,
+    "textSample": "AniJikanMylist#1 SpotlightWitch Hat AtelierAdventureDramaFantasy#2 SpotlightRe:ZERO -Starting Life in Another World- Season 4ActionAdventureDrama#3 SpotlightDaemons of the Shadow RealmActionAdventureComedy#4 SpotlightThat Time I Got Reincar",
+    "title": "AniJikan"
+  },
+  {
+    "name": "search-na",
+    "url": "http://localhost:3000/search/NA",
+    "file": "C:\\AnimeTracker-Next-js\\migration_plan\\baseline\\screenshots\\mobile\\search-na.png",
+    "innerHeight": 844,
+    "innerWidth": 390,
+    "textSample": "Search\n\nYour anime journey starts here !\n\nHome\nSearch\nMyList\n\n/search/NA",
+    "title": ""
+  },
+  {
+    "name": "anime-1",
+    "url": "http://localhost:3000/Anime/1",
+    "file": "C:\\AnimeTracker-Next-js\\migration_plan\\baseline\\screenshots\\mobile\\anime-1.png",
+    "innerHeight": 844,
+    "innerWidth": 390,
+    "textSample": "Cowboy Bebop\n\nFinished Airing\n\nSpring 1998\n\n26 Episodes\n\n8.75\n\n1063584 users\n\n#41\n\nRanking\n\n#89748\n\nFavourites\n\nAction\nAward Winning\nSci-Fi\n24 min per ep\nSaturdays\n01:00\nAsia/Tokyo\nSynopsis\nCrime is timeless. By the year 2071, humanity has ",
+    "title": ""
+  },
+  {
+    "name": "anime-1-tracking",
+    "url": "http://localhost:3000/Anime/1/tracking",
+    "file": "C:\\AnimeTracker-Next-js\\migration_plan\\baseline\\screenshots\\mobile\\anime-1-tracking.png",
+    "innerHeight": 844,
+    "innerWidth": 390,
+    "textSample": "Cowboy Bebop\n\nSave\n\nStatus\n\nFinished Airing\n\nWatching\nCompleted\nPlan To Watch\nOn Hold\nDropped\n\nYour Progress\n\n26 ep\n\n0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n\nScore\n\n0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n\nNote:\n\nYour Watchlis",
+    "title": ""
+  },
+  {
+    "name": "mylist",
+    "url": "http://localhost:3000/mylist",
+    "file": "C:\\AnimeTracker-Next-js\\migration_plan\\baseline\\screenshots\\mobile\\mylist.png",
+    "innerHeight": 844,
+    "innerWidth": 390,
+    "textSample": "Mylist\n\nPlan To Watch\nCompleted\nWatching\nOn Hold\nDropped\n\nNo shows in record yet\n\nHome\nSearch\nMyList",
+    "title": ""
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "name": "morethiseseason",
+    "url": "http://localhost:3000/morethiseseason",
+    "file": "C:\\AnimeTracker-Next-js\\migration_plan\\baseline\\screenshots\\desktop\\morethiseseason.png",
+    "hasDevOverlay": true,
+    "textSample": "This Season\n\nCurrently Airing\n\n0 episodes\n\nOne Piece\n\n8.73\n\n1533908 users\n\n#17\n\nRanking\n\nAction\nAdventure\n+2\nCurrently Airing\n\n0 episodes\n\nCase Closed\n\n8.19\n\n170831 users\n\n#728\n\nRanking\n\nAdventure\nComedy\n+3\nCurrently Airing\n\n13 episodes\n\nWitch Hat Atelier\n\n8.73\n\n49618 users\n\n#928\n\nRanking\n\nFantasy\nS",
+    "title": ""
+  },
+  {
+    "name": "morelastseason",
+    "url": "http://localhost:3000/morelastseason",
+    "file": "C:\\AnimeTracker-Next-js\\migration_plan\\baseline\\screenshots\\desktop\\morelastseason.png",
+    "hasDevOverlay": true,
+    "textSample": "Last Season\n\nCurrently Airing\n\n0 episodes\n\nOne Piece\n\n8.73\n\n1533908 users\n\n#17\n\nRanking\n\nAction\nAdventure\n+2\nFinished Airing\n\n10 episodes\n\nFrieren: Beyond Journey's End Season 2\n\n8.89\n\n236486 users\n\n#463\n\nRanking\n\nAdventure\nDrama\n+2\nFinished Airing\n\n12 episodes\n\nJujutsu Kaisen: The Culling Game Part",
+    "title": ""
+  },
+  {
+    "name": "moreupcoming",
+    "url": "http://localhost:3000/moreupcoming",
+    "file": "C:\\AnimeTracker-Next-js\\migration_plan\\baseline\\screenshots\\desktop\\moreupcoming.png",
+    "hasDevOverlay": true,
+    "textSample": "Upcoming Season\n\nNot Yet Aired\n\n0 episodes\n\nSaga of Tanya the Evil II\n\nNo Rating\n\n6 users\n\n#1370\n\nRanking\n\nAction\nFantasy\n+3\nNot Yet Aired\n\n0 episodes\n\nMushoku Tensei: Jobless Reincarnation Season 3\n\nNo Rating\n\n4 users\n\n#1486\n\nRanking\n\nAdventure\nDrama\n+4\nNot Yet Aired\n\n0 episodes\n\nBleach: Thousand-Y",
+    "title": ""
+  },
+  {
+    "name": "seasons-spring-2026",
+    "url": "http://localhost:3000/seasons/spring/2026",
+    "file": "C:\\AnimeTracker-Next-js\\migration_plan\\baseline\\screenshots\\desktop\\seasons-spring-2026.png",
+    "hasDevOverlay": true,
+    "textSample": "Spring, 2026\n\nCurrently Airing\n\n0 episodes\n\nOne Piece\n\n8.73\n\n1533908 users\n\n#17\n\nRanking\n\nAction\nAdventure\n+2\nCurrently Airing\n\n0 episodes\n\nCase Closed\n\n8.19\n\n170831 users\n\n#728\n\nRanking\n\nAdventure\nComedy\n+3\nCurrently Airing\n\n13 episodes\n\nWitch Hat Atelier\n\n8.73\n\n49618 users\n\n#928\n\nRanking\n\nFantasy\n",
+    "title": ""
+  }
+]
