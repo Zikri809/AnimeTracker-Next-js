@@ -19,7 +19,7 @@ function Navbar(props: NavbarProps) {
     const buttonEl = props.buttonref;
 
     return (
-        <nav className="fixed z-3 bg-black border-b-0 border-gray-700 w-screen pl-4 h-20 px-2 pr-4 mb-3 top-0 left-0 flex flex-row items-center justify-between">
+        <nav className="fixed z-50 bg-black border-b-0 border-gray-700 w-screen pl-4 h-20 px-2 pr-4 mb-3 top-0 left-0 flex flex-row items-center justify-between">
             <div>
                 <h1 className="bg-linear-to-r text-white scroll-m-20 text-3xl font-extrabold font-poppins tracking-tight lg:text-5xl">
                     AniJikan

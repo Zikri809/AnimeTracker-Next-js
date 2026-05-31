@@ -69,7 +69,7 @@ export function CarouselDemo({ data }: CarouselDemoProps) {
             <CarouselItem key={element.idMal} className='border-none'>
               <div className="py-2 border-none">
                 <Link href={`/Anime/${element.idMal}`}>
-                  <Card className="bg-transparent border-none rounded-none p-0 h-55 md:h-64 flex flex-row justify-center overflow-clip border-black">
+                  <Card className="relative bg-transparent border-none rounded-none p-0 h-55 md:h-64 flex flex-row justify-center overflow-clip border-black">
                     <Image
                       className='h-full w-full object-cover object-center'
                       width={500}
@@ -79,7 +79,7 @@ export function CarouselDemo({ data }: CarouselDemoProps) {
                       alt={element.title.english ?? element.title.romaji ?? "Spotlight Anime"}
                       src={element.bannerImage!}
                     />
-                    <div className="fixed top-0 px-6 h-full w-full border-0 bg-transparent bg-gradient-to-tr from-black via-neutral-900/50 to-transparent">
+                    <div className="absolute top-0 left-0 px-6 h-full w-full border-0 bg-transparent bg-gradient-to-tr from-black via-neutral-900/50 to-transparent">
                       <div className="relative left-0 top-30 md:top-35 w-full h-full z-2 flex flex-col gap-0 items-center">
                         <div className="text-white text-lg md:text-xl m-0 h-fit text-left w-full">
                           #{index + 1} Spotlight
