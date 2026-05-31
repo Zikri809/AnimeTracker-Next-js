@@ -1,150 +1,111 @@
 # AniJikan 🎌
 
-A modern, feature-rich seasonal anime tracker built with Next.js that integrates with MyAnimeList. Track your anime watchlist, discover trending shows, and stay updated with seasonal releases—all with a clean, responsive interface.
+A professional, feature-rich, and performance-optimized seasonal anime tracker built with Next.js that integrates seamlessly with MyAnimeList, AniList, and Jikan. Track your watchlist, explore upcoming seasons, view detailed anime insights, and sync your state in real time—all through a modern, responsive user experience.
 
-> 📌 **Note**: This project is no longer under active development. AniJikan is feature-complete and now in maintenance mode for bug fixes and dependency updates.
+[![Next.js](https://img.shields.io/badge/Next.js-16.2.6-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19.2.6-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4.0-06B6D4?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![TanStack Query](https://img.shields.io/badge/TanStack_Query-v5-FF4154?style=flat-square&logo=react-query)](https://tanstack.com/query)
+[![Vitest](https://img.shields.io/badge/Vitest-v4-729B1B?style=flat-square&logo=vitest)](https://vitest.dev/)
+[![Playwright](https://img.shields.io/badge/Playwright-v1.60-2E8B57?style=flat-square&logo=playwright)](https://playwright.dev/)
+[![Vercel](https://img.shields.io/badge/Vercel-Deployed-black?style=flat-square&logo=vercel)](https://vercel.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
 ---
 
 ## 🌟 Overview
 
-AniJikan is a full-stack anime tracking application that combines data from multiple anime APIs (MyAnimeList, AniList, and Jikan) to provide a comprehensive anime discovery and tracking experience. The app features OAuth2 authentication with MyAnimeList, allowing users to sync their watchlist directly with their MAL account while maintaining local state for fast, responsive interactions.
+AniJikan is a full-stack anime tracking application that combines data from three major anime APIs (MyAnimeList, AniList, and Jikan) to deliver a unified and blazing-fast experience. 
 
-### Key Highlights
+Designed with an offline-first philosophy, AniJikan utilizes browser local storage as a quick-read cache for instantaneous UI interactions (such as updating scores or episode counts), while coordinating behind the scenes via a queue-based background synchronization worker to persist data to MyAnimeList.
 
-- **Dual Data Management**: Combines localStorage for instant UI updates with MyAnimeList API sync for persistent storage
-- **Multi-API Integration**: Leverages MAL, AniList, and Jikan APIs for comprehensive anime data
-- **Performance Optimized**: Uses Incremental Static Regeneration (ISR) with automated warm-up via GitHub Actions
-- **Seasonal Focus**: Browse anime by current, past, and upcoming seasons with intelligent season calculation
-- **Responsive Design**: Mobile-first design with PWA support and comprehensive splash screens
+---
+
+## 🤖 AI Collaboration & Project Evolution
+
+AniJikan is a prime example of human-AI developer synergy:
+
+- **The Core Foundation**: The entire initial application architecture, UI layout, routing schema, and third-party API integration layers were designed and built manually by its original developer, **[Zikri](https://github.com/Zikri809)**.
+- **The Modern Iteration**: The subsequent platform-wide modernization—including migrating the codebase from Next.js Pages Router to the App Router structure, a complete conversion to strict TypeScript, setting up the testing harness (Vitest and Playwright), hardening OAuth authentication cookies, and configuring CI automation pipelines—was co-authored and implemented in collaboration with **Codex** and **Antigravity** (an advanced agentic AI coding assistant developed by Google DeepMind).
 
 ---
 
 ## ✨ Features
 
-### 🔐 Authentication & User Management
-- **MyAnimeList OAuth2 Integration**: Secure login with MAL credentials
-- **Automatic Token Refresh**: Background token renewal to maintain session continuity
-- **User Profile Display**: View MAL profile information including avatar, stats, and top-rated anime
+### 🔐 Enterprise-Grade Authentication
+* **MyAnimeList OAuth2 with PKCE**: Fully secure OAuth login flow utilizing Proof Key for Code Exchange (PKCE) to prevent interception attacks.
+* **Intelligent Background Refresh**: Dedicated API route automatically refreshes user access tokens 2 days before expiry to preserve long-term session continuity without user interruption.
+* **Detailed User Dashboard**: Real-time rendering of MyAnimeList profiles, including user statistics, avatars, and top-rated entries.
 
-### 📺 Anime Tracking & Management
-- **Add to Watchlist**: Quick-add anime to your personal tracking list
-- **Status Management**: Track anime as Watching, Completed, Plan to Watch, On Hold, or Dropped
-- **Episode Progress**: Update watched episode count with intuitive controls
-- **Score Rating**: Rate anime on a 0-10 scale
-- **Edit & Delete**: Modify or remove entries from your watchlist
-- **Real-time Sync**: Changes sync to MyAnimeList API with toast notifications
-- **Cross-list Management**: Automatically removes anime from other status lists when status changes
+### 📺 Watchlist & State Management
+* **Dual-State Sync**: Instant visual response on the client via `localStorage` paired with eventual-consistency background sync to MyAnimeList via custom API proxies.
+* **Conflict-Free State Transitions**: Mutually exclusive watchlist states (e.g., adding an anime to *Completed* automatically prunes it from *Watching* or *Plan to Watch* to avoid database conflicts).
+* **Granular Tracking**: Update watched episode counts, assign scores (0-10), and change watch states via interactive forms.
+* **Offline Resiliency**: Unsaved sync actions are queued locally if the user loses connectivity and are retried sequentially once online.
 
-### 🗓️ Seasonal Browsing
-- **Current Season**: Browse currently airing anime
-- **Past Season**: Explore previous season's releases
-- **Upcoming Season**: Preview next season's lineup
-- **Extended Season Carousel**: Navigate through 4 seasons before and after current season (11 seasons total)
-- **Automatic Season Detection**: Dynamically calculates current season based on date
-- **Sort Functionality**: Sort seasonal anime by various criteria
+### 🗓️ Deep Seasonal Browsing
+* **Automatic Season Detection**: Dynamic, server-side algorithm detects the current season based on the calendar month and system time.
+* **Extended 11-Season Carousel**: Navigate seamlessly across a temporal span of 11 seasons (4 past seasons, the current season, the upcoming season, and 5 future/scheduled seasons).
+* **Multi-Criteria Sorting & Filtering**: Sort seasonal lists by average score, popularity, members, or release date.
 
-### 🔍 Search & Discovery
-- **Anime Search**: Search across all anime with URL-encoded query handling
-- **Trending Carousel**: Discover popular anime from AniList GraphQL API
-- **Top-Rated Display**: View highest-scored anime per season
-- **Detailed Anime Pages**: Comprehensive information including synopsis, genres, scores, and statistics
+### 🔍 Advanced Search & Discovery
+* **AniList GraphQL Integration**: A trending carousel showcases high-resolution banner images and current popular shows fetched via the AniList GraphQL engine.
+* **Sanitized Query Search**: Complete title search powered by Jikan, sanitizing input vectors to prevent URL breakages and escape characters.
+* **Rich Detail Pages**: Comprehensive views featuring synopses, genre tags, scores, studio credits, video trailers, and direct anime sequels/prequels (relations).
 
-### 🎨 User Interface & Experience
-- **Responsive Design**: Fully mobile-optimized with touch gesture support
-- **Dark Theme**: Built with shadcn/ui components for consistent styling
-- **Skeleton Loading**: Smooth loading states for better perceived performance
-- **Toast Notifications**: User feedback for all actions (add, edit, delete, errors)
-- **Compact Layouts**: Space-efficient card designs to maximize content visibility
-- **PWA Support**: Installable as a progressive web app with custom splash screens
-- **Modal Navigation**: Restore functionality uses modals instead of full-page redirects
+### 🎨 Premium UI/UX Design
+* **Glassmorphism & Dark Mode**: Sleek dark aesthetic designed with custom CSS variables and utility classes, utilizing `@shadcn/ui` and Radix accessibility primitives.
+* **PWA & Mobile Optimization**: Mobile-first touch interactions, custom gestures (swipe to switch tabs), and Apple-specific splash screen media configurations.
+* **Perceived Performance**: Component skeletons minimize loading jumps during async requests.
 
-### ⚡ Performance & Optimization
-- **Incremental Static Regeneration (ISR)**: Pages revalidate every 12 hours (43,200 seconds)
-- **GitHub Actions Warm-up**: Automated ISR cache warming for faster initial loads
-- **Edge API Routes**: Serverless functions for optimal response times
-- **Client-side Caching**: localStorage for instant UI updates
-- **Optimized Images**: Remote image patterns configured for MAL and AniList CDNs
-- **Session Management**: Scroll position and filter state persistence
+---
 
-### 🛠️ Developer Features
-- **No CORS Issues**: Server-side API handling eliminates cross-origin problems
-- **Error Handling**: Comprehensive error boundaries with retry UI
-- **Vercel Analytics**: Built-in performance monitoring
-- **Speed Insights**: Real-time performance metrics
-- **React Query**: Efficient data fetching and caching with devtools
+## 🏗️ Architecture & Data Sync Model
+
+### 1. Dual-Sync Synchronization Engine
+When a user updates an anime tracking status, the system runs a split-data flow:
+
+```mermaid
+graph TD
+    User[User Input: Update Progress] --> LocalState[Update LocalState & LocalStorage]
+    LocalState --> UI[Instant Optimistic UI Render]
+    User --> PersistentWorker[Persistent Sync Worker]
+    PersistentWorker --> Queue[Local Sync Queue]
+    Queue --> OnlineCheck{Network Online?}
+    OnlineCheck -- Yes --> APIProxy[Next.js API Route handler]
+    OnlineCheck -- No --> Queue
+    APIProxy --> MALAPI[MyAnimeList API v2]
+    MALAPI -- Success --> SyncComplete[Confirm & Clear Local Sync Queue]
+    MALAPI -- Token Expired --> TokenRefresh[Call Auth Refresh API]
+    TokenRefresh --> APIProxy
+```
+
+* **Client Optimistic UI**: Changes are immediately stored in the browser's `localStorage` maps (`Watching`, `Completed`, `PlanToWatch`, `OnHold`, `Dropped`).
+* **Non-Blocking Syncing**: The `persistent_worker` component continuously polls the sync queue to batch updates to our backend API proxy, eliminating page loading blocks.
+
+### 2. High-Performance Caching & ISR
+* **12-Hour Page Cache**: Public seasonal landing pages are rendered via Incremental Static Regeneration (ISR) with a `revalidate` period of 43,200 seconds (12 hours) to respect Jikan and MAL API rate limits.
+* **Automated Warmups**: To prevent cold-start lags for users, a scheduled GitHub Action hits `/api/cron/isr_warmUp/warmUp` every 12 hours, pre-building the pages on Vercel's Edge.
 
 ---
 
 ## 🏗️ Tech Stack
 
-### Core Framework
-- **[Next.js 15.3.8](https://nextjs.org/)** - React framework with Page Router
-- **[React 19](https://react.dev/)** - UI library
-- **[React DOM 19](https://react.dev/)** - React renderer
+### Core Framework & State
+* **[Next.js 16.2.6 (App Router)](https://nextjs.org/)** - File-based routing, server components, and optimized build bundler.
+* **[React 19](https://react.dev/)** - UI library featuring hook enhancements and server rendering.
+* **[TanStack Query v5](https://tanstack.com/query)** - Handles query caching, state invalidation, and asynchronous data hydration.
 
-### Styling & UI
-- **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework
-- **[shadcn/ui](https://ui.shadcn.com/)** - Radix UI-based component library
-- **[Radix UI](https://www.radix-ui.com/)** - Accessible component primitives
-- **[Lucide React](https://lucide.dev/)** - Icon library
-- **[next-themes](https://github.com/pacocoursey/next-themes)** - Theme management
-- **[Styled Components](https://styled-components.com/)** - CSS-in-JS styling
-- **[class-variance-authority](https://cva.style/)** - Component variant management
-- **[tailwindcss-animate](https://github.com/jamiebuilds/tailwindcss-animate)** - Animation utilities
+### CSS & Styling
+* **[Tailwind CSS v4](https://tailwindcss.com/)** - Utility-first styling with modern CSS-first theme configuration.
+* **[shadcn/ui](https://ui.shadcn.com/)** - Accessible UI components built on Radix UI primitives.
+* **[lucide-react](https://lucide.dev/)** - Iconography.
 
-### Data Management & APIs
-- **[TanStack Query (React Query)](https://tanstack.com/query)** - Data fetching and caching
-- **[nookies](https://github.com/maticzav/nookies)** - Cookie management
-- **MyAnimeList API v2** - Primary anime data and user list management
-- **AniList GraphQL API** - Carousel and supplementary anime data
-- **Jikan REST API** - Additional anime information
-
-### Authentication & Security
-- **MyAnimeList OAuth2** - User authentication
-- **[pkce-challenge](https://www.npmjs.com/package/pkce-challenge)** - PKCE flow for OAuth2
-
-### UI Components & Interactions
-- **[Embla Carousel](https://www.embla-carousel.com/)** - Touch-enabled carousels
-- **[Swiper](https://swiperjs.com/)** - Advanced slider component
-- **[Sonner](https://sonner.emilkowal.ski/)** - Toast notifications
-- **[@uidotdev/usehooks](https://usehooks.com/)** - React hooks collection
-
-### Performance & Analytics
-- **[@vercel/analytics](https://vercel.com/analytics)** - Usage analytics
-- **[@vercel/speed-insights](https://vercel.com/docs/speed-insights)** - Performance monitoring
-- **[ogl](https://github.com/oframe/ogl)** - WebGL library for visual effects
-
-### Development Tools
-- **[ESLint](https://eslint.org/)** - Code linting
-- **[Prettier](https://prettier.io/)** - Code formatting
-- **[Turbopack](https://turbo.build/pack)** - Fast development bundler (via Next.js)
-
-### Deployment & Hosting
-- **[Vercel](https://vercel.com/)** - Hosting platform
-- **GitHub Actions** - CI/CD and ISR warm-up automation
-- **Edge Runtime** - Serverless edge functions
-
----
-
-## 🌐 External APIs
-
-AniJikan integrates with three major anime APIs to provide comprehensive data:
-
-### [MyAnimeList API v2](https://myanimelist.net/apiconfig/references/api/v2)
-- **Primary Use**: User authentication, watchlist management, anime details
-- **Features**: OAuth2 login, CRUD operations on user lists, seasonal anime data
-- **Fields Used**: `main_picture`, `status`, `start_season`, `num_episodes`, `title`, `alternative_titles`, `mean`, `num_scoring_users`, `popularity`, `genres`
-
-### [AniList GraphQL API](https://anilist.gitbook.io/anilist-apiv2-docs/)
-- **Primary Use**: Trending carousel, banner images
-- **Features**: GraphQL queries for flexible data fetching
-- **Fields Used**: `bannerImage`, `idMal`, `genres`, `title` (english/romaji)
-
-### [Jikan REST API](https://jikan.moe/)
-- **Primary Use**: Seasonal anime browsing
-- **Features**: RESTful interface to MAL data
-- **Fields Used**: `mal_id`, `images`, `title`, `score`, `status`, `year`
+### Automated Testing & Linting
+* **[Vitest](https://vitest.dev/)** - Light speed unit testing running against DOM rendering mockups.
+* **[Playwright](https://playwright.dev/)** - Headless and headed E2E browser automation to test complex authentication and tracking journeys.
+* **[ESLint](https://eslint.org/)** & **[TypeScript](https://www.typescriptlang.org/)** - Static analysis and type safety checkpoints.
 
 ---
 
@@ -152,60 +113,36 @@ AniJikan integrates with three major anime APIs to provide comprehensive data:
 
 ```
 AnimeTracker-Next-js/
+├── .github/                  # CI/CD Workflows (CI check, ISR Warmups)
+├── data/                     # Static configurations and initial data states
+├── public/                   # Static assets (PWA icons, splash screens, manifest)
 ├── src/
-│   ├── pages/                    # Next.js pages (Page Router)
-│   │   ├── _app.js              # App wrapper with providers
-│   │   ├── _document.js         # HTML document structure
-│   │   ├── index.js             # Home page with seasonal sections
-│   │   ├── api/                 # API routes
-│   │   │   ├── users/           # User-related endpoints
-│   │   │   │   ├── auth/        # OAuth callbacks
-│   │   │   │   └── data/        # User data CRUD
-│   │   │   ├── anime/           # Anime data endpoints
-│   │   │   ├── seasonal.js      # Seasonal anime data
-│   │   │   └── cron/            # Scheduled tasks
-│   │   ├── Anime/               # Anime detail pages
-│   │   ├── mylist/              # User watchlist pages
-│   │   ├── search/              # Search results pages
-│   │   ├── seasons/             # Season browsing pages
-│   │   ├── morelastseason/      # Extended past season view
-│   │   ├── morethiseseason/     # Extended current season view
-│   │   ├── moreupcoming/        # Extended upcoming season view
-│   │   └── ExceedRetryLimit/    # Error handling page
-│   ├── ComponentsSelf/          # Custom components
-│   │   ├── navbar/              # Navigation components
-│   │   ├── carousel/            # Carousel implementations
-│   │   ├── user_profile/        # User profile components
-│   │   ├── sort/                # Sorting UI components
-│   │   ├── About/               # About modal
-│   │   ├── Retry_UI/            # Error retry interface
-│   │   └── persistent_worker/   # Background worker component
-│   ├── Utility/                 # Utility functions
-│   │   ├── tracking/            # Watchlist tracking logic
-│   │   ├── filter/              # Data filtering utilities
-│   │   ├── sync_user_data/      # MAL sync functions
-│   │   ├── seasonal_carousel/   # Season data processing
-│   │   ├── safety/              # Input validation
-│   │   └── Gesture/             # Touch gesture handlers
-│   ├── components/              # shadcn/ui components
-│   │   ├── ui/                  # Base UI components
-│   │   └── magicui/             # Enhanced UI components
-│   ├── hooks/                   # Custom React hooks
-│   ├── lib/                     # Library utilities
-│   ├── reactbits/               # React utilities
-│   │   └── background/          # Background effects
-│   └── styles/                  # Global styles
-│       └── globals.css          # Tailwind imports
-├── public/                      # Static assets
-│   ├── splash_screens/          # PWA splash screens
-│   └── manifest.json            # PWA manifest
-├── data/                        # Static data files
-├── .env                         # Environment variables
-├── next.config.mjs              # Next.js configuration
-├── tailwind.config.js           # Tailwind configuration
-├── components.json              # shadcn/ui configuration
-├── package.json                 # Dependencies
-└── vercel.json                  # Vercel deployment config
+│   ├── app/                  # Next.js App Router (Pages, Layouts, API Handlers)
+│   │   ├── Anime/            # /Anime/[id] Detail and /Anime/[id]/tracking routes
+│   │   ├── api/              # API Route Handlers (Auth, seasonal proxy, sync cron)
+│   │   │   ├── anime/        # Upstream data proxy endpoints
+│   │   │   ├── cron/         # Daily schedule runs and ISR warmups
+│   │   │   ├── seasonal/     # Static seasonal data routes
+│   │   │   └── users/        # OAuth callback, refresh token, session routes
+│   │   ├── ExceedRetryLimit/ # Error landing page
+│   │   ├── morelastseason/   # Extended views for previous season
+│   │   ├── morethiseseason/  # Extended views for current season
+│   │   ├── moreupcoming/     # Extended views for next season
+│   │   ├── mylist/           # User's tracking watchlist Dashboard
+│   │   ├── search/           # /search/[query] URL search results
+│   │   └── seasons/          # /seasons/[season]/[year] seasonal browser
+│   ├── components/           # shadcn/ui shared primitives (dialog, tab, progress)
+│   ├── ComponentsSelf/       # Custom feature components (Navbar, Carousel, Worker)
+│   ├── context/              # Context providers (Auth, Query Client)
+│   ├── hooks/                # Custom React hooks (useLocalStorage, useAuth)
+│   ├── lib/                  # Library utilities (shadcn utils, AniList Client)
+│   ├── styles/               # Global CSS styles (Tailwind imports)
+│   ├── types/                # Strict TypeScript declaration types
+│   └── Utility/              # Pure functions (Calculations, Storage parsing, Gestures)
+├── tests/                    # Playwright E2E browser tests
+├── playwright.config.ts      # E2E test configuration
+├── tsconfig.json             # TypeScript compiler settings
+└── package.json              # Dependency manifests
 ```
 
 ---
@@ -213,249 +150,95 @@ AnimeTracker-Next-js/
 ## 🚀 Getting Started
 
 ### Prerequisites
+* **Node.js** 20.x or higher
+* **npm** or **yarn** package manager
+* **MyAnimeList API Keys**: Required for user synchronization.
 
-- **Node.js** 18.x or higher
-- **npm** or **yarn** package manager
-- **MyAnimeList Account** for OAuth2 authentication
-- **MAL API Credentials** (Client ID and Client Secret)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Zikri809/AnimeTracker-Next-js.git
-   cd AnimeTracker-Next-js
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
-
-3. **Set up environment variables**
-   
-   Create a `.env` file in the root directory with the following variables:
-   ```env
-   Client_ID=your_mal_client_id
-   Client_Secret=your_mal_client_secret
-   NEXT_PUBLIC_Local_host=http://localhost:3000/
-   Prod_host=https://your-production-url.vercel.app/
-   dev_auth_redirect=http://localhost:3000/api/users/auth/callback
-   prod_auth_redirect=https://your-production-url.vercel.app/api/users/auth/callback
-   ```
-
-   **How to get MAL API credentials:**
-   - Visit [MyAnimeList API](https://myanimelist.net/apiconfig)
-   - Create a new API client
-   - Set the App Redirect URL to your callback endpoint
-   - Copy the Client ID and Client Secret
-
-4. **Run the development server**
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   ```
-
-   The app will be available at `http://localhost:3000`
-
-5. **Build for production**
-   ```bash
-   npm run build
-   npm start
-   # or
-   yarn build
-   yarn start
-   ```
-
-### Windows Batch Scripts
-
-The project includes convenient batch scripts for Windows users:
-
-- **`dev.bat`** - Start development server
-- **`build.bat`** - Build production bundle
-- **`start.bat`** - Start production server
-- **`build-and-start.bat`** - Build and start in one command
-
----
-
-## 💻 Usage
-
-### Authentication
-
-1. Click the **Login** button in the navigation bar
-2. You'll be redirected to MyAnimeList OAuth2 authorization
-3. Grant permissions to AniJikan
-4. You'll be redirected back with an active session
-
-### Tracking Anime
-
-1. **Browse** seasonal anime on the home page or search for specific titles
-2. **Click** on an anime card to view detailed information
-3. **Add to Watchlist** by clicking the "Add to Watch List" button
-4. **Update Status** by selecting from: Watching, Completed, Plan to Watch, On Hold, Dropped
-5. **Track Progress** by updating episode count and score
-6. **Save Changes** - updates sync to both localStorage and MyAnimeList
-
-### Managing Your List
-
-1. Navigate to **My List** from the navigation bar
-2. Use **tabs** to filter by status (Watching, Completed, etc.)
-3. **Sort** anime by title, score, or episodes
-4. **Edit** entries by clicking on them
-5. **Delete** entries using the delete button
-
-### Browsing Seasons
-
-1. **Home Page** displays current, past, and upcoming seasons
-2. **Season Carousel** at the bottom shows 11 seasons (4 past + current + upcoming + 4 future)
-3. **Click "More"** on any section to view the full seasonal catalog
-4. **Sort** seasonal pages by score, popularity, or title
-
----
-
-## 🔧 Configuration
-
-### ISR Revalidation
-
-The app uses Incremental Static Regeneration with a 12-hour revalidation period:
-
-```javascript
-// In getStaticProps
-return {
-  props: { /* data */ },
-  revalidate: 43200 // 12 hours in seconds
-}
-```
-
-### Image Optimization
-
-Remote image patterns are configured in `next.config.mjs`:
-
-```javascript
-images: {
-  remotePatterns: [
-    new URL('https://cdn.myanimelist.net/**'),
-    new URL('https://s4.anilist.co/**')
-  ],
-}
-```
-
-### Session Management
-
-- **Token Expiry**: Tokens are refreshed 2 days before expiration
-- **localStorage Keys**: `Watching`, `Completed`, `PlanToWatch`, `OnHold`, `Dropped`
-- **sessionStorage Keys**: `morescroll`, `animedatasearch`, `activetab`, `scrollY`, `slicearr`
-
----
-
-## 🎨 Design & Assets
-
-### UI Components
-- Built with **shadcn/ui** for consistent, accessible components
-- **Radix UI** primitives for complex interactions
-- **Tailwind CSS** for responsive, utility-first styling
-
-### Icons & Illustrations
-- **Icons**: [Lucide React](https://lucide.dev/) - Modern, customizable icon set
-- **Illustrations**: [Storyset](https://storyset.com/) by Freepik - Error states and empty states
-
-### Typography
-- **Font**: [Poppins](https://fonts.google.com/specimen/Poppins) from Google Fonts
-- **Weights**: 100-900 for flexible typography hierarchy
-
----
-
-## 🚢 Deployment
-
-### Vercel (Recommended)
-
-1. **Push to GitHub**
-   ```bash
-   git push origin main
-   ```
-
-2. **Import to Vercel**
-   - Visit [Vercel](https://vercel.com)
-   - Import your GitHub repository
-   - Configure environment variables
-   - Deploy
-
-3. **Configure Environment Variables** in Vercel dashboard:
-   - `Client_ID`
-   - `Client_Secret`
-   - `Prod_host`
-   - `prod_auth_redirect`
-
-4. **GitHub Actions** (optional)
-   - Set up automated ISR warm-up using GitHub Actions
-   - Configure cron jobs to hit your pages periodically
-
-### Manual Deployment
-
+### 1. Clone & Install
 ```bash
-npm run build
-npm start
+git clone https://github.com/Zikri809/AnimeTracker-Next-js.git
+cd AnimeTracker-Next-js
+npm install
 ```
 
-The production server will run on port 3000 by default.
+### 2. Environment Variables Configuration
+Create a `.env` file in the root folder of the project:
+
+| Variable | Example Value | Description |
+| :--- | :--- | :--- |
+| `Client_ID` | `ab12cd34ef56...` | MyAnimeList App Client ID |
+| `Client_Secret` | `xyz123...` | MyAnimeList App Client Secret |
+| `NEXT_PUBLIC_Local_host` | `http://localhost:3000/` | Local host domain with trailing slash |
+| `Prod_host` | `https://your-app.vercel.app/` | Production Vercel domain with trailing slash |
+| `dev_auth_redirect` | `http://localhost:3000/api/users/auth/callback` | Redirect callback URL in development |
+| `prod_auth_redirect`| `https://your-app.vercel.app/api/users/auth/callback`| Redirect callback URL in production |
+
+#### 🔑 Registering MyAnimeList API Client:
+1. Log in to [MyAnimeList](https://myanimelist.net/) and head to **[API Panel](https://myanimelist.net/apiconfig)**.
+2. Create a new App Client. Select **web** as the application type.
+3. Configure the **App Redirect URL** exactly to match your redirection route (e.g. `http://localhost:3000/api/users/auth/callback` for local testing).
+4. Save client details and copy the generated `Client ID` and `Client Secret` into your `.env` file.
+
+### 3. Spin up Server
+To start the local Next.js hot-reloaded dev server:
+```bash
+npm run dev
+```
+Navigate to `http://localhost:3000` to preview the project.
+
+---
+
+## 🧪 Testing & Validation
+
+The codebase maintains a strict standard of testing before merge approval.
+
+### Execution Scripts
+Run these commands from the root directory:
+
+* **`npm run test`** - Executes Vitest suite to test parsing, season offsets, and storage hooks.
+* **`npm run test:watch`** - Opens Vitest UI/Watcher mode.
+* **`npm run test:e2e`** - Triggers Playwright tests to perform UI interactions, search journeys, and authentication redirects.
+* **`npm run typecheck`** - Checks compilation validity under standard TypeScript.
+* **`npm run lint`** - Analyzes code formatting and pattern compliance.
+* **`npm run verify`** - Triggers the sequential pipeline of lint, typecheck, unit tests, and Playwright tests locally.
+
+---
+
+## 🚢 CI/CD & Deployment
+
+### Vercel Deployment (Recommended)
+This repository is configured for immediate deployment to Vercel:
+1. Connect your repository to your Vercel Dashboard.
+2. Input all required production environment variables (`Client_ID`, `Client_Secret`, `Prod_host`, `prod_auth_redirect`).
+3. Ensure the project root and install commands are left as default.
+
+### GitHub Actions Workflows
+* **Continuous Integration (`ci.yml`)**: Automatically triggers on all pull requests and pushes to `main`. It initializes a Node 20 environment, installs dependencies, verifies code linting/formatting, checks TypeScript types, compiles the build, and executes both unit tests and headless Playwright tests.
+* **Revalidate ISR Warm-up (`isr-warmup.yml`)**: A cron job executing every 12 hours (at `00:05` and `12:05` UTC) hits the cron warm-up route to pre-bake static pages on Vercel, guaranteeing lightning-fast loading speeds for users.
 
 ---
 
 ## 🤝 Contributing
+As AniJikan is feature-complete, it is now primarily in **maintenance mode**. Bug fixes, security reviews, and dependency upgrades are highly welcome.
 
-This project is in **maintenance mode** and not actively accepting new features. However, bug fixes and dependency updates are welcome:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b fix/bug-name`)
-3. Commit your changes (`git commit -m 'Fix: description'`)
-4. Push to the branch (`git push origin fix/bug-name`)
-5. Open a Pull Request
-
----
-
-## 🐛 Known Issues & Limitations
-
-- **MAL API Delays**: Newly added anime may not immediately appear in the app due to MAL API caching
-- **Token Refresh**: Users need to re-login if token refresh fails
-- **localStorage Limits**: Large watchlists may approach browser storage limits
-- **ISR Timing**: First visit after revalidation period may experience slower load times
+1. Fork this repository.
+2. Create a specific branch (`git checkout -b fix/issue-description`).
+3. Commit with detailed descriptions (`git commit -m "Fix: issue description"`).
+4. Push to origin (`git push origin fix/issue-description`).
+5. Create a detailed Pull Request.
 
 ---
 
 ## 📄 License
-
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
-
----
-
-## 👨‍💻 Developer
-
-Built and maintained by **[Zikri](https://github.com/Zikri809)**.
-
-AniJikan is a personal full-stack anime tracker project created out of curiosity, love for anime, and the desire to build something end-to-end. It showcases modern web development practices including OAuth2 authentication, multi-API integration, performance optimization with ISR, and responsive UI design.
+This project is licensed under the **MIT License**. Check the [LICENSE](LICENSE) file for more information.
 
 ---
 
-## 🙏 Acknowledgments
+## 👨‍💻 Developer & Collaborators
 
-- **MyAnimeList** - For providing the comprehensive anime database and API
-- **AniList** - For the GraphQL API and banner images
-- **Jikan** - For the unofficial MAL REST API
-- **Vercel** - For hosting and deployment platform
-- **shadcn** - For the beautiful UI component library
-- **Next.js Team** - For the amazing React framework
+* **Lead Creator**: Built manually by **[Zikri](https://github.com/Zikri809)** with a love for anime and full-stack development.
+* **Collaborative AI Agents**: Extended, modernized, and migrated in partnership with **Codex** and **Antigravity**.
+* **Data Sources**: Special thanks to **MyAnimeList** for the v2 user endpoints, **AniList** for their rich GraphQL carousel data, and **Jikan** for the public-facing REST API proxy.
 
 ---
-
-## 📞 Support
-
-For questions, issues, or feedback:
-- **GitHub Issues**: [Report a bug](https://github.com/Zikri809/AnimeTracker-Next-js/issues)
-- **GitHub Discussions**: [Ask questions](https://github.com/Zikri809/AnimeTracker-Next-js/discussions)
-
----
-
-**Made with ❤️ and ☕ by anime enthusiasts, for anime enthusiasts.**
+*Created by anime enthusiasts, for anime enthusiasts.* 🎌

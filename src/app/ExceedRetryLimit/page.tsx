@@ -28,7 +28,5 @@ export default function ExceedRetryLimitPage({ searchParams }: Props) {
     original_link = "/";
   }
 
-  return (
-    <ErrorExceedRetryLimit url={original_link} query={original_query} />
-  );
+  return <ErrorExceedRetryLimit url={original_link} query={original_query} />;
 }

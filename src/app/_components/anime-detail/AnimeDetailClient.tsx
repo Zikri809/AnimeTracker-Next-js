@@ -1,18 +1,17 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState, useRef } from 'react';
-import Horizontalcard from '@/ComponentsSelf/animecardheader';
-import Navbar from '@/ComponentsSelf/detailednavbar';
-import Add_to_watchlist_button from '@/ComponentsSelf/add to watchlist button';
-import { useDebounce } from '@uidotdev/usehooks';
-import { JikanAnimeDetailViewModel } from '@/server/anime/jikan-detail-normalize';
+import React, { useEffect, useState, useRef } from "react";
+import Horizontalcard from "@/ComponentsSelf/animecardheader";
+import Navbar from "@/ComponentsSelf/detailednavbar";
+import Add_to_watchlist_button from "@/ComponentsSelf/add to watchlist button";
+import { useDebounce } from "@uidotdev/usehooks";
+import { JikanAnimeDetailViewModel } from "@/server/anime/jikan-detail-normalize";
 import {
   DetailRouteContext,
-  buildRelationHrefFromContext,
   buildTrackingHrefFromContext,
-} from '@/lib/routing/detail-route-context';
-import Link from 'next/link';
-import { ChevronDown, ChevronUp, Monitor, Clock } from 'lucide-react';
+} from "@/lib/routing/detail-route-context";
+import Link from "next/link";
+import { ChevronDown, ChevronUp, Monitor, Clock } from "lucide-react";
 
 type Props = {
   detail: JikanAnimeDetailViewModel;
@@ -28,21 +27,23 @@ export default function AnimeDetailClient({ detail, context }: Props) {
   const [isExpanded, SetExpanded] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       Promise.resolve().then(() => {
         Setwindow(window.innerWidth);
       });
       const handleResize = () => {
         Setwindow(window.innerWidth);
       };
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
     }
   }, []);
 
   useEffect(() => {
     if (synopsis_ref.current) {
-      if (synopsis_ref.current.scrollHeight > synopsis_ref.current.offsetHeight) {
+      if (
+        synopsis_ref.current.scrollHeight > synopsis_ref.current.offsetHeight
+      ) {
         SetShowDropdown(true);
       } else {
         SetShowDropdown(false);
@@ -50,7 +51,15 @@ export default function AnimeDetailClient({ detail, context }: Props) {
     }
   }, [debouncebrowserwidth, detail.synopsis]);
 
-  const showBroadcast = detail.status === 'Currently Airing' || detail.status === 'Finished Airing';
+  const showBroadcast =
+    detail.status === "Currently Airing" || detail.status === "Finished Airing";
+  const seasonHref =
+    detail.season && detail.year
+      ? `/seasons/${detail.season}/${detail.year}`
+      : null;
+
+  const isAnimeRelation = (type?: string | null) =>
+    type?.toLowerCase() === "anime";
 
   return (
     <main className="app-shell pb-28 sm:pb-10">
@@ -58,17 +67,17 @@ export default function AnimeDetailClient({ detail, context }: Props) {
       <div className="relative flex flex-col pt-20">
         <Horizontalcard
           key={detail.malId}
-          image={detail.imageUrl ?? ''}
+          image={detail.imageUrl ?? ""}
           bannerImage={detail.bannerImageUrl}
-          status={detail.status ?? 'Unknown'}
-          season={detail.seasonLabel || ' '}
+          status={detail.status ?? "Unknown"}
+          season={detail.seasonLabel || " "}
           episodes={detail.episodes}
           title={detail.displayTitle}
           score={detail.score ?? undefined}
-          users={detail.scoredBy ?? 'N/A'}
-          ranking={detail.popularity ?? 'N/A'}
-          genre={detail.genres.map(g => ({ mal_id: g.id, name: g.name }))}
-          favorites={detail.favorites ?? 'N/A'}
+          users={detail.scoredBy ?? "N/A"}
+          ranking={detail.popularity ?? "N/A"}
+          genre={detail.genres.map((g) => ({ mal_id: g.id, name: g.name }))}
+          favorites={detail.favorites ?? "N/A"}
         />
 
         {showBroadcast && (detail.duration || detail.broadcast) && (
@@ -79,8 +88,11 @@ export default function AnimeDetailClient({ detail, context }: Props) {
                 <span>
                   {(() => {
                     const lower = detail.duration.toLowerCase();
-                    if (lower.includes('ep') || lower.includes('episode')) {
-                      const cleanDuration = detail.duration.replace(/\bper ep\.?$/i, 'per episode');
+                    if (lower.includes("ep") || lower.includes("episode")) {
+                      const cleanDuration = detail.duration.replace(
+                        /\bper ep\.?$/i,
+                        "per episode",
+                      );
                       return `Duration: ${cleanDuration}`;
                     }
                     if (detail.episodes === 1) {
@@ -96,7 +108,9 @@ export default function AnimeDetailClient({ detail, context }: Props) {
                 <Monitor className="size-5 text-primary" />
                 {detail.broadcast.day && <span>{detail.broadcast.day}</span>}
                 {detail.broadcast.time && <span>{detail.broadcast.time}</span>}
-                {detail.broadcast.timezone && <span>{detail.broadcast.timezone}</span>}
+                {detail.broadcast.timezone && (
+                  <span>{detail.broadcast.timezone}</span>
+                )}
               </div>
             )}
           </div>
@@ -110,15 +124,15 @@ export default function AnimeDetailClient({ detail, context }: Props) {
           <div
             ref={synopsis_ref}
             className={`relative z-[1] text-pretty text-base leading-7 text-slate-200 ${
-              isExpanded ? '' : 'max-h-30 line-clamp-5 overflow-hidden'
+              isExpanded ? "" : "max-h-30 line-clamp-5 overflow-hidden"
             }`}
           >
-            {detail.synopsis || 'No synopsis available.'}
+            {detail.synopsis || "No synopsis available."}
             {showDropdown && (
               <div
                 onClick={() => SetExpanded(!isExpanded)}
                 className={`absolute bottom-[-10px] z-[3] flex w-full cursor-pointer items-center justify-end bg-gradient-to-b from-transparent to-background text-slate-400 ${
-                  isExpanded ? 'h-10' : 'h-full'
+                  isExpanded ? "h-10" : "h-full"
                 }`}
               >
                 {isExpanded ? (
@@ -141,70 +155,95 @@ export default function AnimeDetailClient({ detail, context }: Props) {
 
         <section className="mx-5 rounded-md border border-white/10 bg-card px-5 py-5 sm:mx-8">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="flex flex-col justify-center gap-2">
-            <p className="text-sm text-slate-400">English</p>
-            <p className="text-left">{detail.englishTitle || 'N/A'}</p>
-          </div>
-              <div>
+            <div className="flex flex-col justify-center gap-2">
+              <p className="text-sm text-slate-400">English</p>
+              <p className="text-left">{detail.englishTitle || "N/A"}</p>
+            </div>
+            <div>
               <p className="text-sm text-slate-400">Source</p>
-                <p>{detail.source || 'Unknown'}</p>
-              </div>
-              <div>
+              <p>{detail.source || "Unknown"}</p>
+            </div>
+            <div>
               <p className="text-sm text-slate-400">Studio</p>
-                {detail.studios.length > 0 ? (
-                  detail.studios.map(studio => <p key={studio}>{studio}</p>)
-                ) : (
-                  <p>Unknown</p>
-                )}
-              </div>
-              <div>
+              {detail.studios.length > 0 ? (
+                detail.studios.map((studio) => <p key={studio}>{studio}</p>)
+              ) : (
+                <p>Unknown</p>
+              )}
+            </div>
+            <div>
               <p className="text-sm text-slate-400">Rating</p>
-                <p>{detail.rating || 'Unknown'}</p>
-              </div>
-              <div>
+              <p>{detail.rating || "Unknown"}</p>
+            </div>
+            <div>
               <p className="text-sm text-slate-400">Season</p>
-                <p>{detail.seasonLabel || 'Unknown'}</p>
-              </div>
-              <div>
+              {seasonHref ? (
+                <Link
+                  className="text-primary hover:underline"
+                  href={seasonHref}
+                >
+                  {detail.seasonLabel}
+                </Link>
+              ) : (
+                <p>{detail.seasonLabel || "Unknown"}</p>
+              )}
+            </div>
+            <div>
               <p className="text-sm text-slate-400">Aired</p>
-                <p>{detail.airedLabel || 'Unknown'}</p>
-              </div>
-              <div>
+              <p>{detail.airedLabel || "Unknown"}</p>
+            </div>
+            <div>
               <p className="text-sm text-slate-400">Licensor</p>
-                {detail.licensors.length > 0 ? (
-                  detail.licensors.map(licensor => <p key={licensor}>{licensor}</p>)
-                ) : (
-                  <p>Unknown</p>
-                )}
-              </div>
+              {detail.licensors.length > 0 ? (
+                detail.licensors.map((licensor) => (
+                  <p key={licensor}>{licensor}</p>
+                ))
+              ) : (
+                <p>Unknown</p>
+              )}
+            </div>
           </div>
         </section>
 
-        <section className='flex w-full flex-col gap-4 overflow-hidden px-5 py-6 sm:px-8'>
+        <section className="flex w-full flex-col gap-4 overflow-hidden px-5 py-6 sm:px-8">
           {detail.relations.length > 0 ? (
-            detail.relations.map((relation, relationIndex) => (
-              <div className='overflow-hidden rounded-md border border-white/10 bg-card p-4' key={`${relation.relation}-${relationIndex}`}>
-                <p className='mb-2 text-sm text-slate-400'>{relation.relation}</p>
-                {relation.relation !== 'Adaptation' ? (
-                  relation.entries.map((entry) => (
-                    <Link
-                      key={`${relation.relation}-${entry.malId}`}
-                      href={buildRelationHrefFromContext(context, entry.malId)}
-                    >
-                      <p className='text-primary'>{entry.name}</p>
-                    </Link>
-                  ))
-                ) : (
-                  relation.entries.map((entry) => (
-                    <p className='text-white' key={`${relation.relation}-${entry.malId}`}>
-                      {entry.name}
-                    </p>
-                  ))
-                )}
+            <>
+              <div>
+                <h2 className="text-2xl font-bold text-white">Related Anime</h2>
+                <div className="section-title-rule mt-3" />
               </div>
-            ))
+              {detail.relations.map((relation, relationIndex) => (
+                <div
+                  className="overflow-hidden rounded-md border border-white/10 bg-card p-4"
+                  key={`${relation.relation}-${relationIndex}`}
+                >
+                  <p className="mb-2 text-sm text-slate-400">
+                    {relation.relation}
+                  </p>
+                  {relation.entries.map((entry) =>
+                    isAnimeRelation(entry.type) ? (
+                      <Link
+                        key={`${relation.relation}-${entry.malId}`}
+                        href={`/Anime/${entry.malId}`}
+                      >
+                        <p className="text-primary hover:underline">
+                          {entry.name}
+                        </p>
+                      </Link>
+                    ) : (
+                      <p
+                        className="text-white"
+                        key={`${relation.relation}-${entry.malId}`}
+                      >
+                        {entry.name}
+                      </p>
+                    ),
+                  )}
+                </div>
+              ))}
+            </>
           ) : (
-            <p className='hidden'></p>
+            <p className="hidden"></p>
           )}
         </section>
         <Add_to_watchlist_button
