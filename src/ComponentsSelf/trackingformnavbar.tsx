@@ -17,20 +17,20 @@ export default function TrackingFormNavbar(props: TrackingFormNavbarProps) {
   const backHref = buildTrackingBackHref(pathname);
 
   return (
-    <nav className="fixed border-b-1 border-gray-700 z-50 bg-black w-screen pl-4 h-20 px-2 pr-4 mb-3 top-0 left-0 flex flex-row items-center justify-between">
-      <div className="flex flex-row items-center gap-2 sm:gap-2">
+    <nav className="app-header">
+      <div className="flex min-w-0 flex-row items-center gap-3">
         <Link href={backHref}>
-          <Button className="bg-zinc-800 text-white" variant="secondary" size="icon">
+          <Button className="icon-button" variant="secondary" size="icon" aria-label="Go back">
             <ChevronLeft />
           </Button>
         </Link>
-        <p className="line-clamp-1 overflow-hidden text-ellipsis text-2xl ml-2 text-white font-bold text-left">
+        <p className="line-clamp-1 overflow-hidden text-ellipsis text-xl text-white font-bold text-left sm:text-2xl">
           {props.searchtitle}
         </p>
       </div>
       <Button
         type="button"
-        className="hover:bg-gray-300 hover:text-black text-blue-400"
+        className="primary-action h-10 px-5"
         onClick={props.savebutton}
       >
         Save

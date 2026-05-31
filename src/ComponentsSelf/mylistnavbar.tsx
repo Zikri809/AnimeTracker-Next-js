@@ -230,14 +230,14 @@ export default function MyListNavbar({
   }
 
   return (
-    <nav className="fixed w-full z-10 border-0 bg-black py-4 h-20 px-4 mb-3 top-0 left-0 flex flex-row items-center justify-between">
-      <div className="flex items-center gap-5">
+    <nav className="app-header">
+      <div className="flex min-w-0 items-center gap-3">
         <Link onClick={handleReset} href="/">
-          <Button className="bg-zinc-800 text-white hover:text-black hover:bg-zinc-400" variant="secondary" size="icon">
+          <Button className="icon-button" variant="secondary" size="icon" aria-label="Go back">
             <ChevronLeft />
           </Button>
         </Link>
-        <p className="line-clamp-1 overflow-hidden text-ellipsis text-2xl text-white font-bold text-center">Mylist</p>
+        <p className="line-clamp-1 overflow-hidden text-ellipsis text-xl text-white font-bold text-left sm:text-2xl">MyList</p>
       </div>
       <div className="flex flex-row items-center gap-3">
         <Mylist_sort
@@ -251,11 +251,11 @@ export default function MyListNavbar({
         />
         <Dialog>
           <DropdownMenu>
-            <DropdownMenuTrigger className="hover:text-white hover:bg-black hover:border-neutral-300 hover:border-1 text-black w-9 h-9 rounded-md flex flex-row items-center justify-center bg-white border-1 border-white outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0">
+            <DropdownMenuTrigger className="icon-button flex items-center justify-center outline-none">
               <User size={24} />
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent side="left" align="start" className="text-xl backdrop-blur-md bg-white/20 border rounded-md shadow-lg text-white border-neutral-600">
+            <DropdownMenuContent side="left" align="start" className="border-white/10 bg-[#151821]/95 text-base text-white shadow-xl backdrop-blur-xl">
               <DropdownMenuLabel>{session.authenticated ? 'My Account' : 'Local Account'}</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-neutral-400" />
               {!session.authenticated && (
@@ -297,7 +297,7 @@ export default function MyListNavbar({
                   </DialogHeader>
                   <DialogFooter>
                     <div className="relative right-0 flex flex-row w-auto gap-2 justify-end">
-                      <Button onClick={backup} className="outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-emerald-700 border-none hover:bg-emerald-500">
+                    <Button onClick={backup} className="primary-action bg-emerald-500 text-black hover:bg-emerald-400">
                         <Download />Download
                       </Button>
                     </div>
@@ -313,8 +313,8 @@ export default function MyListNavbar({
                     <p className="mt-1 text-sm text-neutral-500 text-left">
                       Upload your saved data file to continue tracking your favourite anime.
                     </p>
-                    <Input onChange={Filereader} ref={inputref} className="my-3 bg-black text-sm text-neutral-500 border-neutral-700 rounded-sm" type="file" />
-                    <Button onClick={submitrestore} className="mb-2 w-full hover:bg-neutral-600 bg-neutral-700 border-neutral-700">Restore Now</Button>
+                    <Input onChange={Filereader} ref={inputref} className="my-3 border-white/10 bg-white/[0.06] text-sm text-slate-400" type="file" />
+                    <Button onClick={submitrestore} className="primary-action mb-2 w-full">Restore Now</Button>
                     <ul className="list-disc list-inside w-full text-neutral-500 text-sm">
                       <li>{entries === undefined ? 'NA' : entries} anime entries</li>
                       <li>Last modified: {last_modified === undefined ? 'NA' : last_modified}</li>

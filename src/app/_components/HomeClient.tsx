@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Nav from "@/ComponentsSelf/navbar";
 import LastSeason from "@/ComponentsSelf/LastSeason";
@@ -35,8 +35,6 @@ export default function HomeClient({
   carouseldata,
   seasonal_carousel_data,
 }: HomeClientProps) {
-  const navsearchref = useRef<HTMLInputElement>(null);
-  const navbuttonref = useRef<HTMLButtonElement>(null);
   const router = useRouter();
 
   // Auth Session token refresh
@@ -63,35 +61,8 @@ export default function HomeClient({
     checkSession();
   }, []);
 
-  // Search logic and localStorage initialization
+  // Local/session storage initialization
   useEffect(() => {
-    const navsearchbar = navsearchref.current;
-    const navbutton = navbuttonref.current;
-
-    if (!navsearchbar || !navbutton) return;
-
-    const enterhandler = (e: KeyboardEvent) => {
-      if (e.key === "Enter") {
-        searchhandler();
-      }
-    };
-
-    const searchhandler = () => {
-      if (navsearchbar.value !== "") {
-        const sanitized = navsearchbar.value.replace(/[\/\\<>'"&]/g, "");
-        router.push(
-          navsearchbar.value.length === 0
-            ? "/"
-            : `/search/${encodeURIComponent(sanitized)}`
-        );
-      } else {
-        router.push("/search");
-      }
-    };
-
-    navbutton.addEventListener("click", searchhandler);
-    window.addEventListener("keydown", enterhandler);
-
     // Initialize session storage keys safely
     try {
       sessionStorage.setItem("morescroll", JSON.stringify(0));
@@ -120,18 +91,13 @@ export default function HomeClient({
     initWatchlistKey("PlanToWatch");
     initWatchlistKey("OnHold");
     initWatchlistKey("Dropped");
-
-    return () => {
-      navbutton.removeEventListener("click", searchhandler);
-      window.removeEventListener("keydown", enterhandler);
-    };
-  }, [router]);
+  }, []);
 
   return (
-    <main className="relative top-0 left-0 overflow-x-clip m-0 w-[100%] h-fit pb-13 bg-black text-white font-poppins my-1">
-      <Nav searchref={navsearchref} buttonref={navbuttonref} />
+    <main className="app-shell pb-28 sm:pb-8">
+      <Nav />
 
-      <div className="flex flex-col pt-18">
+      <div className="flex flex-col pt-20">
         <CarouselDemo data={carouseldata.querydata} />
         <ThisSeasonSec
           data={thisseason.querydata}

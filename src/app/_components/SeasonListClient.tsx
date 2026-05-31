@@ -92,10 +92,6 @@ export default function SeasonListClient({
     };
   }, [visibleCount, animearr.length, pathname]);
 
-  useEffect(() => {
-    isupdated.current = true;
-  }, [visibleCount]);
-
   // Helper formatting functions
   const formatStatus = (status?: string): string => {
     if (!status) return "Unknown";
@@ -123,7 +119,7 @@ export default function SeasonListClient({
         defaultArr={initialItems}
       />
 
-      <div className="relative top-18 lg:grid lg:grid-cols-2 w-screen pb-33 sm:pb-15 lg:grid-rows">
+      <div className="relative top-18 flex w-full flex-col pb-33 sm:pb-15 lg:grid lg:grid-cols-2 lg:grid-rows lg:gap-3 lg:p-4">
         {animearr.slice(0, visibleCount).map((element) => {
           if (!element.node || typeof element.node.id !== "number") {
             return null;
@@ -148,7 +144,7 @@ export default function SeasonListClient({
             .map((g) => ({ name: g.name }));
 
           return (
-            <Link key={id} href={`${detailHrefPrefix}/${id}`}>
+            <Link key={id} href={`${detailHrefPrefix}/${id}`} className="block min-w-0 lg:h-full">
               <Horizontalcard
                 ref={cardref}
                 addstatus={isAdded}

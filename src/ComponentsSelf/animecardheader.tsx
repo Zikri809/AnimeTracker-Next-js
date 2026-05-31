@@ -1,14 +1,11 @@
 import {
     Card,
     CardContent,
-    CardTitle,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle as _CardTitle,
-  } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/card"
 import React from "react"
+import Image from "next/image"
+import { Heart, Star, Trophy } from "lucide-react"
+import { FALLBACK_POSTER_SRC } from "./animecard"
 
 interface GenreItem {
     name: string;
@@ -17,6 +14,7 @@ interface GenreItem {
 interface AnimeCardHeaderProps {
     genre: GenreItem[];
     image: string;
+    bannerImage?: string | null;
     status: string;
     season: string;
     episodes: number | null;
@@ -27,6 +25,16 @@ interface AnimeCardHeaderProps {
     favorites: number | string;
 }
 
+function statusClassName(status: string) {
+    if (status === "Finished Airing") {
+        return "border-emerald-400/25 bg-emerald-400/10 text-emerald-300";
+    }
+    if (status === "Currently Airing") {
+        return "border-primary/25 bg-primary/10 text-primary";
+    }
+    return "border-rose-400/25 bg-rose-400/10 text-rose-300";
+}
+
 function AnimeCardHeader(props: AnimeCardHeaderProps) {
     let genrearr = [...props.genre];
     if (genrearr.length > 3) {
@@ -35,72 +43,134 @@ function AnimeCardHeader(props: AnimeCardHeaderProps) {
         genrearr.push({ name: `+${exceeded}` });
     }
 
-    return (
-        <>
-        <Card className='rounded-none w-screen border-l-1 overflow-hidden hover:bg-zinc-800 text-white border-x-0 border-t-0 p-5 mx-0 border-none bg-black'>
-            <CardContent className='flex p-0 flex-row gap-5 overflow-hidden items-center'>
-                <img
-                    className="rounded-sm w-50 sm:w-auto h-70 overflow-hidden object-cover"
-                    src={props.image}
-                    alt={props.title || "Anime cover"}
+    if (props.bannerImage) {
+        return (
+            <section className="relative min-h-[25rem] overflow-hidden border-b border-white/10 bg-background sm:min-h-[32rem]">
+                <Image
+                    className="object-cover"
+                    src={props.bannerImage}
+                    alt={`${props.title} banner`}
+                    quality={90}
+                    fill
+                    priority
+                    sizes="100vw"
                 />
-                <div className="flex flex-col h-70 overflow-hidden justify-between items-start">
-                    {props.status === 'Finished Airing' ? (
-                        <Button variant="outline" className='bg-black border-1 font-medium text-sm text-green-500 border-gray-700'>
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(8_9_11/0.18)_0%,rgb(8_9_11/0.45)_45%,rgb(8_9_11/0.96)_100%)]" />
+                <div className="absolute inset-0 bg-[linear-gradient(90deg,rgb(8_9_11/0.92)_0%,rgb(8_9_11/0.62)_42%,rgb(8_9_11/0.12)_100%)]" />
+                <div className="relative z-10 flex min-h-[25rem] max-w-5xl flex-col justify-end px-5 pb-7 pt-20 sm:min-h-[32rem] sm:px-8 sm:pb-10">
+                    <div className="max-w-3xl">
+                        <span className={`status-pill mb-4 ${statusClassName(props.status)}`}>
                             {props.status}
-                        </Button>
-                    ) : props.status === 'Currently Airing' ? (
-                        <Button variant="outline" className='bg-black border-1 font-medium text-sm text-blue-400 border-gray-700'>
-                            {props.status}
-                        </Button>
-                    ) : (
-                        <Button variant="outline" className='bg-black border-1 font-medium text-sm text-red-400 border-gray-700'>
-                            {props.status}
-                        </Button>
-                    )}
-                    <div className="flex text-sm flex-wrap flex-row gap-2">
-                        <p className="capitalize">{props.season}</p>
-                        <p className="hidden sm:block">{props.episodes == null ? '' : props.episodes + ' Episodes'} </p>
-                    </div>
-                    <p className="sm:hidden">{props.episodes == null ? '' : props.episodes + ' Episodes'} </p>
-                    <div className="text-2xl font-bold hidden sm:inline-block line-clamp-1 overflow-hidden text-ellipsis">{props.title}</div>
-                    <div className="flex flex-row gap-3 sm:gap-10 text-sm flex-wrap w-50 sm:w-full text-gray-400">
-                        <div className="flex flex-col">
-                            <div className="flex flex-row gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
-                                </svg>
-                                <p>{props.score === undefined ? 'No Rating' : props.score}</p>
+                        </span>
+                        <h1 className="text-balance text-3xl font-bold leading-tight text-white drop-shadow-lg sm:text-5xl">
+                            {props.title}
+                        </h1>
+                        <div className="mt-4 flex flex-wrap gap-x-3 gap-y-1 text-sm text-slate-300 sm:text-base">
+                            <p className="capitalize">{props.season}</p>
+                            <p>{props.episodes == null ? "" : `${props.episodes} Episodes`}</p>
+                        </div>
+                        <div className="mt-5 grid max-w-xl grid-cols-2 gap-4 text-sm text-slate-300 sm:grid-cols-3">
+                            <div className="min-w-0">
+                                <div className="flex items-center gap-1 text-slate-50">
+                                    <Star className="size-4 fill-primary text-primary" />
+                                    <p>{props.score === undefined ? "No Rating" : props.score}</p>
+                                </div>
+                                <p className="truncate">{props.users} users</p>
                             </div>
-                            <p>{props.users} users</p>
+                            <div>
+                                <div className="flex items-center gap-1 text-slate-50">
+                                    <Trophy className="size-4 text-primary" />
+                                    <p>#{props.ranking}</p>
+                                </div>
+                                <p>Ranking</p>
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-1 text-slate-50">
+                                    <Heart className="size-4 text-primary" />
+                                    <p>#{props.favorites}</p>
+                                </div>
+                                <p>Favourites</p>
+                            </div>
                         </div>
-                        <div className="flex flex-col">
-                            <p>#{props.ranking}</p>
-                            <p>Ranking</p>
+                        <div className="mt-5 flex flex-row flex-wrap items-center gap-2">
+                            {genrearr.map((genre, index) => (
+                                <span key={`${genre.name}-${index}`} className="metadata-pill bg-black/45 backdrop-blur-sm">
+                                    {genre.name}
+                                </span>
+                            ))}
                         </div>
-                        <div>
-                            <p>#{props.favorites}</p>
-                            <p>Favourites</p>
-                        </div>
-                    </div>
-                    <div className="sm:flex h-15 hidden flex-row flex-wrap items-center gap-2 sm:w-full">
-                        {genrearr.map((genre, index) => (
-                            <Button key={`${genre.name}-${index}`} variant="secondary" className='text-sm text-white bg-slate-800'>
-                                {genre.name}
-                            </Button>
-                        ))}
                     </div>
                 </div>
-            </CardContent>
-        </Card>
-        <div className="flex h-15 bg-neutral-900 sm:hidden flex-row flex-wrap items-center justify-around sm:w-full gap-2">
-            {genrearr.map((genre, index) => (
-                <Button key={`${genre.name}-${index}-mobile`} variant="secondary" className='text-sm text-white bg-slate-800'>
-                    {genre.name}
-                </Button>
-            ))}
-        </div>
-        </>
+            </section>
+        );
+    }
+
+    return (
+        <section className="border-b border-white/10 bg-background px-5 py-6 sm:px-8">
+            <Card className="border-none bg-transparent p-0 text-white shadow-none">
+                <CardContent className="flex min-w-0 flex-row items-center gap-5 p-0 sm:gap-7">
+                    <div className="relative h-[17rem] w-[12rem] flex-none overflow-hidden rounded-md bg-[#111318] sm:h-[22rem] sm:w-[15rem]">
+                        <Image
+                            className="object-cover"
+                            src={props.image || FALLBACK_POSTER_SRC}
+                            alt={props.title || "Anime cover"}
+                            quality={85}
+                            fill
+                            sizes="(min-width: 640px) 240px, 192px"
+                        />
+                    </div>
+                    <div className="flex min-w-0 flex-1 flex-col items-start gap-5">
+                        <span className={`status-pill ${statusClassName(props.status)}`}>
+                            {props.status}
+                        </span>
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-slate-400">
+                            <p className="capitalize">{props.season}</p>
+                            <p>{props.episodes == null ? "" : `${props.episodes} Episodes`}</p>
+                        </div>
+                        <h1 className="hidden max-w-3xl text-balance text-3xl font-bold leading-tight text-white sm:block">
+                            {props.title}
+                        </h1>
+                        <div className="grid w-full max-w-xl grid-cols-2 gap-4 text-sm text-slate-400 sm:grid-cols-3">
+                            <div className="min-w-0">
+                                <div className="flex items-center gap-1 text-slate-100">
+                                    <Star className="size-4 fill-primary text-primary" />
+                                    <p>{props.score === undefined ? "No Rating" : props.score}</p>
+                                </div>
+                                <p className="truncate">{props.users} users</p>
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-1 text-slate-100">
+                                    <Trophy className="size-4 text-primary" />
+                                    <p>#{props.ranking}</p>
+                                </div>
+                                <p>Ranking</p>
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-1 text-slate-100">
+                                    <Heart className="size-4 text-primary" />
+                                    <p>#{props.favorites}</p>
+                                </div>
+                                <p>Favourites</p>
+                            </div>
+                        </div>
+                        <div className="hidden flex-row flex-wrap items-center gap-2 sm:flex">
+                            {genrearr.map((genre, index) => (
+                                <span key={`${genre.name}-${index}`} className="metadata-pill">
+                                    {genre.name}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+            <div className="mt-5 flex flex-row flex-wrap items-center gap-2 sm:hidden">
+                {genrearr.map((genre, index) => (
+                    <span key={`${genre.name}-${index}-mobile`} className="metadata-pill">
+                        {genre.name}
+                    </span>
+                ))}
+            </div>
+        </section>
     )
 }
 

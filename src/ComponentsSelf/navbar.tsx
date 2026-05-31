@@ -1,52 +1,56 @@
-/* eslint-disable react-hooks/refs */
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useEffect } from "react";
-import React from "react";
+import React, { useState } from "react";
 import Link from 'next/link';
+import { useRouter } from "next/navigation";
+import { ListChecks, Search } from "lucide-react";
 
-interface NavbarProps {
-    searchref: React.RefObject<HTMLInputElement | null>;
-    buttonref: React.RefObject<HTMLButtonElement | null>;
-}
+function Navbar() {
+    const router = useRouter();
+    const [query, setQuery] = useState("");
 
-function Navbar(props: NavbarProps) {
-    useEffect(() => {
-        console.log('navbar render')
-    }, [])
-
-    const searchEl = props.searchref;
-    const buttonEl = props.buttonref;
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        const trimmed = query.trim();
+        if (trimmed !== "") {
+            const sanitized = trimmed.replace(/[\/\\<>'"&]/g, "");
+            router.push(`/search/${encodeURIComponent(sanitized)}`);
+        } else {
+            router.push("/search");
+        }
+    };
 
     return (
-        <nav className="fixed z-50 bg-black border-b-0 border-gray-700 w-screen pl-4 h-20 px-2 pr-4 mb-3 top-0 left-0 flex flex-row items-center justify-between">
-            <div>
-                <h1 className="bg-linear-to-r text-white scroll-m-20 text-3xl font-extrabold font-poppins tracking-tight lg:text-5xl">
-                    AniJikan
-                </h1>
+        <nav className="app-header">
+            <div className="min-w-0">
+                <Link href="/">
+                    <h1 className="text-white scroll-m-20 text-3xl font-extrabold font-poppins tracking-tight lg:text-4xl cursor-pointer">
+                        AniJikan
+                    </h1>
+                </Link>
             </div>
-            <div className="sm:flex flex-row gap-2 hidden">
-                <div className="flex w-full max-w-sm items-center space-x-2">
+            <div className="sm:flex flex-row gap-3 hidden">
+                <form onSubmit={handleSearch} className="flex w-[min(34vw,24rem)] items-center gap-2">
                     <Input
-                        ref={searchEl}
-                        className="text-white text-base px-2 py-1 rounded-md border-neutral-500"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        className="h-10 border-white/10 bg-white/[0.06] px-3 text-sm text-white placeholder:text-slate-500 focus-visible:border-primary/70 focus-visible:ring-primary/30"
                         placeholder="Search anime..."
                     />
                     <Button
-                        ref={buttonEl}
                         type="submit"
+                        aria-label="Search anime"
+                        className="icon-button"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                             viewBox="0 0 24 24" strokeWidth={1.5}
-                             stroke="currentColor" className="size-6">
-                            <path strokeLinecap="round" strokeLinejoin="round"
-                                  d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                        </svg>
+                        <Search className="size-5" />
                     </Button>
-                </div>
+                </form>
                 <Link href={'/mylist'}>
-                    <Button className='text-black bg-white hover:bg-neutral-600 hover:text-white border-0' variant="outline">
-                        Mylist
+                    <Button className='h-10 border border-primary/25 bg-primary px-4 text-primary-foreground hover:bg-primary/90'>
+                        <ListChecks className="size-4" />
+                        MyList
                     </Button>
                 </Link>
             </div>

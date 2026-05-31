@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { ChevronRight } from "lucide-react"
 import Animecard from './animecard'
 import React, { useState } from "react";
-import Cardskeleton from "./animecardskelaton";
+import Cardskeleton from "./animecardskeleton";
 import Link from 'next/link'
 import {
   Carousel,

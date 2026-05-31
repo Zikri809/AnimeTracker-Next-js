@@ -310,13 +310,13 @@ export default function MyListClient() {
         SetpageArr={setpagearr}
       />
       <Toaster className='fixed top-0 z-[1000]' richColors />
-      <Tabs defaultValue="Plan To Watch" value={activetab} onValueChange={handletabchange} className="relative w-full top-20 border-0 border-blue-500 bg-black">
-        <TabsList style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} className='no-scrollbar w-full justify-start text-xl z-[2] fixed top-20 touch-auto pb-0 rounded-none bg-black text-black border-b-0 overflow-auto border-gray-600 gap-0'>
-          <TabsTrigger className='border-x-0 text-base border-b-gray-600 rounded-none data-[state=active]:border-b-white data-[state=active]:rounded-b-none data-[state=active]:bg-inherit data-[state=active]:text-white text-neutral-400' value="Plan To Watch">Plan To Watch</TabsTrigger>
-          <TabsTrigger className='border-x-0 text-neutral-400 text-base data-[state=active]:bg-inherit data-[state=active]:text-white border-b-gray-600 rounded-none data-[state=active]:border-b-white data-[state=active]:rounded-b-none' value="Completed">Completed</TabsTrigger>
-          <TabsTrigger className='border-x-0 text-neutral-400 text-base data-[state=active]:bg-inherit data-[state=active]:text-white border-b-gray-600 rounded-none data-[state=active]:border-b-white data-[state=active]:rounded-b-none' value="Watching">Watching</TabsTrigger>
-          <TabsTrigger className='border-x-0 text-neutral-400 text-base data-[state=active]:bg-inherit data-[state=active]:text-white border-b-gray-600 rounded-none data-[state=active]:border-b-white data-[state=active]:rounded-b-none' value="On Hold">On Hold</TabsTrigger>
-          <TabsTrigger className='border-x-0 text-neutral-400 text-base data-[state=active]:bg-inherit data-[state=active]:text-white border-b-gray-600 rounded-none data-[state=active]:border-b-white data-[state=active]:rounded-b-none' value="Dropped">Dropped</TabsTrigger>
+      <Tabs defaultValue="Plan To Watch" value={activetab} onValueChange={handletabchange} className="relative top-20 w-full border-0 bg-background">
+        <TabsList style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} className='no-scrollbar fixed top-20 z-[2] w-full justify-start gap-1 overflow-auto rounded-none border-b border-white/10 bg-[#08090b]/95 px-2 py-2 text-black backdrop-blur-xl'>
+          <TabsTrigger className='h-9 rounded-md border-0 px-3 text-sm text-slate-400 data-[state=active]:bg-white/[0.08] data-[state=active]:text-white' value="Plan To Watch">Plan To Watch</TabsTrigger>
+          <TabsTrigger className='h-9 rounded-md border-0 px-3 text-sm text-slate-400 data-[state=active]:bg-white/[0.08] data-[state=active]:text-white' value="Completed">Completed</TabsTrigger>
+          <TabsTrigger className='h-9 rounded-md border-0 px-3 text-sm text-slate-400 data-[state=active]:bg-white/[0.08] data-[state=active]:text-white' value="Watching">Watching</TabsTrigger>
+          <TabsTrigger className='h-9 rounded-md border-0 px-3 text-sm text-slate-400 data-[state=active]:bg-white/[0.08] data-[state=active]:text-white' value="On Hold">On Hold</TabsTrigger>
+          <TabsTrigger className='h-9 rounded-md border-0 px-3 text-sm text-slate-400 data-[state=active]:bg-white/[0.08] data-[state=active]:text-white' value="Dropped">Dropped</TabsTrigger>
         </TabsList>
 
         {MYLIST_TABS.map((tab) => {
@@ -328,15 +328,15 @@ export default function MyListClient() {
           else rows = planmap;
 
           return (
-            <TabsContent key={tab.label} className='relative top-10 pb-36 sm:pb-20' value={tab.label}>
+            <TabsContent key={tab.label} className='relative top-14 pb-36 sm:pb-20' value={tab.label}>
               {isloading ? (
-                <p className="text-white text-center py-60">Loading please wait</p>
+                <p className="empty-state text-white">Loading please wait</p>
               ) : rows.length !== 0 ? (
-                <div className="lg:grid lg:grid-cols-2 w-full lg:grid-rows pb-8 sm:pb-0">
+                <div className="flex w-full flex-col pb-8 sm:pb-0 lg:grid lg:grid-cols-2 lg:grid-rows lg:gap-3 lg:p-4">
                   {rows.slice(0, currentpagearr).map(([key, value]) => {
                     const normalized = normalizeRowItem(value);
                     return (
-                      <Link key={normalized.id} href={`/mylist/${tab.hrefSegment}/${normalized.id}`}>
+                      <Link key={normalized.id} href={`/mylist/${tab.hrefSegment}/${normalized.id}`} className="block min-w-0 lg:h-full">
                         <Horizontalcard
                           className=''
                           mal_id={normalized.id}
@@ -356,7 +356,10 @@ export default function MyListClient() {
                   })}
                 </div>
               ) : (
-                <p className="text-white w-full h-full text-center py-60">No shows in record yet</p>
+                <div className="empty-state">
+                  <p className="text-lg font-semibold text-white">No shows in record yet</p>
+                  <p className="text-sm text-slate-400">Add anime from a detail page and they will appear here.</p>
+                </div>
               )}
             </TabsContent>
           );

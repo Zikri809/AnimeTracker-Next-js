@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/card";
 import React from "react";
 import Image from "next/image";
+import { Star } from "lucide-react";
 
 export const FALLBACK_POSTER_SRC = "/placeholder.svg";
 
@@ -28,24 +29,30 @@ export default function AnimeCard({
   const displayYear = year ?? "NA";
 
   return (
-    <Card className="bg-zinc-800 p-1 border-none rounded-sm w-40 sm:w-55 hover:bg-zinc-700 h-75 sm:h-90">
-      <CardContent className="truncate p-1">
-        <Image
-          className="rounded-md mb-2 mx-auto sm:h-70 h-50 object-cover"
-          loading="lazy"
-          quality={90}
-          height={1000}
-          width={1000}
-          alt={title}
-          src={imgSrc}
-        />
-        <CardTitle className="text-white text-center truncate mb-2">{title}</CardTitle>
-        <CardDescription className="flex sm:flex-nowrap w-full truncate flex-row text-sm items-center flex-wrap justify-center sm:justify-between">
-          <span className="mr-2 sm:mr-0">{rating != null ? `⭐${rating}` : "NA"}</span>
-          <span>{displayYear}</span>
-          <span className="hidden sm:inline-block">{status}</span>
+    <Card className="media-card h-[19rem] w-[10rem] flex-none p-0 sm:h-[23rem] sm:w-[13.25rem]">
+      <CardContent className="flex h-full flex-col p-2">
+        <div className="relative mb-3 aspect-[2/3] w-full overflow-hidden rounded-md bg-[#0d1016]">
+          <Image
+            className="object-cover transition-transform duration-300 hover:scale-[1.03]"
+            loading="lazy"
+            quality={85}
+            fill
+            sizes="(min-width: 640px) 212px, 160px"
+            alt={title}
+            src={imgSrc}
+          />
+        </div>
+        <CardTitle className="line-clamp-2 min-h-[2.5rem] text-left text-sm font-semibold leading-5 text-white sm:text-base">
+          {title}
+        </CardTitle>
+        <CardDescription className="mt-auto grid grid-cols-[1fr_auto] items-end gap-2 text-xs text-slate-400">
+          <span className="inline-flex min-w-0 items-center gap-1 text-slate-200">
+            <Star className="size-3.5 fill-primary text-primary" />
+            <span className="truncate">{rating != null ? rating : "NA"}</span>
+          </span>
+          <span className="text-right">{displayYear}</span>
+          <span className="col-span-2 truncate text-slate-500">{status}</span>
         </CardDescription>
-        <p className="w-full text-center text-sm text-neutral-500 inline-block sm:hidden">{status}</p>
       </CardContent>
     </Card>
   );

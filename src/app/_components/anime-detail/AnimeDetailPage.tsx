@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { parseDetailRouteContext, buildPathnameFromParams, DetailRouteFamily, buildRetryLimitHref } from '@/lib/routing/detail-route-context';
-import { fetchJikanDetailRaw, fetchJikanRelations } from '@/server/anime/jikan-detail';
+import { fetchAniListBannerImage, fetchJikanDetailRaw, fetchJikanRelations } from '@/server/anime/jikan-detail';
 import { normalizeJikanDetail } from '@/server/anime/jikan-detail-normalize';
 import AnimeDetailClient from './AnimeDetailClient';
 
@@ -41,14 +41,12 @@ export default async function AnimeDetailPage({ params, family }: Props) {
     redirect(redirectUrl);
   }
 
-  let rawRelations;
-  try {
-    rawRelations = await fetchJikanRelations(context.targetAnimeId, rawDetail);
-  } catch {
-    rawRelations = [];
-  }
+  const [rawRelations, bannerImageUrl] = await Promise.all([
+    fetchJikanRelations(context.targetAnimeId, rawDetail).catch(() => []),
+    fetchAniListBannerImage(context.targetAnimeId),
+  ]);
 
-  const normalizedDetail = normalizeJikanDetail(rawDetail, rawRelations);
+  const normalizedDetail = normalizeJikanDetail(rawDetail, rawRelations, bannerImageUrl);
 
   return <AnimeDetailClient detail={normalizedDetail} context={context} />;
 }

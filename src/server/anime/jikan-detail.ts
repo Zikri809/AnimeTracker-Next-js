@@ -169,3 +169,38 @@ export async function fetchJikanRelations(targetAnimeId: number, fullDetailData:
     }
   }
 }
+
+export async function fetchAniListBannerImage(malId: number): Promise<string | null> {
+  if (process.env.PLAYWRIGHT_TEST === 'true') {
+    return null;
+  }
+
+  try {
+    const query = `query MediaByMalId($idMal: Int) {
+      Media(idMal: $idMal, type: ANIME) {
+        bannerImage
+      }
+    }`;
+
+    const response = await fetch("https://graphql.anilist.co", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        query,
+        variables: { idMal: malId },
+      }),
+      next: { revalidate: 43200 },
+    });
+
+    if (!response.ok) return null;
+
+    const payload = await response.json();
+    const bannerImage = payload?.data?.Media?.bannerImage;
+    return typeof bannerImage === "string" && bannerImage.trim() !== "" ? bannerImage : null;
+  } catch {
+    return null;
+  }
+}

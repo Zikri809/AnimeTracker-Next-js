@@ -23,9 +23,9 @@ export default function LoginFailedPage() {
     }, [router]);
 
     return (
-        <div className="bg-black w-screen h-[100svh]  flex flex-col items-center">
+        <div className="bg-black w-full h-[100svh]  flex flex-col items-center">
             <Login_navbar/>
-            <Card className="bg-black  h-screen w-screen relative border-0 flex flex-col items-center justify-center">
+            <Card className="bg-black  h-screen w-full relative border-0 flex flex-col items-center justify-center">
                  <CardContent className="sm:bg-white/5 bg-black sm:backdrop-blur-md sm:border sm:border-white/10  rounded-2xl p-10 flex w-fit flex-col items-center justify-center">
                     <img className="h-80 w-80 p-0" src="/svg-illustration/Forgot-password-bro.svg" alt="Error illustration" />
                     <h1 className="text-2xl text-white  text-center font-bold">Error Occured during Operation</h1>

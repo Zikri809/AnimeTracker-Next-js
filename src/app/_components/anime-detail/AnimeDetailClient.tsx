@@ -12,6 +12,7 @@ import {
   buildTrackingHrefFromContext,
 } from '@/lib/routing/detail-route-context';
 import Link from 'next/link';
+import { ChevronDown, ChevronUp, Monitor, Clock } from 'lucide-react';
 
 type Props = {
   detail: JikanAnimeDetailViewModel;
@@ -52,12 +53,13 @@ export default function AnimeDetailClient({ detail, context }: Props) {
   const showBroadcast = detail.status === 'Currently Airing' || detail.status === 'Finished Airing';
 
   return (
-    <main className="relative overflow-x-hidden top-0 left-0 m-0 w-screen h-auto overflow-hidden bg-black text-white font-poppins my-1 antialiased">
+    <main className="app-shell pb-28 sm:pb-10">
       <Navbar sectionTitle={detail.displayTitle} />
-      <div className="relative top-20 flex pb-38 sm:pb-30 flex-col">
+      <div className="relative flex flex-col pt-20">
         <Horizontalcard
           key={detail.malId}
           image={detail.imageUrl ?? ''}
+          bannerImage={detail.bannerImageUrl}
           status={detail.status ?? 'Unknown'}
           season={detail.seasonLabel || ' '}
           episodes={detail.episodes}
@@ -70,24 +72,28 @@ export default function AnimeDetailClient({ detail, context }: Props) {
         />
 
         {showBroadcast && (detail.duration || detail.broadcast) && (
-          <div className="px-6 py-4 border-none justify-around mb-4 text-white items-center bg-neutral-900 flex flex-row border-gray-600">
-            {detail.duration && <span>{detail.duration}</span>}
+          <div className="mx-5 my-5 flex flex-col gap-3 rounded-md border border-white/10 bg-card px-4 py-4 text-white sm:mx-8 sm:flex-row sm:items-center sm:justify-around">
+            {detail.duration && (
+              <div className="flex flex-row flex-wrap items-center gap-2 text-slate-200">
+                <Clock className="size-5 text-primary" />
+                <span>
+                  {(() => {
+                    const lower = detail.duration.toLowerCase();
+                    if (lower.includes('ep') || lower.includes('episode')) {
+                      const cleanDuration = detail.duration.replace(/\bper ep\.?$/i, 'per episode');
+                      return `Duration: ${cleanDuration}`;
+                    }
+                    if (detail.episodes === 1) {
+                      return `Duration: ${detail.duration}`;
+                    }
+                    return `Duration: ${detail.duration} per episode`;
+                  })()}
+                </span>
+              </div>
+            )}
             {detail.broadcast && (
-              <div className="flex flex-row gap-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="size-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125Z"
-                  />
-                </svg>
+              <div className="flex flex-row flex-wrap items-center gap-2 text-slate-200">
+                <Monitor className="size-5 text-primary" />
                 {detail.broadcast.day && <span>{detail.broadcast.day}</span>}
                 {detail.broadcast.time && <span>{detail.broadcast.time}</span>}
                 {detail.broadcast.timezone && <span>{detail.broadcast.timezone}</span>}
@@ -96,13 +102,14 @@ export default function AnimeDetailClient({ detail, context }: Props) {
           </div>
         )}
 
-        <div className="px-6 border-b-1 border-gray-600 pb-5">
-          <h4 className="text-start font-bold text-2xl mb-5 font-poppins inline-block border-b-1 pb-1 border-white">
+        <section className="border-b border-white/10 px-5 pb-6 sm:px-8">
+          <h4 className="mb-4 inline-block text-start font-poppins text-2xl font-bold text-white">
             Synopsis
           </h4>
+          <div className="section-title-rule mb-5" />
           <div
             ref={synopsis_ref}
-            className={`relative text-justify z-[1] ${
+            className={`relative z-[1] text-pretty text-base leading-7 text-slate-200 ${
               isExpanded ? '' : 'max-h-30 line-clamp-5 overflow-hidden'
             }`}
           >
@@ -110,66 +117,40 @@ export default function AnimeDetailClient({ detail, context }: Props) {
             {showDropdown && (
               <div
                 onClick={() => SetExpanded(!isExpanded)}
-                className={`absolute bottom-[-10px] z-[3] w-full flex items-center text-neutral-500 justify-end bg-gradient-to-b to-black cursor-pointer ${
+                className={`absolute bottom-[-10px] z-[3] flex w-full cursor-pointer items-center justify-end bg-gradient-to-b from-transparent to-background text-slate-400 ${
                   isExpanded ? 'h-10' : 'h-full'
                 }`}
               >
                 {isExpanded ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="40"
-                    height="40"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-chevron-up-icon lucide-chevron-up"
-                  >
-                    <path d="m18 15-6-6-6 6" />
-                  </svg>
+                  <ChevronUp className="size-9" />
                 ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="40"
-                    height="40"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-chevron-down-icon lucide-chevron-down"
-                  >
-                    <path d="m6 9 6 6 6-6" />
-                  </svg>
+                  <ChevronDown className="size-9" />
                 )}
               </div>
             )}
           </div>
-        </div>
+        </section>
 
         {detail.trailerEmbedUrl && (
           <iframe
-            className="border-1 border-gray-700 my-4 mx-6 sm:mx-auto sm:w-200 aspect-video"
+            className="mx-5 my-6 aspect-video rounded-md border border-white/10 bg-card sm:mx-auto sm:w-[50rem]"
             src={detail.trailerEmbedUrl}
+            title={`${detail.displayTitle} trailer`}
           />
         )}
 
-        <div className="bg-neutral-900 px-5 py-4 flex flex-col gap-10">
+        <section className="mx-5 rounded-md border border-white/10 bg-card px-5 py-5 sm:mx-8">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <div className="flex flex-col justify-center gap-2">
-            <p className="text-gray-400">English</p>
+            <p className="text-sm text-slate-400">English</p>
             <p className="text-left">{detail.englishTitle || 'N/A'}</p>
           </div>
-          <div className="flex flex-row gap-10">
-            <div className="flex flex-col gap-4">
               <div>
-                <p className="text-gray-400">Source</p>
+              <p className="text-sm text-slate-400">Source</p>
                 <p>{detail.source || 'Unknown'}</p>
               </div>
               <div>
-                <p className="text-gray-400">Studio</p>
+              <p className="text-sm text-slate-400">Studio</p>
                 {detail.studios.length > 0 ? (
                   detail.studios.map(studio => <p key={studio}>{studio}</p>)
                 ) : (
@@ -177,43 +158,40 @@ export default function AnimeDetailClient({ detail, context }: Props) {
                 )}
               </div>
               <div>
-                <p className="text-gray-400">Rating</p>
+              <p className="text-sm text-slate-400">Rating</p>
                 <p>{detail.rating || 'Unknown'}</p>
               </div>
-            </div>
-            <div className="flex flex-col gap-4">
               <div>
-                <p className="text-gray-400">Season</p>
+              <p className="text-sm text-slate-400">Season</p>
                 <p>{detail.seasonLabel || 'Unknown'}</p>
               </div>
               <div>
-                <p className="text-gray-400">Aired</p>
+              <p className="text-sm text-slate-400">Aired</p>
                 <p>{detail.airedLabel || 'Unknown'}</p>
               </div>
               <div>
-                <p className="text-gray-400">Licensor</p>
+              <p className="text-sm text-slate-400">Licensor</p>
                 {detail.licensors.length > 0 ? (
                   detail.licensors.map(licensor => <p key={licensor}>{licensor}</p>)
                 ) : (
                   <p>Unknown</p>
                 )}
               </div>
-            </div>
           </div>
-        </div>
+        </section>
 
-        <div className='flex bg-black overflow-hidden w-screen px-5 py-4 flex-wrap flex-col justify-between'>
+        <section className='flex w-full flex-col gap-4 overflow-hidden px-5 py-6 sm:px-8'>
           {detail.relations.length > 0 ? (
             detail.relations.map((relation, relationIndex) => (
-              <div className='overflow-hidden' key={`${relation.relation}-${relationIndex}`}>
-                <p className='text-gray-400'>{relation.relation}</p>
+              <div className='overflow-hidden rounded-md border border-white/10 bg-card p-4' key={`${relation.relation}-${relationIndex}`}>
+                <p className='mb-2 text-sm text-slate-400'>{relation.relation}</p>
                 {relation.relation !== 'Adaptation' ? (
                   relation.entries.map((entry) => (
                     <Link
                       key={`${relation.relation}-${entry.malId}`}
                       href={buildRelationHrefFromContext(context, entry.malId)}
                     >
-                      <p className='text-blue-500'>{entry.name}</p>
+                      <p className='text-primary'>{entry.name}</p>
                     </Link>
                   ))
                 ) : (
@@ -228,7 +206,7 @@ export default function AnimeDetailClient({ detail, context }: Props) {
           ) : (
             <p className='hidden'></p>
           )}
-        </div>
+        </section>
         <Add_to_watchlist_button
           mal_id={detail.malId}
           to={buildTrackingHrefFromContext(context)}

@@ -19,14 +19,15 @@ export default function SeasonCarousel(props: SeasonCarouselProps) {
     const data = props.data;
 
     return (
-        <div>
-            <div className="flex flex-row pl-4 pr-6 mb-2 justify-between items-center">
-                <div className="border-b-2 pb-2">
-                    <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">Seasons</h4>
+        <section className="mb-8">
+            <div className="mb-3 flex flex-row items-end justify-between px-4 sm:px-6">
+                <div className="space-y-2">
+                    <h4 className="scroll-m-20 text-xl font-semibold tracking-tight text-white">Seasons</h4>
+                    <div className="section-title-rule" />
                 </div>
             </div>
-            <Carousel className='ml-1 mb-5' opts={{ skipSnaps: true }}>
-                <CarouselContent className="ml-0 md:ml-0 last:mr-2">
+            <Carousel className='mb-5' opts={{ skipSnaps: true }}>
+                <CarouselContent className="ml-2 pr-4 md:ml-4">
                     {data.season_anime?.map((element, index) => {
                         const seasonal = data.seasonal_data[index];
                         if (!seasonal || !element) return null;
@@ -44,7 +45,7 @@ export default function SeasonCarousel(props: SeasonCarouselProps) {
                                 key={`${seasonal.season}-${seasonal.year}-${index}`}
                                 href={`/seasons/${seasonal.season}/${seasonal.year}`}
                             >
-                                <CarouselItem className="basis-auto flex-shrink-0 pl-3 md:pl-5">
+                                <CarouselItem className="basis-auto flex-shrink-0 pl-2 md:pl-3">
                                     <Seasonal_card
                                         anime_data={element}
                                         seasonal_data={seasonal}
@@ -56,6 +57,6 @@ export default function SeasonCarousel(props: SeasonCarouselProps) {
                     })}
                 </CarouselContent>
             </Carousel>
-        </div>
+        </section>
     )
 }

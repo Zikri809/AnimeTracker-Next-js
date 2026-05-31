@@ -1,3 +1,11 @@
+const HOVER_CLASSES = [
+  'hover:text-green-500',
+  'hover:text-blue-400',
+  'hover:text-indigo-500',
+  'hover:text-yellow-300',
+  'hover:text-red-500'
+];
+
 export default function completed_click(
   e: any,
   api: any,
@@ -20,12 +28,11 @@ export default function completed_click(
       btnref.current[i].classList.remove('text-red-500');
       btnref.current[i].classList.remove('text-blue-400');
 
-      btnref.current[i].classList.add('hover:text-black');
+      btnref.current[i].classList.add(HOVER_CLASSES[i]);
       btnref.current[i].classList.add('text-white');
     }
   }
   if (e.target) {
-    e.target.classList.replace('hover:text-black', 'hover:text-blue-400');
     e.target.classList.replace('text-white', 'text-blue-400');
     Setstatus(e.target.innerText);
   }

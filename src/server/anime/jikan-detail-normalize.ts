@@ -4,6 +4,7 @@ export type JikanAnimeDetailViewModel = {
   englishTitle: string | null;
   displayTitle: string;
   imageUrl: string | null;
+  bannerImageUrl: string | null;
   status: string | null;
   statusLabel: string;
   seasonLabel: string | null;
@@ -60,7 +61,7 @@ function normalizeTrailerEmbedUrl(rawTrailerEmbed: unknown): string | null {
   }
 }
 
-export function normalizeJikanDetail(data: any, relationsData?: any[]): JikanAnimeDetailViewModel {
+export function normalizeJikanDetail(data: any, relationsData?: any[], bannerImageUrl: string | null = null): JikanAnimeDetailViewModel {
   const malId = data.mal_id;
   const title = data.title || '';
   const englishTitle = data.title_english || null;
@@ -150,6 +151,7 @@ export function normalizeJikanDetail(data: any, relationsData?: any[]): JikanAni
     englishTitle,
     displayTitle,
     imageUrl,
+    bannerImageUrl,
     status,
     statusLabel,
     seasonLabel,

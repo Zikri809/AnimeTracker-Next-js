@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { COOKIES } from '@/server/http/cookies';
 import { redirect } from 'next/navigation';
 import { parseDetailRouteContext, buildPathnameFromParams, DetailRouteFamily, buildRetryLimitHref } from '@/lib/routing/detail-route-context';
-import { fetchPublicAnimeForTracking } from '@/server/mal/anime';
+import { checkAnimeAppearsInMalSearch, fetchPublicAnimeForTracking, isPotentiallyRestrictedAnime } from '@/server/mal/anime';
 import { normalizeMalAnime } from '@/server/mal/anime-normalize';
 import TrackingClient from './TrackingClient';
 
@@ -47,6 +47,10 @@ export default async function TrackingPage({ params, family }: Props) {
   }
 
   const normalizedMalDetail = normalizeMalAnime(rawMalDetail);
+  const titleForSearch = rawMalDetail?.alternative_titles?.en || rawMalDetail?.title;
+  const malSearchVisible = isPotentiallyRestrictedAnime(rawMalDetail)
+    ? await checkAnimeAppearsInMalSearch(context.targetAnimeId, titleForSearch)
+    : true;
 
-  return <TrackingClient malDetail={normalizedMalDetail} context={context} />;
+  return <TrackingClient malDetail={normalizedMalDetail} context={context} malSearchVisible={malSearchVisible} />;
 }

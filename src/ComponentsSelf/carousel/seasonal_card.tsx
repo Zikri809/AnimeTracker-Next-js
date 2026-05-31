@@ -26,24 +26,26 @@ export default function SeasonalCard({ anime_data, seasonal_data, bg }: Seasonal
     .join(" ");
 
   return (
-    <Card className="rounded-sm w-40 sm:w-55 h-65 sm:h-90 p-0 m-0 border-0">
-      <CardContent className="p-0 m-0 grid grid-rows-1 grid-cols-1 border-0">
-        <Image
-          className="col-start-1 row-start-1 rounded-sm h-65 sm:h-90 w-40 sm:w-55 object-cover"
-          loading="lazy"
-          src={imgSrc}
-          quality={90}
-          height={1000}
-          width={1000}
-          alt={`${seasonal_data.season} ${seasonal_data.year}`}
-        />
+    <Card className="media-card h-[19rem] w-[10rem] flex-none overflow-hidden p-0 sm:h-[23rem] sm:w-[13.25rem]">
+      <CardContent className="grid h-full grid-cols-1 grid-rows-1 border-0 p-0">
+        <div className="relative col-start-1 row-start-1 h-full w-full">
+          <Image
+            className="object-cover"
+            loading="lazy"
+            src={imgSrc}
+            quality={85}
+            fill
+            sizes="(min-width: 640px) 212px, 160px"
+            alt={`${seasonal_data.season} ${seasonal_data.year}`}
+          />
+        </div>
         <div
-          style={{ backgroundImage: `linear-gradient(to top, ${bg}, transparent, transparent)` }}
-          className="font-bold text-base pb-6 col-start-1 row-start-1 text-white flex rounded-sm h-65 sm:h-90 w-40 sm:w-55 border-0 flex-col justify-end items-center"
+          style={{ backgroundImage: `linear-gradient(to bottom, rgb(8 9 11 / 0.55), transparent 38%, ${bg})` }}
+          className="col-start-1 row-start-1 flex h-full w-full flex-col border-0 p-3 text-white"
         >
-          <p>
-            {seasonTitle} • {seasonal_data.year}
-          </p>
+          <div className="w-fit rounded-md border border-white/15 bg-black/55 px-2.5 py-1.5 text-xs font-bold shadow-lg backdrop-blur-sm">
+            {seasonTitle} {seasonal_data.year}
+          </div>
         </div>
       </CardContent>
     </Card>

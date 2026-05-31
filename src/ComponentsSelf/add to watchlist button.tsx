@@ -36,7 +36,7 @@ export default function AddToWatchlistButton(props: AddToWatchlistButtonProps) {
       <Button
         type="button"
         size="default"
-        className="p-4 sm:p-5 z-10 sm:text-lg fixed right-0 bottom-15 sm:bottom-0 mb-5 bg-gray-800 mr-5 hover:bg-gray-300 hover:text-black text-blue-100"
+        className="primary-action fixed bottom-24 right-5 z-10 h-11 px-5 text-sm font-semibold shadow-lg shadow-black/30 sm:bottom-6 sm:text-base"
       >
         {user_state}
       </Button>

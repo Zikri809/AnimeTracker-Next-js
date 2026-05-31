@@ -324,3 +324,24 @@ test('Redirects to ExceedRetryLimit page on API failures', async ({ page }) => {
   const bodyText = await page.locator('body').innerText();
   expect(bodyText.toLowerCase()).toContain('exceed');
 });
+
+test('ExceedRetryLimit direct access with missing params and open-redirect protection', async ({ page }) => {
+  // 1. Direct access with missing parameters: should safely load
+  await page.goto('/ExceedRetryLimit');
+  await expect(page.locator('text=Retry Limit Exceeded!')).toBeVisible();
+
+  // Try again button should point to home / or be clicked safely without crashing
+  const tryAgainBtn = page.locator('button:has-text("Try Again")');
+  await expect(tryAgainBtn).toBeVisible();
+
+  // 2. Open redirect security validation: visit with external link
+  await page.goto('/ExceedRetryLimit?original_link=https://malicious.com/attack');
+  await expect(page.locator('text=Retry Limit Exceeded!')).toBeVisible();
+
+  // Click Try Again
+  await tryAgainBtn.click();
+  // It should safely redirect/navigate to homepage '/' and NOT malicious.com
+  await page.waitForURL('**/');
+  expect(page.url()).not.toContain('malicious.com');
+});
+

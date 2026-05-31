@@ -86,3 +86,68 @@ export async function fetchPublicAnimeForTracking(
 
   return data;
 }
+
+export async function checkAnimeAppearsInMalSearch(
+  animeId: string | number,
+  title: string | null | undefined
+): Promise<boolean | null> {
+  const parsedAnimeId = Number(animeId);
+  const query = typeof title === 'string' ? title.trim() : '';
+  if (!Number.isInteger(parsedAnimeId) || parsedAnimeId <= 0 || query === '') {
+    return null;
+  }
+
+  if (process.env.PLAYWRIGHT_TEST === 'true') {
+    return true;
+  }
+
+  try {
+    const clientId = getRequiredEnv('Client_ID');
+    const params = new URLSearchParams({
+      q: query,
+      limit: '20',
+      fields: 'id,title,alternative_titles',
+      nsfw: 'true',
+    });
+
+    const response = await fetch(`${MAL_API_BASE}/anime?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        'X-MAL-CLIENT-ID': clientId,
+      },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const payload = await response.json();
+    const entries = Array.isArray(payload?.data) ? payload.data : [];
+    return entries.some((entry: any) => entry?.node?.id === parsedAnimeId);
+  } catch {
+    return null;
+  }
+}
+
+export function isPotentiallyRestrictedAnime(data: any): boolean {
+  const rating = typeof data?.rating === 'string' ? data.rating.toLowerCase() : '';
+  const mediaType = typeof data?.media_type === 'string' ? data.media_type.toLowerCase() : '';
+  const genres = Array.isArray(data?.genres)
+    ? data.genres.map((genre: any) => String(genre?.name || '').toLowerCase())
+    : [];
+
+  const restrictedSignals = [
+    rating,
+    mediaType,
+    ...genres,
+  ];
+
+  return restrictedSignals.some((signal) =>
+    signal === 'rx' ||
+    signal === 'r_plus' ||
+    signal.includes('hentai') ||
+    signal.includes('erotica') ||
+    signal.includes('ecchi')
+  );
+}

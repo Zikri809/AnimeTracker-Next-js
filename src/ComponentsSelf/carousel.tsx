@@ -7,8 +7,6 @@ import {
 } from "@/components/ui/carousel"
 import Autoplay from "embla-carousel-autoplay"
 import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { GridPattern } from "@/components/magicui/grid-pattern";
 import Image from "next/image";
 
 interface AnimeTitle {
@@ -40,56 +38,37 @@ export function CarouselDemo({ data }: CarouselDemoProps) {
   }, [data]);
 
   return (
-    <div className="relative h-48 md:h-64 mt-0 mb-12">
-      <div className="absolute flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-black border-transparent">
-        <GridPattern
-          squares={[
-            [4, 4],
-            [5, 1],
-            [8, 2],
-            [5, 3],
-            [5, 5],
-            [10, 10],
-            [12, 15],
-            [15, 10],
-            [10, 15],
-          ]}
-          className={cn(
-            "[mask-image:radial-gradient(1000px_circle_at_center,white,transparent)]",
-            "inset-x-0 inset-y-[-30%] h-[200%] skew-y-12",
-          )}
-        />
-      </div>
+    <div className="relative mb-8 h-[15rem] overflow-hidden border-b border-white/10 bg-[#0b0d12] md:h-[22rem]">
       <Carousel
-        className="relative z-10 border-none bg-transparent mb-3 w-full mx-auto"
+        className="relative z-10 h-full border-none bg-transparent"
         plugins={[autoplayPlugin]}
       >
-        <CarouselContent className='border-none'>
+        <CarouselContent className='h-full border-none'>
           {spotlightData.map((element, index) => (
-            <CarouselItem key={element.idMal} className='border-none'>
-              <div className="py-2 border-none">
+            <CarouselItem key={element.idMal} className='h-full border-none'>
+              <div className="h-full border-none">
                 <Link href={`/Anime/${element.idMal}`}>
-                  <Card className="relative bg-transparent border-none rounded-none p-0 h-55 md:h-64 flex flex-row justify-center overflow-clip border-black">
+                  <Card className="relative flex h-[15rem] flex-row justify-center overflow-hidden rounded-none border-none bg-transparent p-0 md:h-[22rem]">
                     <Image
                       className='h-full w-full object-cover object-center'
-                      width={500}
-                      height={500}
-                      quality={100}
-                      priority={true}
+                      fill
+                      sizes="100vw"
+                      quality={90}
+                      priority={index === 0}
                       alt={element.title.english ?? element.title.romaji ?? "Spotlight Anime"}
                       src={element.bannerImage!}
                     />
-                    <div className="absolute top-0 left-0 px-6 h-full w-full border-0 bg-transparent bg-gradient-to-tr from-black via-neutral-900/50 to-transparent">
-                      <div className="relative left-0 top-30 md:top-35 w-full h-full z-2 flex flex-col gap-0 items-center">
-                        <div className="text-white text-lg md:text-xl m-0 h-fit text-left w-full">
+                    <div className="absolute inset-0 border-0 bg-[linear-gradient(90deg,rgb(8_9_11/0.94)_0%,rgb(8_9_11/0.72)_42%,rgb(8_9_11/0.14)_100%)] px-5 md:px-10">
+                      <div className="relative z-2 flex h-full max-w-4xl flex-col items-start justify-end gap-2 pb-7 md:pb-10">
+                        <div className="text-sm font-semibold uppercase tracking-[0.18em] text-primary md:text-base">
                           #{index + 1} Spotlight
                         </div>
-                        <div className="line-clamp-1 mb-1 text-left font-bold overflow-hidden text-ellipsis h-fit w-full text-2xl md:text-4xl text-white">
+                        <div className="line-clamp-2 max-w-[38rem] text-left text-2xl font-bold leading-tight text-white md:text-5xl">
                           {element.title.english ?? element.title.romaji}
                         </div>
-                        <div className="flex flex-row gap-3 w-full rounded-md text-white md:text-lg">
+                        <div className="flex max-w-full flex-row flex-wrap gap-2 rounded-md text-white">
                           {element.genres.slice(0, 3).map((genre, genreIndex) => (
-                            <div className="px-4 py-1 rounded-xl bg-neutral-800" key={genreIndex}>
+                            <div className="metadata-pill" key={genreIndex}>
                               {genre}
                             </div>
                           ))}

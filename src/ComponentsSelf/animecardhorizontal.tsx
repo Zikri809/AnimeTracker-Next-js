@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import React, { useEffect, useRef, useState } from "react";
-import { CheckCheck } from 'lucide-react';
+import { CheckCheck, Star } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
 import { FALLBACK_POSTER_SRC } from "./animecard";
@@ -33,6 +33,16 @@ interface AnimeCardHorizontalProps {
   mal_id?: number | string;
 }
 
+function statusClassName(status: string) {
+  if (status === "Finished Airing") {
+    return "border-emerald-400/25 bg-emerald-400/10 text-emerald-300";
+  }
+  if (status === "Currently Airing") {
+    return "border-primary/25 bg-primary/10 text-primary";
+  }
+  return "border-rose-400/25 bg-rose-400/10 text-rose-300";
+}
+
 const AnimeCardHorizontal = React.forwardRef<HTMLDivElement, AnimeCardHorizontalProps>((props, ref) => {
   const [genrearr_state, Set_genrearr_state] = useState<Genre[] | null>(null);
   const genre_container_ref = useRef<HTMLDivElement>(null);
@@ -41,7 +51,7 @@ const AnimeCardHorizontal = React.forwardRef<HTMLDivElement, AnimeCardHorizontal
 
   useEffect(() => {
     let genrearr = [...rawGenres];
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       if (genrearr.length > 2) {
         const exceeded = genrearr.length - 2;
         genrearr = genrearr.slice(0, 2);
@@ -72,79 +82,76 @@ const AnimeCardHorizontal = React.forwardRef<HTMLDivElement, AnimeCardHorizontal
   const displayGenres = genrearr_state ?? rawGenres;
 
   return (
-    <div ref={ref}>
-      <Card className="rounded-none w-[100%] overflow-x-hidden border-l-1 hover:bg-zinc-800 text-white border-x-0 border-t-0 py-5 px-1 sm:px-4 mx-0 border-gray-700 bg-black">
-        <CardContent className="flex p-0 flex-row gap-5 max-w-screen items-center">
-          <Image
-            className="rounded-sm h-55 w-35 sm:w-40 object-cover"
-            loading="lazy"
-            src={props.image || FALLBACK_POSTER_SRC}
-            quality={90}
-            height={1000}
-            width={1000}
-            alt={props.title}
-          />
-          <div className="flex flex-col items-start h-55 w-80 sm:overflow-visible justify-between">
-            <div className="flex flex-row gap-1">
-              {props.status === 'Finished Airing' ? (
-                <Button variant="outline" className="bg-black border-1 font-medium text-sm text-green-500 border-gray-700">
-                  {props.status}
-                </Button>
-              ) : props.status === 'Currently Airing' ? (
-                <Button variant="outline" className="bg-black border-1 font-medium text-sm text-blue-400 border-gray-700">
-                  {props.status}
-                </Button>
-              ) : (
-                <Button variant="outline" className="bg-black border-1 font-medium text-sm text-red-400 border-gray-700">
-                  {props.status}
-                </Button>
-              )}
+    <div ref={ref} className={props.className}>
+      <Card className="group rounded-none border-x-0 border-t-0 border-white/8 bg-background px-4 py-4 text-white shadow-none transition-colors duration-200 hover:bg-[#0f1218] sm:px-5 lg:h-full lg:rounded-md lg:border lg:border-white/10 lg:bg-card lg:px-4 lg:py-5 lg:hover:border-white/20 lg:hover:bg-[#151821]">
+        <CardContent className="flex min-w-0 flex-row items-start gap-3 p-0 sm:gap-5">
+          <div className="relative h-[8.6rem] w-[5.75rem] flex-none overflow-hidden rounded-md bg-[#111318] sm:h-[12rem] sm:w-[8rem]">
+            <Image
+              className="object-cover"
+              loading="lazy"
+              src={props.image || FALLBACK_POSTER_SRC}
+              quality={85}
+              fill
+              sizes="(min-width: 640px) 128px, 92px"
+              alt={props.title}
+            />
+          </div>
+
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:min-h-[12rem] sm:justify-between sm:gap-3">
+            <div className="flex min-w-0 flex-row flex-wrap items-center gap-1.5">
+              <span className={`status-pill h-7 px-2 text-[11px] sm:h-8 sm:px-3 sm:text-xs ${statusClassName(props.status)}`}>
+                {props.status}
+              </span>
               {props.addstatus ? (
-                <Button variant="outline" className="bg-black border-1 font-medium text-sm text-blue-300 border-gray-700">
-                  <CheckCheck size={32} />
-                </Button>
+                <span className="status-pill h-7 w-9 border-primary/25 bg-primary/10 px-0 text-primary sm:h-8 sm:w-auto sm:px-3" aria-label="In watchlist">
+                  <CheckCheck className="size-3.5 sm:size-4" />
+                </span>
               ) : null}
             </div>
 
-            <div className="flex text-sm flex-row gap-2">
+            <div className="flex min-w-0 flex-wrap gap-x-2 gap-y-0.5 text-[11px] leading-4 text-slate-400 sm:text-sm">
               <p className="capitalize">{props.season}</p>
-              <p>{props.episodes === null ? '' : `${props.episodes} episodes`}</p>
+              <p>{props.episodes === null ? "" : `${props.episodes} episodes`}</p>
             </div>
-            <div className="pr-2 sm:pr-auto">
-              <div className="text-base sm:text-2xl font-bold line-clamp-2 w-full overflow-hidden text-ellipsis">
+
+            <div className="min-w-0 pr-1">
+              <div className="line-clamp-2 text-[15px] font-bold leading-[1.12] text-white sm:text-xl sm:leading-snug">
                 {props.title}
               </div>
               {props.title_english && (
-                <div className="text-md hidden text-gray-400 line-clamp-1 overflow-hidden text-ellipsis">
+                <div className="line-clamp-1 text-xs text-slate-500 sm:text-sm">
                   {props.title_english}
                 </div>
               )}
             </div>
 
-            <div className="flex flex-row gap-10 text-sm text-gray-400">
-              <div className="flex flex-col">
-                <div className="flex flex-row gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
-                  </svg>
-                  <p>{props.score === undefined ? 'No Rating' : props.score}</p>
+            <div className="grid w-full max-w-[13rem] grid-cols-2 gap-3 text-[11px] leading-4 text-slate-400 sm:max-w-sm sm:text-sm">
+              <div className="min-w-0">
+                <div className="flex flex-row items-center gap-1 text-slate-200">
+                  <Star className="size-3.5 fill-primary text-primary sm:size-4" />
+                  <p className="truncate">{props.score === undefined ? "No Rating" : props.score}</p>
                 </div>
-                <p>{props.users} users</p>
+                <p className="truncate">{props.users} users</p>
               </div>
-              <div className="flex flex-col">
-                <p>#{props.ranking}</p>
+              <div className="min-w-0 text-left">
+                <p className="truncate text-slate-200">#{props.ranking}</p>
                 <p>Ranking</p>
               </div>
             </div>
-            <div ref={genre_container_ref} className="flex flex-row gap-2 overflow-x-auto w-[95%] items-center">
+
+            <div ref={genre_container_ref} className="flex min-w-0 flex-row flex-wrap items-center gap-1.5 overflow-hidden sm:gap-2">
               {props.user_episode !== undefined && props.episodes ? (
                 <>
-                  <Progress className="my-2 h-2 bg-neutral-500 border-0" value={(props.user_episode / props.episodes) * 100} />
-                  <p className="text-gray-400 text-sm ">{props.user_episode}/{props.episodes}</p>
+                  <Progress
+                    className="my-2 h-2 min-w-0 flex-1 border-0 bg-white/10"
+                    value={(props.user_episode / props.episodes) * 100}
+                    indicatorClassName={props.user_episode >= props.episodes ? "bg-primary" : "bg-white"}
+                  />
+                  <p className="flex-none text-xs text-slate-400">{props.user_episode}/{props.episodes}</p>
                 </>
               ) : (
                 displayGenres.map((object, idx) => (
-                  <Button key={`${object.name}-${idx}`} variant="secondary" className="text-sm text-white bg-slate-800">
+                  <Button key={`${object.name}-${idx}`} variant="secondary" className="metadata-pill h-6 max-w-[7rem] truncate px-2 text-[11px] sm:h-7 sm:max-w-[8rem] sm:text-xs">
                     {object.name}
                   </Button>
                 ))

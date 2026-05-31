@@ -10,15 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger ISR warm-up endpoint
+        env:
+          PRODUCTION_BASE_URL: ${{ vars.PRODUCTION_BASE_URL || 'https://anime-tracker-next-js.vercel.app' }}
         run: |
+          # Use a timeout of 30 seconds and retry up to 2 times on failures
           response=$(curl -s -o /dev/null -w "%{http_code}" \
-            https://anime-tracker-next-js.vercel.app/api/cron/isr_warmUp/warmUp)
+            --max-time 30 \
+            --retry 2 \
+            --retry-delay 5 \
+            "$PRODUCTION_BASE_URL/api/cron/isr_warmUp/warmUp")
           
           echo "HTTP Response Code: $response"
           
-          if [ "$response" -eq 200 ]; then
-            echo "✅ ISR warm-up successful"
+          if [ "$response" -ge 200 ] && [ "$response" -lt 300 ]; then
+            echo "[OK] ISR warm-up successful"
           else
-            echo "❌ ISR warm-up failed with HTTP $response"
+            echo "[FAILED] ISR warm-up failed with HTTP $response"
             exit 1
           fi

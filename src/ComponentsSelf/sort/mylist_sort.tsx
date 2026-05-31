@@ -7,7 +7,7 @@ import completed_sort from "@/Utility/filter/completed_sort";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { UsersRound } from 'lucide-react';
-import { LaptopMinimalCheck, Radio, ArrowDown10 } from 'lucide-react';
+import { LaptopMinimalCheck, Radio, ArrowDown10, ListFilter } from 'lucide-react';
 import { getWatchlistMap, MYLIST_TABS } from "@/Utility/tracking/watchlist-storage";
 
 interface MylistSortProps {
@@ -149,25 +149,24 @@ export default function MylistSort({
                         <Button
                             type='button'
                             onPointerDown={menuTriggerHandler}
-                            className='bg-black text-white w-9 h-9 p-2 rounded-md border-1 border-neutral-300 hover:bg-white hover:text-black hover:border-1 hover:border-neutral-400 transition-colors outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0'
+                            className='icon-button'
+                            aria-label="Sort my list"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-funnel-icon lucide-funnel">
-                                <path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z" />
-                            </svg>
+                            <ListFilter className="lucide-funnel size-5" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent side='left' collisionPadding={40} className='bg-white/10 backdrop-blur-sm border-2 border-neutral-600 p-4 transition-transform ease-linear w-full'>
-                        <ToggleGroup type='single' defaultValue={toggleValue} onValueChange={toggleValueHandler} orientation='vertical' className='text-white bg-transparent flex flex-col gap-3 w-full'>
-                            <ToggleGroupItem value='TopScore' className='rounded-md px-2 py-1 w-full data-[state=off]:text-neutral-400 data-[state=on]:text-black flex flex-row justify-end gap-7'>
+                    <DropdownMenuContent side='left' collisionPadding={40} className='w-56 border-white/10 bg-[#151821]/95 p-3 text-white shadow-xl backdrop-blur-xl'>
+                        <ToggleGroup type='single' defaultValue={toggleValue} onValueChange={toggleValueHandler} orientation='vertical' className='flex w-full flex-col gap-2 bg-transparent text-white'>
+                            <ToggleGroupItem value='TopScore' className='w-full justify-start gap-2 rounded-md px-3 py-2 data-[state=off]:text-slate-400 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'>
                                 <ArrowDown10 /><span>Top Score</span>
                             </ToggleGroupItem>
-                            <ToggleGroupItem value='Top Member' className='rounded-md px-2 py-1 w-full data-[state=off]:text-neutral-400 data-[state=on]:text-black flex flex-row justify-end'>
+                            <ToggleGroupItem value='Top Member' className='w-full justify-start gap-2 rounded-md px-3 py-2 data-[state=off]:text-slate-400 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'>
                                 <UsersRound /><span>Top Member</span>
                             </ToggleGroupItem>
-                            <ToggleGroupItem value='Completed' className='rounded-md px-2 py-1 w-full data-[state=off]:text-neutral-400 data-[state=on]:text-black flex flex-row gap-5'>
+                            <ToggleGroupItem value='Completed' className='w-full justify-start gap-2 rounded-md px-3 py-2 data-[state=off]:text-slate-400 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'>
                                 <LaptopMinimalCheck /><span>Completed</span>
                             </ToggleGroupItem>
-                            <ToggleGroupItem value='Airing' className='rounded-md px-2 py-1 w-full data-[state=off]:text-neutral-400 data-[state=on]:text-black flex flex-row gap-13'>
+                            <ToggleGroupItem value='Airing' className='w-full justify-start gap-2 rounded-md px-3 py-2 data-[state=off]:text-slate-400 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'>
                                 <Radio /><span>Airing</span>
                             </ToggleGroupItem>
                         </ToggleGroup>

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import Navbar from '@/ComponentsSelf/trackingformnavbar';
 import Numberedcarousel from '@/ComponentsSelf/numbered carousel';
 import { Toaster } from "@/components/ui/sonner";
-import { Trash } from 'lucide-react';
+import { AlertTriangle, Trash } from 'lucide-react';
 import { fetchAuthSession } from '@/lib/auth-session';
 
 import savehandler_tracking from '@/Utility/tracking/savehandler_tracking';
@@ -22,9 +22,10 @@ import { getAnimeWatchlistStatus } from '@/Utility/tracking/watchlist-storage';
 type Props = {
   malDetail: MalTrackingItem;
   context: DetailRouteContext;
+  malSearchVisible: boolean | null;
 };
 
-export default function TrackingClient({ malDetail, context }: Props) {
+export default function TrackingClient({ malDetail, context, malSearchVisible }: Props) {
   const router = useRouter();
   const [api, setApi] = useState<any>(null);
   const [api2, setApi2] = useState<any>(null);
@@ -103,7 +104,7 @@ export default function TrackingClient({ malDetail, context }: Props) {
         </div>
         <div className="flex mb-5 flex-row justify-center w-full border-0 border-blue-500">
           <div className="flex flex-row gap-2 w-fit flex-wrap">
-            {isNotYetAired ? (
+             {isNotYetAired ? (
               <Button
                 disabled
                 variant="outline"
@@ -119,7 +120,7 @@ export default function TrackingClient({ malDetail, context }: Props) {
                 variant="outline"
                 type="button"
                 onClick={handleStatusButton}
-                className="bg-black rounded-sm border-gray-400 text-white hover:text-black focus:bg-black"
+                className="bg-black rounded-sm border-gray-400 text-white hover:text-green-500 focus:bg-black"
               >
                 Watching
               </Button>
@@ -141,7 +142,7 @@ export default function TrackingClient({ malDetail, context }: Props) {
                 type="button"
                 variant="outline"
                 onClick={handleCompletedClick}
-                className="bg-black rounded-sm border-gray-400 text-white hover:text-black focus:bg-black"
+                className="bg-black rounded-sm border-gray-400 text-white hover:text-blue-400 focus:bg-black"
               >
                 Completed
               </Button>
@@ -152,7 +153,7 @@ export default function TrackingClient({ malDetail, context }: Props) {
               ref={(el) => { btnRef.current[2] = el; }}
               type="button"
               onClick={handleStatusButton}
-              className="bg-black rounded-sm border-gray-400 text-white hover:text-black focus:bg-black"
+              className="bg-black rounded-sm border-gray-400 text-white hover:text-indigo-500 focus:bg-black"
             >
               Plan To Watch
             </Button>
@@ -161,7 +162,7 @@ export default function TrackingClient({ malDetail, context }: Props) {
               ref={(el) => { btnRef.current[3] = el; }}
               type="button"
               onClick={handleStatusButton}
-              className="bg-black rounded-sm border-gray-400 text-white hover:text-black focus:bg-black"
+              className="bg-black rounded-sm border-gray-400 text-white hover:text-yellow-300 focus:bg-black"
             >
               On Hold
             </Button>
@@ -170,7 +171,7 @@ export default function TrackingClient({ malDetail, context }: Props) {
               ref={(el) => { btnRef.current[4] = el; }}
               type="button"
               onClick={handleStatusButton}
-              className="bg-black rounded-sm border-gray-400 text-white hover:text-black focus:bg-black"
+              className="bg-black rounded-sm border-gray-400 text-white hover:text-red-500 focus:bg-black"
             >
               Dropped
             </Button>
@@ -196,6 +197,18 @@ export default function TrackingClient({ malDetail, context }: Props) {
               : 'Your Watchlist are saved exclusively on this device please be aware that cross syncronization is not possible as of now'}
           </p>
         </div>
+
+        {isSessionAuthenticated && malSearchVisible === false ? (
+          <div className="mb-4 flex w-full flex-col gap-2 rounded-md border border-amber-400/25 bg-amber-400/10 px-5 py-4 text-amber-100">
+            <div className="flex items-center gap-2 font-semibold">
+              <AlertTriangle className="size-5 text-amber-300" />
+              <p>MAL sync may hide this title</p>
+            </div>
+            <p className="text-sm text-amber-100/80">
+              This title exists by ID, but does not appear in official MAL search. AniJikan will only keep it after MAL save and list sync both confirm it.
+            </p>
+          </div>
+        ) : null}
 
         {isAdded ? (
           <Button variant="destructive" onClick={handleDelete} className="sm:w-60">
