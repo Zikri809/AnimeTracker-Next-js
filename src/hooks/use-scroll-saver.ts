@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { DependencyList } from "react";
+import { usePathname } from "next/navigation";
 
 export const SCROLL_STORAGE_KEY = "scrollY";
 
@@ -14,22 +15,30 @@ function getSessionStorage(): Storage | undefined {
   }
 }
 
-export function saveScrollPosition(storage?: Storage, y?: number): void {
+export function getScrollStorageKey(pathname?: string): string {
+  if (typeof window === "undefined") return SCROLL_STORAGE_KEY;
+  const path = pathname ?? window.location.pathname;
+  return `${SCROLL_STORAGE_KEY}_${path}`;
+}
+
+export function saveScrollPosition(storage?: Storage, y?: number, pathname?: string): void {
   const targetStorage = storage ?? getSessionStorage();
   if (typeof window === "undefined" || !targetStorage) return;
   try {
     const scrollY = y !== undefined ? y : window.scrollY;
-    targetStorage.setItem(SCROLL_STORAGE_KEY, String(scrollY));
+    const key = getScrollStorageKey(pathname);
+    targetStorage.setItem(key, String(scrollY));
   } catch (e) {
     console.error("Failed to save scroll position", e);
   }
 }
 
-export function readScrollPosition(storage?: Storage): number | null {
+export function readScrollPosition(storage?: Storage, pathname?: string): number | null {
   const targetStorage = storage ?? getSessionStorage();
   if (typeof window === "undefined" || !targetStorage) return null;
   try {
-    const val = targetStorage.getItem(SCROLL_STORAGE_KEY);
+    const key = getScrollStorageKey(pathname);
+    const val = targetStorage.getItem(key);
     if (val === null) return null;
     const num = Number(val);
     if (Number.isFinite(num) && num >= 0) {
@@ -41,13 +50,13 @@ export function readScrollPosition(storage?: Storage): number | null {
   return null;
 }
 
-export function restoreScrollPosition(options?: { maxOffset?: number; storage?: Storage }): boolean {
+export function restoreScrollPosition(options?: { maxOffset?: number; storage?: Storage; pathname?: string }): boolean {
   if (typeof window === "undefined") return false;
   const storage = options?.storage ?? getSessionStorage();
   if (!storage) return false;
   const maxOffset = options?.maxOffset ?? 100;
 
-  const savedY = readScrollPosition(storage);
+  const savedY = readScrollPosition(storage, options?.pathname);
   if (savedY === null) return false;
 
   const maxScroll = document.documentElement.scrollHeight - window.innerHeight + maxOffset;
@@ -60,13 +69,14 @@ export function restoreScrollPosition(options?: { maxOffset?: number; storage?: 
 
 export function useScrollSaver(deps: DependencyList = []): void {
   const isRestored = useRef(false);
+  const pathname = usePathname();
   void deps;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const handleSave = () => {
-      saveScrollPosition();
+      saveScrollPosition(undefined, undefined, pathname);
     };
 
     const handleUserInteraction = () => {
@@ -84,7 +94,7 @@ export function useScrollSaver(deps: DependencyList = []): void {
         if (target.tagName === "A") {
           const href = target.getAttribute("href");
           if (href && (href.startsWith("/") || href.startsWith(window.location.origin))) {
-            saveScrollPosition();
+            saveScrollPosition(undefined, undefined, pathname);
           }
           break;
         }
@@ -101,11 +111,11 @@ export function useScrollSaver(deps: DependencyList = []): void {
       window.removeEventListener("touchmove", handleUserInteraction);
       document.removeEventListener("click", handleLinkClick, { capture: true });
     };
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     if (!isRestored.current) {
-      const restored = restoreScrollPosition();
+      const restored = restoreScrollPosition({ pathname });
       if (restored) {
         isRestored.current = true;
       }

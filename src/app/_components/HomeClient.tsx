@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useScrollSaver } from "@/hooks/use-scroll-saver";
 import Nav from "@/ComponentsSelf/navbar";
 import LastSeason from "@/ComponentsSelf/LastSeason";
 import { CarouselDemo } from "@/ComponentsSelf/carousel";
@@ -37,6 +38,8 @@ export default function HomeClient({
 }: HomeClientProps) {
   const router = useRouter();
 
+  useScrollSaver();
+
   // Auth Session token refresh
   useEffect(() => {
     const checkSession = async () => {
@@ -69,7 +72,6 @@ export default function HomeClient({
       sessionStorage.removeItem("animedatasearch");
       sessionStorage.removeItem("lastupdatetimesearch");
       sessionStorage.setItem("activetab", "Plan To Watch");
-      sessionStorage.setItem("scrollY", "0");
       sessionStorage.setItem("slicearr", JSON.stringify(30));
     } catch (e) {
       console.error("Failed to write to sessionStorage:", e);
