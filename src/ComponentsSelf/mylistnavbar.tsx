@@ -124,6 +124,7 @@ export default function MyListNavbar({
     sessionStorage.removeItem('sorted_anime');
     sessionStorage.removeItem('slicearr');
     sessionStorage.removeItem('scrollY');
+    sessionStorage.removeItem('scrollY_/mylist');
   }
 
   function Filereader(e: React.ChangeEvent<HTMLInputElement>) {
