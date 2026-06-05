@@ -36,6 +36,7 @@ export default function robots(): MetadataRoute.Robots {
     sitemap: [
       absoluteUrl("/sitemap.xml"),
       absoluteUrl("/google-sitemap.xml"),
+      absoluteUrl("/sitemap-static.xml"),
     ],
     host: SITE_URL,
   };
