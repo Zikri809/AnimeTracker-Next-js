@@ -33,7 +33,10 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: DISALLOWED_PATHS,
     })),
-    sitemap: absoluteUrl("/sitemap.xml"),
+    sitemap: [
+      absoluteUrl("/sitemap.xml"),
+      absoluteUrl("/google-sitemap.xml"),
+    ],
     host: SITE_URL,
   };
 }
