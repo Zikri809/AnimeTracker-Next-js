@@ -32,7 +32,7 @@ export default function AddToWatchlistButton(props: AddToWatchlistButtonProps) {
   const targetHref = props.to || buildTrackingHref({ pathname, params });
 
   return (
-    <Link href={targetHref}>
+    <Link href={targetHref} prefetch={false}>
       <Button
         type="button"
         size="default"

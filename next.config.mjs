@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: false,
   images: {
+    unoptimized: true,
     qualities: [75, 85, 90, 100],
     remotePatterns: [
       { protocol: 'https', hostname: 'myanimelist.net' },

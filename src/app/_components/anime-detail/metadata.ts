@@ -26,13 +26,21 @@ export async function generateAnimeDetailMetadata({
       isTracking,
     );
     const context = parseDetailRouteContext(pathname);
+
+    if (isTracking) {
+      return createMetadata({
+        title: "Track Anime",
+        description:
+          "Update watch status, episode progress, and score for an anime in your watchlist.",
+        path: `/Anime/${context.targetAnimeId}`,
+        noIndex: true,
+      });
+    }
+
     const rawDetail = await fetchJikanDetailRaw(context.targetAnimeId);
     const detail = normalizeJikanDetail(rawDetail);
     const canonicalPath = `/Anime/${context.targetAnimeId}`;
-    const titlePrefix = isTracking ? "Track" : "";
-    const title = [titlePrefix, detail.displayTitle, "Anime"]
-      .filter(Boolean)
-      .join(" ");
+    const title = [detail.displayTitle, "Anime"].filter(Boolean).join(" ");
     const genres = detail.genres.map((genre) => genre.name).filter(Boolean);
 
     return createMetadata({
@@ -51,7 +59,6 @@ export async function generateAnimeDetailMetadata({
         "anime details",
         "anime tracker",
       ],
-      noIndex: isTracking,
       type: "article",
     });
   } catch {
