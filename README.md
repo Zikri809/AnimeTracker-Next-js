@@ -85,8 +85,8 @@ graph TD
 * **Non-Blocking Syncing**: The `persistent_worker` component continuously polls the sync queue to batch updates to our backend API proxy, eliminating page loading blocks.
 
 ### 2. High-Performance Caching & ISR
-* **12-Hour Page Cache**: Public seasonal landing pages are rendered via Incremental Static Regeneration (ISR) with a `revalidate` period of 43,200 seconds (12 hours) to respect Jikan and MAL API rate limits.
-* **Automated Warmups**: To prevent cold-start lags for users, a scheduled GitHub Action hits `/api/cron/isr_warmUp/warmUp` every 12 hours, pre-building the pages on Vercel's Edge.
+* **12-Hour Page Cache**: Public seasonal and anime detail data use a `revalidate` period of 43,200 seconds (12 hours) to respect Jikan and MAL API rate limits.
+* **Crawler Protection**: Expensive route families reject known bulk crawlers, `robots.txt` exposes a deliberately small crawl surface, and production traffic is expected to be protected by Vercel Firewall rules.
 
 ---
 
@@ -214,7 +214,7 @@ This repository is configured for immediate deployment to Vercel:
 
 ### GitHub Actions Workflows
 * **Continuous Integration (`ci.yml`)**: Automatically triggers on all pull requests and pushes to `main`. It initializes a Node 20 environment, installs dependencies, verifies code linting/formatting, checks TypeScript types, compiles the build, and executes both unit tests and headless Playwright tests.
-* **Revalidate ISR Warm-up (`isr-warmup.yml`)**: A cron job executing every 12 hours (at `00:05` and `12:05` UTC) hits the cron warm-up route to pre-bake static pages on Vercel, guaranteeing lightning-fast loading speeds for users.
+* **Production traffic controls**: Follow [`docs/vercel-crawler-protection.md`](docs/vercel-crawler-protection.md) before attaching a public custom domain.
 
 ---
 

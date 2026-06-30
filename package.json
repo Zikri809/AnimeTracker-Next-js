@@ -4,8 +4,6 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "generate:sitemap": "node scripts/generate-static-sitemap.mjs",
-    "prebuild": "npm run generate:sitemap",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",

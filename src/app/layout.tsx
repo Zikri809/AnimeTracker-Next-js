@@ -106,13 +106,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={poppins.variable}>
       <head>
-        <link rel="llms" href="/llms.txt" type="text/markdown" />
-        <link
-          rel="alternate"
-          href="/llms-full.txt"
-          type="text/markdown"
-          title={`${SITE_NAME} AI index`}
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
