@@ -2,6 +2,23 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+const JIKAN_DETAIL_REVALIDATE_SECONDS = 43200;
+const JIKAN_MAX_RETRIES = 1;
+
+class JikanHttpError extends Error {
+  constructor(public readonly status: number) {
+    super(`HTTP ${status}`);
+  }
+}
+
+function shouldRetryJikanRequest(error: unknown) {
+  if (!(error instanceof JikanHttpError)) {
+    return true;
+  }
+
+  return error.status === 429 || error.status >= 500;
+}
+
 export async function fetchJikanDetailRaw(targetAnimeId: number): Promise<any> {
   if (process.env.PLAYWRIGHT_TEST === 'true') {
     if (targetAnimeId === 1) {
@@ -89,17 +106,16 @@ export async function fetchJikanDetailRaw(targetAnimeId: number): Promise<any> {
   }
 
   let retries = 0;
-  const maxRetries = 3; // initial attempt + 3 retries = 4 total attempts
   const delay = 1000;
 
   while (true) {
     try {
       const response = await fetch(`https://api.jikan.moe/v4/anime/${targetAnimeId}/full`, {
-        next: { revalidate: 60 }, // Cache for 60 seconds to prevent rate limiting (429)
+        next: { revalidate: JIKAN_DETAIL_REVALIDATE_SECONDS },
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        throw new JikanHttpError(response.status);
       }
 
       const json = await response.json();
@@ -109,7 +125,7 @@ export async function fetchJikanDetailRaw(targetAnimeId: number): Promise<any> {
 
       return json.data;
     } catch (error) {
-      if (retries < maxRetries) {
+      if (retries < JIKAN_MAX_RETRIES && shouldRetryJikanRequest(error)) {
         retries++;
         await sleep(delay);
       } else {
@@ -140,17 +156,16 @@ export async function fetchJikanRelations(targetAnimeId: number, fullDetailData:
   }
 
   let retries = 0;
-  const maxRetries = 3;
   const delay = 1000;
 
   while (true) {
     try {
       const response = await fetch(`https://api.jikan.moe/v4/anime/${targetAnimeId}/relations`, {
-        next: { revalidate: 60 },
+        next: { revalidate: JIKAN_DETAIL_REVALIDATE_SECONDS },
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        throw new JikanHttpError(response.status);
       }
 
       const json = await response.json();
@@ -160,7 +175,7 @@ export async function fetchJikanRelations(targetAnimeId: number, fullDetailData:
 
       return json.data;
     } catch (error) {
-      if (retries < maxRetries) {
+      if (retries < JIKAN_MAX_RETRIES && shouldRetryJikanRequest(error)) {
         retries++;
         await sleep(delay);
       } else {

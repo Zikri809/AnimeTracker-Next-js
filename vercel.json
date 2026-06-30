@@ -1,10 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "ignoreCommand": "if [ \"$VERCEL_ENV\" = \"production\" ]; then exit 1; else exit 0; fi",
-  "crons": [
-    {
-      "path": "/api/cron/isr_warmUp/warmUp",
-      "schedule": "5 12 * * *"
-    }
-  ]
+  "fluid": true,
+  "ignoreCommand": "if [ \"$VERCEL_ENV\" = \"production\" ]; then exit 1; else exit 0; fi"
 }
