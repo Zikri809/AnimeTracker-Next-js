@@ -5,10 +5,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navbar from '@/ComponentsSelf/mylistnavbar';
 import Horizontalcard from '@/ComponentsSelf/animecardhorizontal';
 import Link from "next/link";
-import { Toaster } from "sonner";
+import { Toaster, toast } from "sonner";
 import useScrollSaver from "@/Utility/ScrollSaver";
 import useSwipeGesture from "@/hooks/useSwipeGesture";
-import { fetchAuthSessionWithRefresh } from "@/lib/auth-session";
+import {
+  fetchAuthSessionWithRefresh,
+  markWasAuthenticated,
+  clearWasAuthenticated,
+  wasPreviouslyAuthenticated,
+  evaluateSessionExpiry,
+} from "@/lib/auth-session";
 import { getWatchlistMap, MYLIST_TABS } from "@/Utility/tracking/watchlist-storage";
 import { startWatchlistSync, logoutChannel } from "../_lib/mylist-worker-sync";
 import { normalizeRowItem } from "../_lib/mylist-row-view-model";
@@ -167,6 +173,33 @@ export default function MyListClient() {
       }, 50);
     });
   }, []);
+
+  // Detect expired session on open: if user was previously authenticated but
+  // the server now reports unauthenticated (with no refresh path), their
+  // session silently expired. Toast and clear the marker so local watchlist
+  // remains usable in offline/local-only mode without nagging.
+  useEffect(() => {
+    if (!mounted) return;
+    let cancelled = false;
+    fetchAuthSessionWithRefresh().then((session) => {
+      if (cancelled) return;
+      const decision = evaluateSessionExpiry(session, wasPreviouslyAuthenticated());
+      if (decision.kind === 'authenticated') {
+        markWasAuthenticated();
+        return;
+      }
+      if (decision.kind === 'expired') {
+        toast.error('Session expired', {
+          description: 'Your login has expired. Watchlist is shown locally only — log in to sync.',
+          duration: 6000,
+        });
+        clearWasAuthenticated();
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [mounted]);
 
   // Listen for watchlist sync completion events to silently refresh data in the UI
   useEffect(() => {

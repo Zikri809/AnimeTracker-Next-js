@@ -194,9 +194,21 @@ export default function TrackingClient({ malDetail, context, malSearchVisible }:
           <p>
             {isSessionAuthenticated
               ? 'Your watchlist are saved locally and on your MyAnimeList account be aware that cross synchronization is possible you can access your watchlist on other devices'
-              : 'Your Watchlist are saved exclusively on this device please be aware that cross syncronization is not possible as of now'}
+              : 'You are not logged in. Your watchlist is saved exclusively on this device and will not sync to your MyAnimeList account or other devices.'}
           </p>
         </div>
+
+        {!isSessionAuthenticated && (
+          <div className="mb-4 flex w-full flex-col gap-2 rounded-md border border-amber-400/25 bg-amber-400/10 px-5 py-4 text-amber-100">
+            <div className="flex items-center gap-2 font-semibold">
+              <AlertTriangle className="size-5 text-amber-300" />
+              <p>Local-only mode</p>
+            </div>
+            <p className="text-sm text-amber-100/80">
+              Changes here stay on this device only. Log in to back up and sync your watchlist across devices.
+            </p>
+          </div>
+        )}
 
         {isSessionAuthenticated && malSearchVisible === false ? (
           <div className="mb-4 flex w-full flex-col gap-2 rounded-md border border-amber-400/25 bg-amber-400/10 px-5 py-4 text-amber-100">

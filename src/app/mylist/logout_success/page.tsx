@@ -1,7 +1,8 @@
 "use client";
 
 import Login_navbar from "@/ComponentsSelf/navbar/log_in_navbar";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -26,6 +27,9 @@ export default function LogoutSuccessPage() {
     localStorage.setItem("OnHold", JSON.stringify([]));
     localStorage.setItem("Dropped", JSON.stringify([]));
     localStorage.setItem("PlanToWatch", JSON.stringify([]));
+
+    // 2b. Clear the previously-authenticated marker (explicit logout, not expiry)
+    localStorage.removeItem("wasAuthenticated");
 
     // 3. Clear session storage keys used by My List
     sessionStorage.removeItem("activetab");
@@ -67,27 +71,29 @@ export default function LogoutSuccessPage() {
   }, [router]);
 
   return (
-    <div className="bg-black w-full h-[100svh]  flex flex-col items-center">
+    <div className="w-screen h-[100svh] flex flex-col items-center justify-center px-6">
       <Login_navbar />
-      <Card className="bg-black  h-screen w-full relative border-0 flex flex-col items-center justify-center">
-        <CardContent className="sm:bg-white/5 bg-black sm:backdrop-blur-md sm:border sm:border-white/10  rounded-2xl p-10 flex w-fit flex-col items-center justify-center">
+      <div className="flex flex-col gap-6 items-center p-8 rounded-2xl bg-neutral-900/90 border border-neutral-700 shadow-lg max-w-md w-full text-center">
+        <div className="h-40 w-40 rounded-full bg-neutral-800 flex items-center justify-center">
           <img
-            className="h-80 w-80 p-0"
+            className="h-28 w-28 object-contain"
             src="/svg-illustration/Alone-rafiki.svg"
-            alt="Logout illustration"
+            alt="Logged out"
           />
-          <h1 className="text-2xl text-white  text-center font-bold">
-            Your Anime World Has Been Disconnected
-          </h1>
-          <p className="mt-2 text-center text-neutral-400 text-sm">
-            All watchlist on this device has been removed.
+        </div>
+        <div className="flex flex-col gap-2">
+          <h1 className="text-2xl font-bold text-white">You&apos;ve Been Logged Out</h1>
+          <p className="text-neutral-300 text-sm">
+            Your session ended and all watchlists on this device were cleared.
           </p>
-          <p className="mt-0 text-center text-neutral-400 text-sm">
-            You will be redirected in {timer} seconds. Doesn&apos;t work? Click
-            the top left button.
+          <p className="text-neutral-400 text-sm">
+            Redirecting to My List in {timer} second{timer === 1 ? "" : "s"}…
           </p>
-        </CardContent>
-      </Card>
+        </div>
+        <Button asChild className="w-full bg-white text-black hover:bg-neutral-200 font-bold">
+          <Link href="/mylist">Back to My List</Link>
+        </Button>
+      </div>
     </div>
   );
 }

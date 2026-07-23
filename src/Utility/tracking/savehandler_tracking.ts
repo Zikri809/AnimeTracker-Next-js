@@ -4,7 +4,6 @@ import looping_updater from "./looping_list_updater";
 import cross_check from "./list_cross_check";
 import { buildTrackingBackHref } from "@/lib/routing/path-utils";
 import { addToWatchlist } from "./watchlist-storage";
-import { startWatchlistSync } from "@/app/mylist/_lib/mylist-worker-sync";
 
 
 function clampNumber(value: unknown, min: number, max: number): number {
@@ -67,12 +66,6 @@ export default async function tracking_save(
       await looping_updater(mal_status);
       await cross_check(animeinfo.node.id, mal_status); // then do second
       saveLocal();
-
-      try {
-        startWatchlistSync();
-      } catch (err) {
-        console.error('Failed to trigger background sync after save:', err);
-      }
 
       return { name: 'Your' };
     };

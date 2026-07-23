@@ -33,41 +33,42 @@ export type HomeSeasonCarouselData = {
   seasonal_data: Array<{ season: AnimeSeason; year: number }>;
 };
 
-export async function fetchJikanSeasonCards(season: AnimeSeason, year: number): Promise<HomeSeasonResult> {
+const MAL_STATUS_LABELS: Record<string, string> = {
+  currently_airing: "Currently Airing",
+  finished_airing: "Finished Airing",
+  not_yet_aired: "Not Yet Aired",
+};
+
+function normalizeMalStatus(status?: string): string {
+  if (!status) return "Unknown";
+  return MAL_STATUS_LABELS[status] ?? status;
+}
+
+export async function fetchMalSeasonCards(season: AnimeSeason, year: number): Promise<HomeSeasonResult> {
   try {
-    const response = await fetch(`https://api.jikan.moe/v4/seasons/${year}/${season}`, {
-      next: { revalidate: SEASONAL_PAGE_REVALIDATE_SECONDS },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-
-    const payload = await response.json();
-    if (!payload || !Array.isArray(payload.data)) {
-      throw new Error("Invalid Jikan response payload");
-    }
+    const items = await fetchCachedMalSeason({ year, season, sort: "anime_score" });
 
     const deconstructed: HomeSeasonCard[] = [];
     const seenIds = new Set<number>();
 
-    for (const item of payload.data) {
-      if (!item || typeof item.mal_id !== "number") continue;
-      if (seenIds.has(item.mal_id)) continue;
-      seenIds.add(item.mal_id);
+    for (const item of items) {
+      const node = item?.node;
+      if (!node || typeof node.id !== "number") continue;
+      if (seenIds.has(node.id)) continue;
+      seenIds.add(node.id);
 
       deconstructed.push({
-        status: item.status || "Unknown",
-        mal_id: item.mal_id,
+        status: normalizeMalStatus(node.status),
+        mal_id: node.id,
         images: {
           webp: {
-            large_image_url: item.images?.webp?.large_image_url || "/placeholder.svg",
+            large_image_url: node.main_picture?.large || "/placeholder.svg",
           },
         },
-        year: item.year ?? undefined,
-        title: item.title || "Untitled",
-        score: item.score ?? undefined,
-        title_english: item.title_english ?? null,
+        year: node.start_season?.year ?? undefined,
+        title: node.title || "Untitled",
+        score: node.mean ?? undefined,
+        title_english: node.alternative_titles?.en ?? null,
       });
 
       if (deconstructed.length >= 24) {
@@ -81,10 +82,10 @@ export async function fetchJikanSeasonCards(season: AnimeSeason, year: number): 
       error: false,
     };
   } catch (error) {
-    console.error(`Error fetching Jikan season cards for ${season} ${year}:`, error);
+    console.error(`Error fetching MAL season cards for ${season} ${year}:`, error);
     return {
       querydata: [],
-      isloading: true,
+      isloading: false,
       error: true,
     };
   }
@@ -205,9 +206,9 @@ export async function fetchHomePageData() {
 
   // Fetch the rest of the data in parallel
   const [thisseason, pastSeason, upcomingSeason, seasonal_carousel_data] = await Promise.all([
-    fetchJikanSeasonCards(seasonWindow.current_season, seasonWindow.current_year),
-    fetchJikanSeasonCards(seasonWindow.past_season, seasonWindow.past_year),
-    fetchJikanSeasonCards(seasonWindow.upcoming_season, seasonWindow.upcoming_year),
+    fetchMalSeasonCards(seasonWindow.current_season, seasonWindow.current_year),
+    fetchMalSeasonCards(seasonWindow.past_season, seasonWindow.past_year),
+    fetchMalSeasonCards(seasonWindow.upcoming_season, seasonWindow.upcoming_year),
     fetchHomeSeasonCarousel(seasonWindow),
   ]);
 

@@ -35,10 +35,10 @@ export default function RatedCard({ title, localStorage_id, score }: RatedCardPr
                 <CardTitle className='text-white font-bold'>{title}</CardTitle>
                 <div className="text-sm text-neutral-400 mt-4">
                     <Carousel opts={{ skipSnaps: true }}>
-                        <CarouselContent className="-ml-2">
+                        <CarouselContent className="-ml-1.5 sm:-ml-2">
                             {top_list.map((element) => {
                                 return (
-                                    <CarouselItem key={element.node.id + 20} className='basis-auto sm:basis-1/6 pl-2'>
+                                    <CarouselItem key={element.node.id + 20} className='basis-auto pl-1.5 sm:pl-2'>
                                         <Animecard
                                             className='shrink-0'
                                             title={element.node.title}

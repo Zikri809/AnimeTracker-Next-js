@@ -31,16 +31,16 @@ export default function ErrorExceedRetryLimit(props: ErrorExceedRetryLimitProps)
 
   return (
     <div className="w-screen h-screen flex flex-row items-center justify-center px-10">
-      <div className="flex flex-col gap-4">
-        <p className="font-extrabold text-center text-2xl">Retry Limit Exceeded!</p>
-        <p className="text-lg text-center text-neutral-400">Your enthusiasm is admirable, but even the strongest anime protagonist needs a rest! Please wait a few minutes before your next attempt. 🍜</p>
+      <div className="flex flex-col gap-4 p-8 rounded-xl bg-neutral-900/90 border border-neutral-700 shadow-lg max-w-md">
+        <p className="font-extrabold text-center text-2xl text-white">Service Temporarily Unavailable</p>
+        <p className="text-lg text-center text-neutral-300">The anime data provider is down or unreachable. This is not your fault — please try again in a few minutes. 🍜</p>
         <div className="text-md flex flex-row gap-4 items-center justify-center font-extrabold">
-          <Button asChild className="hover:bg-neutral-700 flex flex-row gap-1 items-center hover:border-neutral-700 bg-black border-2 border-neutral-500">
+          <Button asChild className="hover:bg-neutral-700 flex flex-row gap-1 items-center hover:border-neutral-700 bg-neutral-800 border-2 border-neutral-500 text-white">
             <Link className="flex flex-row items-center gap-2" href={backHref}>
               <ArrowLeft size={32} /> Go Back
             </Link>
           </Button>
-          <Button className="hover:bg-neutral-400 bg-white text-black" onClick={() => push(error_page_url)}>Try Again</Button>
+          <Button className="hover:bg-neutral-200 bg-white text-black" onClick={() => push(error_page_url)}>Try Again</Button>
         </div>
       </div>
     </div>

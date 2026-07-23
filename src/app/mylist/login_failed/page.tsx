@@ -1,49 +1,51 @@
 "use client";
 
 import Login_navbar from "@/ComponentsSelf/navbar/log_in_navbar";
-import { Card, CardContent } from "@/components/ui/card";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { AlertCircle } from "lucide-react";
+import Link from "next/link";
 
 export default function LoginFailedPage() {
-  const router = useRouter();
-  const [timer, Settimer] = useState(5);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      Settimer((t) => t - 1);
-    }, 1000);
-    const timeout = setTimeout(() => {
-      router.push("/mylist");
-    }, 5000);
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [router]);
-
   return (
-    <div className="bg-black w-full h-[100svh]  flex flex-col items-center">
+    <div className="min-h-svh w-full bg-background">
       <Login_navbar />
-      <Card className="bg-black  h-screen w-full relative border-0 flex flex-col items-center justify-center">
-        <CardContent className="sm:bg-white/5 bg-black sm:backdrop-blur-md sm:border sm:border-white/10  rounded-2xl p-10 flex w-fit flex-col items-center justify-center">
-          <img
-            className="h-80 w-80 p-0"
-            src="/svg-illustration/Forgot-password-bro.svg"
-            alt="Error illustration"
-          />
-          <h1 className="text-2xl text-white  text-center font-bold">
-            Error Occured during Operation
-          </h1>
-          <p className="mt-2 text-center text-neutral-400 text-sm">
-            Try checking your internet connection or it might be a server error
-          </p>
-          <p className="mt-0 text-center text-neutral-400 text-sm">
-            You will be redirected in {timer} seconds. Doesn&apos;t work? Click
-            the top left button.
-          </p>
-        </CardContent>
-      </Card>
+      <main className="flex min-h-svh items-center justify-center px-4 pt-20 pb-10">
+        <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-8 sm:p-10 backdrop-blur-md">
+          <div className="flex flex-col items-center text-center">
+            <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-red-500/15 ring-1 ring-red-500/30">
+              <AlertCircle className="h-6 w-6 text-red-400" />
+            </div>
+
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+              Sign-in failed
+            </h1>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              We couldn&apos;t complete the sign-in with MyAnimeList. This is
+              usually a temporary issue — check your connection and try again.
+            </p>
+
+            <div className="mt-8 flex w-full flex-col gap-3">
+              <Link href="/mylist/login" className="w-full">
+                <Button
+                  size="lg"
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  Try again
+                </Button>
+              </Link>
+              <Link href="/mylist" className="w-full">
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="w-full text-muted-foreground hover:text-foreground"
+                >
+                  Back to My List
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

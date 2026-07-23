@@ -115,7 +115,7 @@ export default function UserProfile() {
           <p className="text-neutral-400 text-lg">Loading Profile...</p>
         </div>
       ) : userobject ? (
-        <div className="flex flex-col gap-4 mx-4 max-w-[calc(100%-2rem)] min-h-[calc(100vh-5rem)] pb-20 relative top-20">
+        <div className="flex flex-col gap-4 mx-4 sm:mx-8 lg:mx-auto lg:max-w-7xl min-h-[calc(100vh-5rem)] pt-4 pb-44 sm:pb-20 relative top-20">
           <div className="flex-col flex gap-4 w-full">
             <User_card
               avatar_src={userobject.picture}

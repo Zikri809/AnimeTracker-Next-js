@@ -86,3 +86,45 @@ export function isSessionExpiringSoon(session: AuthSession, daysBeforeExpiry = 2
 
   return Date.now() >= refreshDeadline.getTime();
 }
+
+const WAS_AUTHENTICATED_KEY = 'wasAuthenticated';
+
+export function markWasAuthenticated() {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(WAS_AUTHENTICATED_KEY, '1');
+  } catch {
+    // Ignore quota/private mode errors.
+  }
+}
+
+export function clearWasAuthenticated() {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.removeItem(WAS_AUTHENTICATED_KEY);
+  } catch {
+    // Ignore.
+  }
+}
+
+export function wasPreviouslyAuthenticated(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return localStorage.getItem(WAS_AUTHENTICATED_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export type SessionExpiryDecision =
+  | { kind: 'authenticated' }
+  | { kind: 'expired' }
+  | { kind: 'local-only' };
+
+export function evaluateSessionExpiry(
+  session: AuthSession,
+  wasAuthed: boolean,
+): SessionExpiryDecision {
+  if (session.authenticated) return { kind: 'authenticated' };
+  return wasAuthed ? { kind: 'expired' } : { kind: 'local-only' };
+}

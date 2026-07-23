@@ -3,7 +3,6 @@ import { toast } from "sonner";
 import looping_updater from "./looping_list_updater";
 import { buildTrackingBackHref } from "@/lib/routing/path-utils";
 import { removeFromAllWatchlists } from "./watchlist-storage";
-import { startWatchlistSync } from "@/app/mylist/_lib/mylist-worker-sync";
 
 
 function toMalStatus(status: string, fallback?: string | null): string {
@@ -47,12 +46,6 @@ export default async function delete_show(
       await apicall(); // wait for first to complete
       if (mal_status) {
         await looping_updater(mal_status); // then do second
-      }
-
-      try {
-        startWatchlistSync();
-      } catch (err) {
-        console.error('Failed to trigger background sync after delete:', err);
       }
 
       return { name: 'Your' };

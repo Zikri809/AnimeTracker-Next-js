@@ -12,7 +12,8 @@ export interface SyncResult {
 
 let activeSyncSessionId = 0;
 let activeWorker: Worker | null = null;
-const WORKER_TIMEOUT_MS = 30000;
+let activeWorkerTimeoutId: ReturnType<typeof setTimeout> | null = null;
+const WORKER_TIMEOUT_MS = 120000;
 
 export function getActiveSyncSessionId() {
   return activeSyncSessionId;
@@ -20,6 +21,10 @@ export function getActiveSyncSessionId() {
 
 export function invalidateSyncSession() {
   activeSyncSessionId++;
+  if (activeWorkerTimeoutId) {
+    clearTimeout(activeWorkerTimeoutId);
+    activeWorkerTimeoutId = null;
+  }
   if (activeWorker) {
     activeWorker.terminate();
     activeWorker = null;
@@ -46,7 +51,11 @@ export function startWatchlistSync(onComplete?: (result: SyncResult) => void, on
   activeSyncSessionId++;
   const currentSessionId = activeSyncSessionId;
 
-  // Terminate any previous active worker to prevent concurrent sync operations
+  // Terminate any previous active worker and its timeout to prevent concurrent sync operations
+  if (activeWorkerTimeoutId) {
+    clearTimeout(activeWorkerTimeoutId);
+    activeWorkerTimeoutId = null;
+  }
   if (activeWorker) {
     activeWorker.terminate();
   }
@@ -54,13 +63,19 @@ export function startWatchlistSync(onComplete?: (result: SyncResult) => void, on
   const worker = new Worker('/worker/worker.js');
   activeWorker = worker;
   let finished = false;
+  let timedOut = false;
   let timeoutId: ReturnType<typeof setTimeout> | null = setTimeout(() => {
+    timedOut = true;
     finishWithError(new Error('Worker sync timed out'));
   }, WORKER_TIMEOUT_MS);
+  activeWorkerTimeoutId = timeoutId;
 
   function clearWorkerTimeout() {
     if (timeoutId) {
       clearTimeout(timeoutId);
+      if (activeWorkerTimeoutId === timeoutId) {
+        activeWorkerTimeoutId = null;
+      }
       timeoutId = null;
     }
   }
@@ -77,6 +92,11 @@ export function startWatchlistSync(onComplete?: (result: SyncResult) => void, on
     if (finished) return;
     finished = true;
     clearActiveWorker();
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('watchlist-sync-error', { detail: err }));
+    }
+
     onError?.(err);
   }
 
@@ -154,6 +174,14 @@ export function startWatchlistSync(onComplete?: (result: SyncResult) => void, on
           }
         }
         throw writeError;
+      }
+
+      if (timedOut) {
+        // Worker finished after the timeout fired, but the localStorage write above
+        // succeeded. The error callback already ran; skip success side effects.
+        console.info('Worker sync completed after timeout; data already persisted.');
+        clearActiveWorker();
+        return;
       }
 
       finishWithSuccess({

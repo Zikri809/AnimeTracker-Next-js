@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
-  fetchJikanSeasonCards,
+  fetchMalSeasonCards,
   fetchAniListSpotlight,
   fetchHomeSeasonCarousel,
   fetchHomePageData,
@@ -19,26 +19,30 @@ describe('home-page-data helper', () => {
     global.fetch = originalFetch;
   });
 
-  describe('fetchJikanSeasonCards', () => {
-    it('deduplicates by mal_id, limits to 24, and projects expected shape', async () => {
+  describe('fetchMalSeasonCards', () => {
+    it('deduplicates by id, limits to 24, normalizes MAL status, and projects expected shape', async () => {
       const mockItems = Array.from({ length: 30 }, (_, i) => ({
-        mal_id: i < 5 ? 1 : i, // create some duplicates for ID 1
-        status: 'Currently Airing',
-        images: { webp: { large_image_url: `url-${i}` } },
-        year: 2026,
-        title: `Anime ${i}`,
-        score: 8.5,
-        title_english: `Anime EN ${i}`,
+        node: {
+          id: i < 5 ? 1 : i, // create some duplicates for ID 1
+          status: 'currently_airing',
+          main_picture: { large: `url-${i}` },
+          start_season: { season: 'spring' as const, year: 2026 },
+          title: `Anime ${i}`,
+          mean: 8.5,
+          alternative_titles: { en: `Anime EN ${i}` },
+        },
       }));
 
-      const fetchMock = vi.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: () => Promise.resolve({ data: mockItems }),
-      });
-      global.fetch = fetchMock;
+      const fetchCachedMalSeasonSpy = vi
+        .spyOn(malClient, 'fetchCachedMalSeason')
+        .mockResolvedValue(mockItems as any);
 
-      const result = await fetchJikanSeasonCards('spring', 2026);
+      const result = await fetchMalSeasonCards('spring', 2026);
+      expect(fetchCachedMalSeasonSpy).toHaveBeenCalledWith({
+        year: 2026,
+        season: 'spring',
+        sort: 'anime_score',
+      });
       expect(result.isloading).toBe(false);
       expect(result.error).toBe(false);
       // 30 items: first 5 have id 1 (1 unique). Remaining 25 are unique.
@@ -55,16 +59,47 @@ describe('home-page-data helper', () => {
       });
     });
 
-    it('returns error shape on upstream failure', async () => {
-      const fetchMock = vi.fn().mockResolvedValue({
-        ok: false,
-        status: 500,
-      });
-      global.fetch = fetchMock;
+    it('maps all known MAL statuses to Jikan-style labels', async () => {
+      const mockItems = [
+        { node: { id: 1, status: 'currently_airing', title: 'A' } },
+        { node: { id: 2, status: 'finished_airing', title: 'B' } },
+        { node: { id: 3, status: 'not_yet_aired', title: 'C' } },
+        { node: { id: 4, status: 'unexpected_status', title: 'D' } },
+        { node: { id: 5, title: 'E' } },
+      ];
+      vi.spyOn(malClient, 'fetchCachedMalSeason').mockResolvedValue(mockItems as any);
 
-      const result = await fetchJikanSeasonCards('spring', 2026);
+      const result = await fetchMalSeasonCards('spring', 2026);
+      expect(result.querydata.map((c) => c.status)).toEqual([
+        'Currently Airing',
+        'Finished Airing',
+        'Not Yet Aired',
+        'unexpected_status',
+        'Unknown',
+      ]);
+    });
+
+    it('falls back to placeholder image and null english title when fields missing', async () => {
+      const mockItems = [
+        { node: { id: 1, status: 'currently_airing', title: 'A' } },
+      ];
+      vi.spyOn(malClient, 'fetchCachedMalSeason').mockResolvedValue(mockItems as any);
+
+      const result = await fetchMalSeasonCards('spring', 2026);
+      expect(result.querydata[0].images.webp.large_image_url).toBe('/placeholder.svg');
+      expect(result.querydata[0].title_english).toBeNull();
+      expect(result.querydata[0].score).toBeUndefined();
+      expect(result.querydata[0].year).toBeUndefined();
+    });
+
+    it('returns error shape with isloading=false on upstream failure', async () => {
+      vi.spyOn(malClient, 'fetchCachedMalSeason').mockRejectedValue(
+        new Error('MAL Seasonal API returned status 500')
+      );
+
+      const result = await fetchMalSeasonCards('spring', 2026);
       expect(result.querydata).toEqual([]);
-      expect(result.isloading).toBe(true);
+      expect(result.isloading).toBe(false);
       expect(result.error).toBe(true);
     });
   });

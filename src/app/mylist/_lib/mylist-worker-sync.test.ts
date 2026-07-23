@@ -140,10 +140,33 @@ describe('mylist worker sync', () => {
     const onError = vi.fn();
     startWatchlistSync(undefined, onError);
 
-    vi.advanceTimersByTime(30000);
+    vi.advanceTimersByTime(120000);
 
     expect(onError).toHaveBeenCalledWith(expect.any(Error));
     expect(instances[0].terminate).toHaveBeenCalled();
+  });
+
+  it('does not call onComplete when worker message arrives after timeout', () => {
+    vi.useFakeTimers();
+    const onComplete = vi.fn();
+    const onError = vi.fn();
+    const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+
+    startWatchlistSync(onComplete, onError);
+    vi.advanceTimersByTime(120000);
+    expect(onError).toHaveBeenCalled();
+
+    // Late worker message after timeout: localStorage write still happens,
+    // but neither onComplete nor a second onError fires.
+    instances[0].onmessage?.({ data: successPayload() } as MessageEvent);
+
+    expect(onComplete).not.toHaveBeenCalled();
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(localStorage.getItem('Watching') || '[]')).toEqual([[1, item(1)]]);
+    expect(infoSpy).toHaveBeenCalledWith(
+      expect.stringContaining('completed after timeout')
+    );
+    infoSpy.mockRestore();
   });
 
   it('handles messageerror through the error path', () => {
@@ -154,6 +177,24 @@ describe('mylist worker sync', () => {
 
     expect(onError).toHaveBeenCalled();
     expect(instances[0].terminate).toHaveBeenCalled();
+  });
+
+  it('clears the previous sync timeout when a new sync starts', () => {
+    vi.useFakeTimers();
+    const onErrorA = vi.fn();
+    const onCompleteB = vi.fn();
+
+    // Sync A starts, then sync B replaces it (e.g. PersistentWorker + login_success page).
+    startWatchlistSync(undefined, onErrorA);
+    startWatchlistSync(onCompleteB);
+
+    // Worker B completes successfully.
+    instances[1].onmessage?.({ data: successPayload() } as MessageEvent);
+    expect(onCompleteB).toHaveBeenCalled();
+
+    // Advancing past the timeout must not fire A's error callback.
+    vi.advanceTimersByTime(120000);
+    expect(onErrorA).not.toHaveBeenCalled();
   });
 
   it('dispatches watchlist-sync-complete event on successful sync', () => {

@@ -319,16 +319,16 @@ test('Redirects to ExceedRetryLimit page on API failures', async ({ page }) => {
 
   // Wait for retry limit screen to mount
   await expect(page.locator('text=Loading...')).not.toBeVisible();
-  await expect(page.locator('text=Retry Limit Exceeded!')).toBeVisible();
+  await expect(page.locator('text=Service Temporarily Unavailable')).toBeVisible();
 
   const bodyText = await page.locator('body').innerText();
-  expect(bodyText.toLowerCase()).toContain('exceed');
+  expect(bodyText.toLowerCase()).toContain('unavailable');
 });
 
 test('ExceedRetryLimit direct access with missing params and open-redirect protection', async ({ page }) => {
   // 1. Direct access with missing parameters: should safely load
   await page.goto('/ExceedRetryLimit');
-  await expect(page.locator('text=Retry Limit Exceeded!')).toBeVisible();
+  await expect(page.locator('text=Service Temporarily Unavailable')).toBeVisible();
 
   // Try again button should point to home / or be clicked safely without crashing
   const tryAgainBtn = page.locator('button:has-text("Try Again")');
@@ -336,7 +336,7 @@ test('ExceedRetryLimit direct access with missing params and open-redirect prote
 
   // 2. Open redirect security validation: visit with external link
   await page.goto('/ExceedRetryLimit?original_link=https://malicious.com/attack');
-  await expect(page.locator('text=Retry Limit Exceeded!')).toBeVisible();
+  await expect(page.locator('text=Service Temporarily Unavailable')).toBeVisible();
 
   // Click Try Again
   await tryAgainBtn.click();
