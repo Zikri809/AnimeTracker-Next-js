@@ -68,7 +68,7 @@ export async function fetchMalSeasonCards(season: AnimeSeason, year: number): Pr
         year: node.start_season?.year ?? undefined,
         title: node.title || "Untitled",
         score: node.mean ?? undefined,
-        title_english: node.alternative_titles?.en ?? null,
+        title_english: node.alternative_titles?.en || null,
       });
 
       if (deconstructed.length >= 24) {
