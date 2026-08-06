@@ -26,8 +26,8 @@ export default function about_card(){
             <div>
                 <p className="font-semibold">Credits</p>
                 <ul className="text-neutral-400 list-disc list-inside">
-                    <li><a className="hover:underline" target="_blank" rel="noopener noreferrer" href="https://myanimelist.net/apiconfig/references/api/v2">MyAnimeList API - Anime data and auth provider</a></li>
-                    <li><a className="hover:underline" target="_blank" rel="noopener noreferrer" href="https://jikan.moe/">Jikan API - Unofficial MAL API</a></li>
+                    <li><a className="hover:underline" target="_blank" rel="noopener noreferrer" href="https://myanimelist.net/apiconfig/references/api/v2">MyAnimeList API - Anime data, search, and auth provider</a></li>
+                    <li><a className="hover:underline" target="_blank" rel="noopener noreferrer" href="https://jikan.moe/">Jikan API - Anime detail and relations</a></li>
                     <li><a className="hover:underline" target="_blank" rel="noopener noreferrer" href="https://storyset.com/">Illustration - Storyset</a></li>
                 </ul>
             </div>

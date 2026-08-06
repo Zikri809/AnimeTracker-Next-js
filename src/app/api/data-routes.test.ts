@@ -303,29 +303,38 @@ describe("Data Proxy Route Handlers", () => {
       const resEmpty = await searchGET(reqEmpty);
       expect(resEmpty.status).toBe(200);
       expect(await resEmpty.json()).toEqual({ data: [] });
+      expect(malClient.fetchSearch).not.toHaveBeenCalled();
 
       const reqNA = new NextRequest("http://localhost/api/anime/search?q=NA");
       const resNA = await searchGET(reqNA);
       expect(resNA.status).toBe(200);
       expect(await resNA.json()).toEqual({ data: [] });
+      expect(malClient.fetchSearch).not.toHaveBeenCalled();
     });
 
-    it("returns search data from Jikan successfully with caching headers", async () => {
-      const mockJikanResponse = {
+    it("returns MAL search data on success with caching headers and page→offset translation", async () => {
+      const mockMalResponse = {
         data: [
           {
-            mal_id: 12345,
-            title: "Test Jikan Anime",
-            score: 8.9,
+            node: {
+              id: 12345,
+              title: "Test MAL Anime",
+              main_picture: { large: "https://cdn.myanimelist.net/large.jpg" },
+              status: "currently_airing",
+              start_season: { season: "spring", year: 2024 },
+              num_episodes: 12,
+              mean: 8.5,
+              num_scoring_users: 1000,
+              popularity: 42,
+              genres: [{ id: 1, name: "Action" }],
+              alternative_titles: { en: "Test MAL Anime EN" },
+            },
           },
         ],
+        paging: { next: "https://api.myanimelist.net/v2/anime?offset=24" },
       };
 
-      const fetchMock = vi.fn().mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve(mockJikanResponse),
-      });
-      vi.stubGlobal("fetch", fetchMock);
+      vi.mocked(malClient.fetchSearch).mockResolvedValue(mockMalResponse);
 
       const req = new NextRequest(
         "http://localhost/api/anime/search?q=test&page=2",
@@ -338,19 +347,48 @@ describe("Data Proxy Route Handlers", () => {
       );
 
       const body = await res.json();
-      expect(body).toEqual(mockJikanResponse);
-      expect(fetchMock).toHaveBeenCalledWith(
-        "https://api.jikan.moe/v4/anime?limit=24&sfw=true&page=2&q=test",
-        expect.objectContaining({ method: "GET" }),
-      );
+      // Status should be mapped from snake_case to the human-readable form
+      // the UI's statusClassName() helper expects.
+      expect(body.data[0].node.status).toBe("Currently Airing");
+      expect(body.data[0].node.id).toBe(12345);
+      expect(malClient.fetchSearch).toHaveBeenCalledWith("test", 24, 24);
 
-      vi.unstubAllGlobals();
+      vi.mocked(malClient.fetchSearch).mockReset();
     });
 
-    it("rejects overly long search queries before building an upstream request", async () => {
-      const fetchMock = vi.fn();
-      vi.stubGlobal("fetch", fetchMock);
+    it("maps all known MAL status strings to their display equivalents", async () => {
+      const statuses = [
+        ["finished_airing", "Finished Airing"],
+        ["currently_airing", "Currently Airing"],
+        ["not_yet_aired", "Not yet aired"],
+      ] as const;
 
+      for (const [raw, display] of statuses) {
+        vi.mocked(malClient.fetchSearch).mockResolvedValue({
+          data: [{ node: { id: 1, status: raw } }],
+        });
+        const req = new NextRequest(
+          `http://localhost/api/anime/search?q=x&status=${raw}`,
+        );
+        const res = await searchGET(req);
+        const body = await res.json();
+        expect(body.data[0].node.status).toBe(display);
+        vi.mocked(malClient.fetchSearch).mockReset();
+      }
+    });
+
+    it("passes unknown MAL status strings through unchanged", async () => {
+      vi.mocked(malClient.fetchSearch).mockResolvedValue({
+        data: [{ node: { id: 1, status: "some_new_mal_status" } }],
+      });
+      const req = new NextRequest("http://localhost/api/anime/search?q=x");
+      const res = await searchGET(req);
+      const body = await res.json();
+      expect(body.data[0].node.status).toBe("some_new_mal_status");
+      vi.mocked(malClient.fetchSearch).mockReset();
+    });
+
+    it("rejects overly long search queries before calling MAL", async () => {
       const longQuery = "a".repeat(121);
       const req = new NextRequest(
         `http://localhost/api/anime/search?q=${longQuery}`,
@@ -358,34 +396,117 @@ describe("Data Proxy Route Handlers", () => {
       const res = await searchGET(req);
 
       expect(res.status).toBe(400);
-      expect(fetchMock).not.toHaveBeenCalled();
-
-      vi.unstubAllGlobals();
+      expect(malClient.fetchSearch).not.toHaveBeenCalled();
     });
 
-    it("keeps Jikan search requests on the trusted upstream origin", async () => {
-      const fetchMock = vi.fn().mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ data: [] }),
-      });
-      vi.stubGlobal("fetch", fetchMock);
+    it("computes offset from page for several pages", async () => {
+      vi.mocked(malClient.fetchSearch).mockResolvedValue({ data: [] });
 
-      const req = new NextRequest(
-        "http://evil.example/api/anime/search?q=https://internal.example/metadata&page=999",
+      // page 1 → offset 0
+      await searchGET(
+        new NextRequest("http://localhost/api/anime/search?q=x&page=1"),
       );
+      expect(malClient.fetchSearch).toHaveBeenLastCalledWith("x", 24, 0);
+
+      // page 3 → offset 48
+      await searchGET(
+        new NextRequest("http://localhost/api/anime/search?q=x&page=3"),
+      );
+      expect(malClient.fetchSearch).toHaveBeenLastCalledWith("x", 24, 48);
+
+      // page 25 (max) → offset 576
+      await searchGET(
+        new NextRequest("http://localhost/api/anime/search?q=x&page=25"),
+      );
+      expect(malClient.fetchSearch).toHaveBeenLastCalledWith("x", 24, 576);
+
+      vi.mocked(malClient.fetchSearch).mockReset();
+    });
+
+    it("clamps invalid page values to page 1", async () => {
+      vi.mocked(malClient.fetchSearch).mockResolvedValue({ data: [] });
+
+      // page 0 → clamped to 1 → offset 0
+      await searchGET(
+        new NextRequest("http://localhost/api/anime/search?q=x&page=0"),
+      );
+      expect(malClient.fetchSearch).toHaveBeenLastCalledWith("x", 24, 0);
+
+      // page above max → clamped to 1 → offset 0
+      await searchGET(
+        new NextRequest("http://localhost/api/anime/search?q=x&page=26"),
+      );
+      expect(malClient.fetchSearch).toHaveBeenLastCalledWith("x", 24, 0);
+
+      // non-numeric page → clamped to 1 → offset 0
+      await searchGET(
+        new NextRequest("http://localhost/api/anime/search?q=x&page=abc"),
+      );
+      expect(malClient.fetchSearch).toHaveBeenLastCalledWith("x", 24, 0);
+
+      vi.mocked(malClient.fetchSearch).mockReset();
+    });
+
+    it("maps a 429 rate-limit error from MAL to a 429 response", async () => {
+      const rateLimitError: any = new Error(
+        "MAL Search API returned status 429: Too Many Requests",
+      );
+      rateLimitError.status = 429;
+      vi.mocked(malClient.fetchSearch).mockRejectedValue(rateLimitError);
+
+      const req = new NextRequest("http://localhost/api/anime/search?q=x");
       const res = await searchGET(req);
 
-      expect(res.status).toBe(200);
-      expect(fetchMock).toHaveBeenCalledTimes(1);
-      const upstreamUrl = new URL(String(fetchMock.mock.calls[0][0]));
-      expect(upstreamUrl.origin).toBe("https://api.jikan.moe");
-      expect(upstreamUrl.pathname).toBe("/v4/anime");
-      expect(upstreamUrl.searchParams.get("q")).toBe(
-        "https://internal.example/metadata",
-      );
-      expect(upstreamUrl.searchParams.get("page")).toBe("1");
+      expect(res.status).toBe(429);
+      const body = await res.json();
+      expect(body.status).toBe(429);
+      vi.mocked(malClient.fetchSearch).mockReset();
+    });
 
-      vi.unstubAllGlobals();
+    it("maps a 502 upstream error from MAL to a 502 response", async () => {
+      const upstreamError: any = new Error(
+        "MAL Search API returned status 502: Bad Gateway",
+      );
+      upstreamError.status = 502;
+      vi.mocked(malClient.fetchSearch).mockRejectedValue(upstreamError);
+
+      const req = new NextRequest("http://localhost/api/anime/search?q=x");
+      const res = await searchGET(req);
+
+      expect(res.status).toBe(502);
+      vi.mocked(malClient.fetchSearch).mockReset();
+    });
+
+    it("returns 500 for unknown (non-upstream) errors from fetchSearch", async () => {
+      vi.mocked(malClient.fetchSearch).mockRejectedValue(
+        new Error("Something went wrong without a status"),
+      );
+
+      const req = new NextRequest("http://localhost/api/anime/search?q=x");
+      const res = await searchGET(req);
+
+      expect(res.status).toBe(500);
+      vi.mocked(malClient.fetchSearch).mockReset();
+    });
+
+    it("forwards the query string to fetchSearch without mangling it", async () => {
+      vi.mocked(malClient.fetchSearch).mockResolvedValue({ data: [] });
+
+      const trickyQuery = "https://internal.example/metadata";
+      const req = new NextRequest(
+        `http://localhost/api/anime/search?q=${encodeURIComponent(trickyQuery)}`,
+      );
+      await searchGET(req);
+
+      // The route must pass the query verbatim to fetchSearch; URL-building
+      // and origin protection live in src/server/mal/urls.ts and are tested
+      // by urls.test.ts, so we only assert the route forwards faithfully.
+      expect(malClient.fetchSearch).toHaveBeenCalledWith(
+        trickyQuery,
+        24,
+        0,
+      );
+      vi.mocked(malClient.fetchSearch).mockReset();
     });
   });
 });

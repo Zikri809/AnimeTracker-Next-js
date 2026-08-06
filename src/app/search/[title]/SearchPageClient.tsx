@@ -6,23 +6,22 @@ import Horizontalcard from "@/ComponentsSelf/animecardhorizontal";
 import Link from "next/link";
 import scrollsaver from "@/Utility/ScrollSaver";
 
-interface AnimeSearchResultItem {
-  mal_id: number;
+interface MalAnimeNode {
+  id: number;
   title: string;
-  title_english: string | null;
-  images: {
-    webp: {
-      large_image_url: string;
-    };
-  };
-  status: string;
-  season: string | null;
-  year: number | null;
-  episodes: number | null;
-  score: number | null;
-  scored_by: number | null;
+  alternative_titles: { en: string | null };
+  main_picture: { large: string };
+  status: string; // already mapped to display form by the route
+  start_season: { season: string | null; year: number | null } | null;
+  num_episodes: number | null;
+  mean: number | null;
+  num_scoring_users: number | null;
   popularity: number | null;
-  genres: Array<{ name: string }>;
+  genres: Array<{ id: number; name: string }>;
+}
+
+interface AnimeSearchResultItem {
+  node: MalAnimeNode;
 }
 
 interface SearchPageClientProps {
@@ -32,6 +31,7 @@ interface SearchPageClientProps {
 export default function SearchPageClient({ title: queryTitle }: SearchPageClientProps) {
   const [animearr, setAnimearr] = useState<AnimeSearchResultItem[]>([]);
   const [isLoading, setLoading] = useState(true);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [currentpage, setpage] = useState(1);
   const isupdated = useRef(false);
   const isaddedarr = useRef(false);
@@ -46,10 +46,17 @@ export default function SearchPageClient({ title: queryTitle }: SearchPageClient
     setpage(1);
     setLoading(true);
     setAnimearr([]);
+    setSearchError(null);
     Set_search_target(inputval);
     sessionStorage.removeItem("animedatasearch");
     isaddedarr.current = false;
     isupdated.current = false;
+    // Reset scroll to the top for a fresh search. This covers the case where
+    // the same query is re-searched (no route change → no remount → the
+    // navbar's pre-navigation scroll-clear in SearchNavbar wouldn't fire).
+    if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
+    }
   }
 
   scrollsaver([isLoading]);
@@ -69,9 +76,9 @@ export default function SearchPageClient({ title: queryTitle }: SearchPageClient
     };
   }, [currentpage]);
 
-  const fetchapiRef = useRef<(currpage: number) => Promise<void>>(null as any);
+  const fetchapiRef = useRef<(currpage: number, isRetry?: boolean) => Promise<void>>(null as any);
 
-  const fetchapi = useCallback(async (currpage: number) => {
+  const fetchapi = useCallback(async (currpage: number, isRetry = false) => {
     try {
       const q = searchtarget === null ? queryTitle : searchtarget;
       if (!q || q === "NA" || (typeof q === "string" && !q.trim())) {
@@ -81,39 +88,61 @@ export default function SearchPageClient({ title: queryTitle }: SearchPageClient
 
       const storeddataStr = sessionStorage.getItem("animedatasearch");
       const storeddata = storeddataStr ? JSON.parse(storeddataStr) : null;
-      if (storeddata !== null) {
-        const lastUpdate = JSON.parse(sessionStorage.getItem("lastupdatetimesearch") || "0");
-        if (!(Math.floor(Date.now() / 86400000) - lastUpdate >= 1)) {
-          if (storeddata.length > animearr.length) {
-            console.log("using already stored data", storeddata);
-            setpage(Math.ceil(storeddata.length / 24) + 1);
-            setAnimearr(storeddata);
-            setLoading(false);
-            return;
+      if (storeddata !== null && Array.isArray(storeddata)) {
+        // Shape guard: the response shape changed from Jikan (flat, `mal_id`)
+        // to MAL (`node.id`). If cached entries lack `.node`, the cache is
+        // stale pre-migration data — discard it so we don't render garbage.
+        const isMalShaped =
+          storeddata.length === 0 ||
+          (storeddata[0] && typeof storeddata[0].node === "object");
+        if (isMalShaped) {
+          const lastUpdate = JSON.parse(sessionStorage.getItem("lastupdatetimesearch") || "0");
+          if (!(Math.floor(Date.now() / 86400000) - lastUpdate >= 1)) {
+            if (storeddata.length > animearr.length) {
+              setpage(Math.ceil(storeddata.length / 24) + 1);
+              setAnimearr(storeddata);
+              setLoading(false);
+              return;
+            }
+          } else {
+            sessionStorage.removeItem("animedatasearch");
+            sessionStorage.removeItem("lastupdatetimesearch");
           }
         } else {
+          // Stale Jikan-shaped cache — clear it.
           sessionStorage.removeItem("animedatasearch");
           sessionStorage.removeItem("lastupdatetimesearch");
         }
       }
 
       const response = await fetch("/api/anime/search?page=" + currpage + "&q=" + encodeURIComponent(q));
+
+      // Surface upstream errors (429 rate-limit, 502, 504, etc.) explicitly
+      // instead of letting response.json() throw an opaque parse error. This
+      // fixes the original bug where a 504 silently showed the welcome page.
+      if (!response.ok) {
+        throw new Error(`Search failed (HTTP ${response.status})`);
+      }
+
       const apifeedback = await response.json();
-      const top24 = apifeedback.data || [];
+      const top24: AnimeSearchResultItem[] = apifeedback.data || [];
 
-      const tempfilteredSetid = new Set<number>();
-      const tempfiltered = new Set<AnimeSearchResultItem>();
-      top24.forEach((element: AnimeSearchResultItem) => {
-        if (!tempfilteredSetid.has(element.mal_id)) {
-          tempfiltered.add(element);
-          tempfilteredSetid.add(element.mal_id);
-        }
-      });
-
+      // Dedupe against both the incoming page AND the already-loaded items.
+      // MAL can return overlapping ids across pagination boundaries (e.g. when
+      // results shift between requests), which previously caused duplicate
+      // React keys in the render loop.
+      const seenIds = new Set<number>(
+        animearr
+          .map((item) => item?.node?.id)
+          .filter((id): id is number => typeof id === "number"),
+      );
       const deconstructed: AnimeSearchResultItem[] = [];
-      tempfiltered.forEach(({ status, mal_id, images, season, year, episodes, title_english, title: mainTitle, score, scored_by, popularity, genres }) => {
-        deconstructed.push({ title_english, status, mal_id, images, season, year, episodes, title: mainTitle, score, scored_by, popularity, genres });
-      });
+      for (const element of top24) {
+        if (element?.node && typeof element.node.id === "number" && !seenIds.has(element.node.id)) {
+          seenIds.add(element.node.id);
+          deconstructed.push(element);
+        }
+      }
 
       if (!isaddedarr.current) {
         isaddedarr.current = true;
@@ -124,13 +153,23 @@ export default function SearchPageClient({ title: queryTitle }: SearchPageClient
         sessionStorage.setItem("animedatasearch", JSON.stringify(newArr));
         isupdated.current = false;
       }
+      setSearchError(null);
       setLoading(false);
     } catch (error) {
       console.error(error);
-      // retry once
-      setTimeout(() => {
-        fetchapiRef.current?.(currpage);
-      }, 1000);
+      // Retry once after a short backoff; if the retry also fails, show an
+      // explicit error message instead of silently rendering the empty-state
+      // "welcome page" (the original bug).
+      if (!isRetry) {
+        setTimeout(() => {
+          fetchapiRef.current?.(currpage, true);
+        }, 1000);
+      } else {
+        setSearchError(
+          "Search is unavailable right now. The anime data service may be busy — please try again in a moment.",
+        );
+        setLoading(false);
+      }
     }
   }, [animearr, queryTitle, searchtarget]);
 
@@ -161,33 +200,66 @@ export default function SearchPageClient({ title: queryTitle }: SearchPageClient
         <div className="flex h-screen w-full flex-row items-center justify-center bg-background">
           <div className="loader"></div>
         </div>
+      ) : searchError ? (
+        <div className="flex min-h-screen w-full flex-col items-center justify-center gap-3 bg-background px-6 pt-20 text-center">
+          <p className="text-lg font-semibold text-white">{searchError}</p>
+          <button
+            type="button"
+            onClick={() => {
+              setSearchError(null);
+              setLoading(true);
+              setpage(1);
+              isaddedarr.current = false;
+              isupdated.current = false;
+              Promise.resolve().then(() => fetchapiRef.current?.(1));
+            }}
+            className="mt-2 rounded-md border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
+          >
+            Try again
+          </button>
+        </div>
       ) : (
         <div className="relative left-0 mb-16 flex min-h-screen w-full flex-col bg-background pt-20 sm:pb-0 lg:grid lg:grid-cols-2 lg:grid-rows lg:gap-3 lg:p-4 lg:pt-24">
           {animearr.length !== 0 && queryTitle !== "NA" ? (
-            animearr.map((element: AnimeSearchResultItem) => (
-              <Link key={element.mal_id + 10} href={"/search/" + queryTitle + "/" + element.mal_id} className="block min-w-0 lg:h-full">
-                <Horizontalcard
-                  key={element.mal_id}
-                  mal_id={element.mal_id}
-                  image={element.images.webp.large_image_url}
-                  status={element.status}
-                  season={element.season == null ? " " : element.season + " " + element.year}
-                  episodes={element.episodes ?? 0}
-                  title={element.title_english == null ? element.title : element.title_english}
-                  score={element.score ?? undefined}
-                  users={element.scored_by ?? 0}
-                  ranking={element.popularity ?? 0}
-                  genre={element.genres}
-                  addstatus={
-                    plantowatchmap.has(element.mal_id) ||
-                    watchingmap.has(element.mal_id) ||
-                    completedmap.has(element.mal_id) ||
-                    onholdmap.has(element.mal_id) ||
-                    droppedmap.has(element.mal_id)
-                  }
-                />
-              </Link>
-            ))
+            animearr.map((element: AnimeSearchResultItem, index: number) => {
+              const node = element.node;
+              const seasonStr =
+                node.start_season && node.start_season.season
+                  ? `${node.start_season.season} ${node.start_season.year ?? ""}`.trim()
+                  : " ";
+              const displayTitle =
+                node.alternative_titles?.en == null
+                  ? node.title
+                  : node.alternative_titles.en;
+              // Include the array index in the key to guarantee uniqueness
+              // even if a duplicate id slips past dedup (defensive; dedup in
+              // fetchapi should prevent this, but React keys must be unique).
+              const itemKey = `${node.id}-${index}`;
+              return (
+                <Link key={itemKey} href={"/search/" + queryTitle + "/" + node.id} className="block min-w-0 lg:h-full">
+                  <Horizontalcard
+                    key={node.id}
+                    mal_id={node.id}
+                    image={node.main_picture?.large ?? ""}
+                    status={node.status}
+                    season={seasonStr}
+                    episodes={node.num_episodes ?? 0}
+                    title={displayTitle}
+                    score={node.mean ?? undefined}
+                    users={node.num_scoring_users ?? 0}
+                    ranking={node.popularity ?? 0}
+                    genre={node.genres}
+                    addstatus={
+                      plantowatchmap.has(node.id) ||
+                      watchingmap.has(node.id) ||
+                      completedmap.has(node.id) ||
+                      onholdmap.has(node.id) ||
+                      droppedmap.has(node.id)
+                    }
+                  />
+                </Link>
+              );
+            })
           ) : (
             <div className="empty-state lg:col-span-2">
               <p className="text-lg font-semibold text-white">Your anime journey starts here</p>

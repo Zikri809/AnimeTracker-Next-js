@@ -1,26 +1,39 @@
-import { NextRequest } from "next/server";
-import { jsonOk, jsonError } from "@/server/http/responses";
+import { NextRequest, NextResponse } from "next/server";
+import { fetchSearch } from "@/server/mal/client";
+import { jsonError, handleUpstreamError } from "@/server/http/responses";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-const JIKAN_ANIME_SEARCH_ORIGIN = "https://api.jikan.moe";
 const MAX_SEARCH_QUERY_LENGTH = 120;
 const MAX_SEARCH_PAGE = 25;
+const SEARCH_LIMIT = 24;
+const SEARCH_CACHE_CONTROL =
+  "public, max-age=3600, s-maxage=86400, stale-while-revalidate=60";
 
-function buildJikanSearchUrl(query: string, page: number) {
-  const jikanUrl = new URL("/v4/anime", JIKAN_ANIME_SEARCH_ORIGIN);
-  jikanUrl.searchParams.set("limit", "24");
-  jikanUrl.searchParams.set("sfw", "true");
-  jikanUrl.searchParams.set("page", page.toString());
-  jikanUrl.searchParams.set("q", query);
+const NO_CACHE_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+  "Pragma": "no-cache",
+  "Expires": "0",
+  "Vary": "Cookie",
+};
 
-  if (jikanUrl.origin !== JIKAN_ANIME_SEARCH_ORIGIN) {
-    throw new Error("Invalid upstream search origin");
-  }
+// MAL uses snake_case status strings; the UI (statusClassName in
+// animecardhorizontal.tsx) matches the human-readable Jikan strings.
+// Map them here so the client never has to know which upstream produced them.
+const MAL_STATUS_TO_DISPLAY: Record<string, string> = {
+  finished_airing: "Finished Airing",
+  currently_airing: "Currently Airing",
+  not_yet_aired: "Not yet aired",
+};
 
-  return jikanUrl.toString();
+function mapMalStatus(raw: unknown): string {
+  return typeof raw === "string" && MAL_STATUS_TO_DISPLAY[raw]
+    ? MAL_STATUS_TO_DISPLAY[raw]
+    : typeof raw === "string"
+      ? raw
+      : "";
 }
 
 export async function GET(request: NextRequest) {
@@ -30,7 +43,12 @@ export async function GET(request: NextRequest) {
 
   const query = q?.trim() || "";
   if (!query || query === "NA") {
-    return jsonOk({ data: [] });
+    // Preserve the sentinel contract used by SearchPageClient: an empty/NA
+    // query is not an error, it simply means "no results".
+    return NextResponse.json(
+      { data: [] },
+      { status: 200, headers: NO_CACHE_HEADERS },
+    );
   }
 
   if (query.length > MAX_SEARCH_QUERY_LENGTH) {
@@ -45,34 +63,35 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  try {
-    const jikanUrl = buildJikanSearchUrl(query, page);
-    const response = await fetch(jikanUrl, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+  const offset = (page - 1) * SEARCH_LIMIT;
 
-    if (!response.ok) {
-      return jsonError(
-        `Upstream Jikan search error: HTTP ${response.status}`,
-        response.status,
-      );
+  try {
+    const malData = await fetchSearch(query, SEARCH_LIMIT, offset);
+
+    // Normalize status strings on each node so the UI's status pill logic
+    // (which keys off "Finished Airing" / "Currently Airing") keeps working
+    // without the client knowing about MAL's snake_case values.
+    if (Array.isArray(malData?.data)) {
+      for (const item of malData.data) {
+        if (item && typeof item === "object" && item.node) {
+          item.node.status = mapMalStatus(item.node.status);
+        }
+      }
     }
 
-    const responseData = await response.json();
-
-    // Return with Cache-Control headers for Edge caching
-    return new Response(JSON.stringify(responseData), {
+    return new Response(JSON.stringify(malData), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control":
-          "public, max-age=3600, s-maxage=86400, stale-while-revalidate=60",
+        "Cache-Control": SEARCH_CACHE_CONTROL,
       },
     });
   } catch (error: any) {
+    // fetchSearch throws an Error with a .status for non-ok MAL responses.
+    // Validation errors surface as plain Errors without .status.
+    if (error?.status) {
+      return handleUpstreamError(error);
+    }
     return jsonError(error.message || "Internal Server Error", 500);
   }
 }

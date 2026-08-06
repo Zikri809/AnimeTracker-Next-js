@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { useCurrentRoute } from "@/hooks/use-current-route";
 import { buildSearchHref } from "@/lib/routing/path-utils";
+import { getScrollStorageKey } from "@/hooks/use-scroll-saver";
 
 interface SearchNavbarProps {
   set_state: (val: string, rerender: any) => void;
@@ -19,13 +20,27 @@ export default function SearchNavbar({ set_state, searchtitle }: SearchNavbarPro
   const inputRef = useRef<HTMLInputElement>(null);
   const { push } = useCurrentRoute();
 
+  // Clears any saved scroll-restore position for the destination path so the
+  // new search starts at the top of the page instead of restoring the scroll
+  // position left over from a previous visit to the same query.
+  const clearScrollRestoreFor = (pathname: string) => {
+    if (typeof window === "undefined") return;
+    try {
+      sessionStorage.removeItem(getScrollStorageKey(pathname));
+    } catch {
+      // ignore — scroll-restore is best-effort
+    }
+  };
+
   const handleToggleOrSearch = () => {
     if (isVisible) {
       sessionStorage.setItem('animedatasearch', 'null');
       set_state(inputValue, undefined);
       setIsVisible(false);
       if (inputValue.trim() !== "") {
-        push(buildSearchHref(inputValue));
+        const targetPath = buildSearchHref(inputValue);
+        clearScrollRestoreFor(targetPath);
+        push(targetPath);
       } else {
         push("/");
       }
