@@ -5,7 +5,7 @@ import Horizontalcard from "@/ComponentsSelf/animecardheader";
 import Navbar from "@/ComponentsSelf/detailednavbar";
 import Add_to_watchlist_button from "@/ComponentsSelf/add to watchlist button";
 import { useDebounce } from "@uidotdev/usehooks";
-import { JikanAnimeDetailViewModel } from "@/server/anime/jikan-detail-normalize";
+import { AnimeDetailViewModel } from "@/server/mal/anime-detail-normalize";
 import {
   DetailRouteContext,
   buildRelationHrefFromContext,
@@ -15,7 +15,7 @@ import Link from "next/link";
 import { ChevronDown, ChevronUp, Monitor, Clock } from "lucide-react";
 
 type Props = {
-  detail: JikanAnimeDetailViewModel;
+  detail: AnimeDetailViewModel;
   context: DetailRouteContext;
 };
 

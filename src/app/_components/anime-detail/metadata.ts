@@ -1,6 +1,6 @@
 import { createMetadata, truncateDescription } from "@/lib/seo";
-import { fetchJikanDetailRaw } from "@/server/anime/jikan-detail";
-import { normalizeJikanDetail } from "@/server/anime/jikan-detail-normalize";
+import { fetchPublicAnimeDetail } from "@/server/mal/anime";
+import { normalizeMalDetail } from "@/server/mal/anime-detail-normalize";
 import {
   DetailRouteFamily,
   buildPathnameFromParams,
@@ -37,8 +37,8 @@ export async function generateAnimeDetailMetadata({
       });
     }
 
-    const rawDetail = await fetchJikanDetailRaw(context.targetAnimeId);
-    const detail = normalizeJikanDetail(rawDetail);
+    const rawDetail = await fetchPublicAnimeDetail(context.targetAnimeId);
+    const detail = normalizeMalDetail(rawDetail);
     const canonicalPath = `/Anime/${context.targetAnimeId}`;
     const title = [detail.displayTitle, "Anime"].filter(Boolean).join(" ");
     const genres = detail.genres.map((genre) => genre.name).filter(Boolean);

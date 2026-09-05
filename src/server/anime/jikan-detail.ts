@@ -1,187 +1,34 @@
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+const JIKAN_TRAILER_REVALIDATE_SECONDS = 43200;
 
-const JIKAN_DETAIL_REVALIDATE_SECONDS = 43200;
-const JIKAN_MAX_RETRIES = 1;
-
-class JikanHttpError extends Error {
-  constructor(public readonly status: number) {
-    super(`HTTP ${status}`);
-  }
-}
-
-function shouldRetryJikanRequest(error: unknown) {
-  if (!(error instanceof JikanHttpError)) {
-    return true;
-  }
-
-  return error.status === 429 || error.status >= 500;
-}
-
-export async function fetchJikanDetailRaw(targetAnimeId: number): Promise<any> {
+// Trailer URLs are not exposed by the official MAL API, so Jikan remains a
+// purely cosmetic enrichment for the detail page. It must never block
+// rendering: callers treat any failure (including rate limiting) as "no
+// trailer" and the page still renders fully from MAL data.
+export async function fetchJikanTrailerEmbedUrl(
+  targetAnimeId: number,
+): Promise<string | null> {
   if (process.env.PLAYWRIGHT_TEST === 'true') {
     if (targetAnimeId === 1) {
-      return {
-        mal_id: 1,
-        title: "Cowboy Bebop",
-        title_english: "Cowboy Bebop English",
-        title_japanese: "カウボーイビバップ",
-        title_synonyms: ["COWBOY BEBOP"],
-        images: {
-          webp: {
-            large_image_url: "https://example.com/cowboy.webp"
-          }
-        },
-        status: "Finished Airing",
-        episodes: 26,
-        score: 8.78,
-        scored_by: 915000,
-        popularity: 39,
-        favorites: 78000,
-        synopsis: "This is a detailed mock synopsis for Cowboy Bebop.",
-        genres: [
-          { mal_id: 1, name: "Action" },
-          { mal_id: 2, name: "Sci-Fi" }
-        ],
-        trailer: {
-          embed_url: "https://www.youtube.com/embed/gY5nDXOtv_o"
-        },
-        duration: "24 min per ep",
-        broadcast: {
-          day: "Saturdays",
-          time: "16:00",
-          timezone: "Asia/Tokyo"
-        },
-        season: "spring",
-        year: 1998,
-        studios: [{ mal_id: 14, name: "Sunrise" }],
-        licensors: [{ mal_id: 102, name: "Funimation" }]
-      };
+      return "https://www.youtube.com/embed/gY5nDXOtv_o?enablejsapi=1";
     }
-    if (targetAnimeId === 2) {
-      return {
-        mal_id: 2,
-        title: "Upcoming Show",
-        status: "Not Yet Aired",
-        episodes: 12,
-        genres: [],
-        studios: [],
-        licensors: []
-      };
-    }
-    if (targetAnimeId === 3) {
-      return {
-        mal_id: 3,
-        title: "Airing Show",
-        status: "Currently Airing",
-        episodes: 12,
-        genres: [],
-        studios: [],
-        licensors: []
-      };
-    }
-    if (targetAnimeId === 5) {
-      return {
-        mal_id: 5,
-        title: "Cowboy Bebop: Tengoku no Tobira",
-        title_english: "Cowboy Bebop: The Movie",
-        images: {
-          webp: {
-            large_image_url: "https://example.com/movie.webp"
-          }
-        },
-        status: "Finished Airing",
-        episodes: 1,
-        score: 8.39,
-        synopsis: "Relation movie synopsis.",
-        genres: [{ mal_id: 1, name: "Action" }],
-        studios: [{ mal_id: 14, name: "Sunrise" }],
-        licensors: []
-      };
-    }
-    if (targetAnimeId === 999) {
-      throw new Error("HTTP 500");
-    }
+    return null;
   }
 
-  let retries = 0;
-  const delay = 1000;
+  try {
+    const response = await fetch(
+      `https://api.jikan.moe/v4/anime/${targetAnimeId}/full`,
+      { next: { revalidate: JIKAN_TRAILER_REVALIDATE_SECONDS } },
+    );
 
-  while (true) {
-    try {
-      const response = await fetch(`https://api.jikan.moe/v4/anime/${targetAnimeId}/full`, {
-        next: { revalidate: JIKAN_DETAIL_REVALIDATE_SECONDS },
-      });
+    if (!response.ok) return null;
 
-      if (!response.ok) {
-        throw new JikanHttpError(response.status);
-      }
-
-      const json = await response.json();
-      if (!json || !json.data || json.data.mal_id !== targetAnimeId) {
-        throw new Error("Invalid Jikan response or mal_id mismatch");
-      }
-
-      return json.data;
-    } catch (error) {
-      if (retries < JIKAN_MAX_RETRIES && shouldRetryJikanRequest(error)) {
-        retries++;
-        await sleep(delay);
-      } else {
-        throw error;
-      }
-    }
-  }
-}
-
-export async function fetchJikanRelations(targetAnimeId: number, fullDetailData: any): Promise<any[]> {
-  if (process.env.PLAYWRIGHT_TEST === 'true' && targetAnimeId === 1) {
-    return [
-      {
-        relation: "Side Story",
-        entry: [
-          {
-            mal_id: 5,
-            type: "anime",
-            name: "Cowboy Bebop: Tengoku no Tobira"
-          }
-        ]
-      }
-    ];
-  }
-
-  if (fullDetailData && Array.isArray(fullDetailData.relations)) {
-    return fullDetailData.relations;
-  }
-
-  let retries = 0;
-  const delay = 1000;
-
-  while (true) {
-    try {
-      const response = await fetch(`https://api.jikan.moe/v4/anime/${targetAnimeId}/relations`, {
-        next: { revalidate: JIKAN_DETAIL_REVALIDATE_SECONDS },
-      });
-
-      if (!response.ok) {
-        throw new JikanHttpError(response.status);
-      }
-
-      const json = await response.json();
-      if (!json || !Array.isArray(json.data)) {
-        throw new Error("Invalid relations response");
-      }
-
-      return json.data;
-    } catch (error) {
-      if (retries < JIKAN_MAX_RETRIES && shouldRetryJikanRequest(error)) {
-        retries++;
-        await sleep(delay);
-      } else {
-        throw error;
-      }
-    }
+    const json = await response.json();
+    const embedUrl = json?.data?.trailer?.embed_url;
+    return typeof embedUrl === "string" && embedUrl.trim() !== ""
+      ? embedUrl
+      : null;
+  } catch {
+    return null;
   }
 }
 

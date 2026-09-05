@@ -87,6 +87,131 @@ export async function fetchPublicAnimeForTracking(
   return data;
 }
 
+// Everything the detail page view model needs. Only documented MAL v2 fields
+// may be requested — unknown names make the API reject the whole request with
+// 400. my_list_status (via MAL_TRACKING_FIELDS) lets the same response serve
+// the tracking variant when an access token is present. MAL exposes no
+// favorites or licensor fields, so those view-model slots stay empty.
+export const MAL_DETAIL_FIELDS = [
+  MAL_TRACKING_FIELDS,
+  'synopsis',
+  'rank',
+  'studios',
+  'related_anime',
+].join(',');
+
+// Detail pages are heavily crawled, so cache upstream at the edge for 12h to
+// stay inside the MAL client quota (same strategy the Jikan fetcher used).
+const MAL_DETAIL_REVALIDATE_SECONDS = 43200;
+
+export async function fetchPublicAnimeDetail(id: string | number): Promise<any> {
+  const animeId = Number(id);
+  if (Number.isNaN(animeId) || animeId <= 0) {
+    throw new Error(`Invalid anime ID: ${id}`);
+  }
+
+  if (process.env.PLAYWRIGHT_TEST === 'true') {
+    if (animeId === 1) {
+      return {
+        id: 1,
+        title: "Cowboy Bebop",
+        alternative_titles: { en: "Cowboy Bebop English", ja: "カウボーイビバップ" },
+        main_picture: { large: "https://example.com/cowboy.webp" },
+        status: "finished_airing",
+        num_episodes: 26,
+        mean: 8.78,
+        num_scoring_users: 915000,
+        rank: 39,
+        popularity: 39,
+        genres: [
+          { id: 1, name: "Action" },
+          { id: 2, name: "Sci-Fi" }
+        ],
+        synopsis: "This is a detailed mock synopsis for Cowboy Bebop.",
+        media_type: "tv",
+        start_season: { season: "spring", year: 1998 },
+        start_date: "1998-04-03",
+        end_date: "1999-04-24",
+        source: "original",
+        average_episode_duration: 1440,
+        rating: "r_17",
+        studios: [{ id: 14, name: "Sunrise" }],
+        broadcast: { day_of_week: "saturday", start_time: "16:00" },
+        related_anime: [
+          {
+            relation: "side_story",
+            entry: [
+              { id: 5, type: "anime", name: "Cowboy Bebop: Tengoku no Tobira" }
+            ]
+          }
+        ]
+      };
+    }
+    if (animeId === 2) {
+      return {
+        id: 2,
+        title: "Upcoming Show",
+        status: "not_yet_aired",
+        num_episodes: 12,
+        genres: []
+      };
+    }
+    if (animeId === 3) {
+      return {
+        id: 3,
+        title: "Airing Show",
+        status: "currently_airing",
+        num_episodes: 12,
+        genres: []
+      };
+    }
+    if (animeId === 5) {
+      return {
+        id: 5,
+        title: "Cowboy Bebop: Tengoku no Tobira",
+        alternative_titles: { en: "Cowboy Bebop: The Movie" },
+        main_picture: { large: "https://example.com/movie.webp" },
+        status: "finished_airing",
+        num_episodes: 1,
+        mean: 8.39,
+        synopsis: "Relation movie synopsis.",
+        genres: [{ id: 1, name: "Action" }],
+        studios: [{ id: 14, name: "Sunrise" }],
+        related_anime: []
+      };
+    }
+    if (animeId === 999) {
+      throw new Error("MAL details failed with status 500");
+    }
+  }
+
+  const params = new URLSearchParams({ fields: MAL_DETAIL_FIELDS });
+  const url = `${MAL_API_BASE}/anime/${animeId}?${params.toString()}`;
+  const clientId = getRequiredEnv('Client_ID');
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'X-MAL-CLIENT-ID': clientId,
+    },
+    next: { revalidate: MAL_DETAIL_REVALIDATE_SECONDS },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => 'Unknown error');
+    const err: any = new Error(`MAL Details API returned status ${response.status}: ${errorText}`);
+    err.status = response.status;
+    throw err;
+  }
+
+  const data = await response.json();
+  if (!data || data.id !== animeId) {
+    throw new Error(`Invalid MAL response or ID mismatch for anime ${animeId}`);
+  }
+
+  return data;
+}
+
 export async function checkAnimeAppearsInMalSearch(
   animeId: string | number,
   title: string | null | undefined

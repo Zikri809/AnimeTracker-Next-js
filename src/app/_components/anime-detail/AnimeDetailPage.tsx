@@ -5,12 +5,12 @@ import {
   DetailRouteFamily,
   buildRetryLimitHref,
 } from "@/lib/routing/detail-route-context";
+import { fetchPublicAnimeDetail } from "@/server/mal/anime";
 import {
   fetchAniListBannerImage,
-  fetchJikanDetailRaw,
-  fetchJikanRelations,
+  fetchJikanTrailerEmbedUrl,
 } from "@/server/anime/jikan-detail";
-import { normalizeJikanDetail } from "@/server/anime/jikan-detail-normalize";
+import { normalizeMalDetail } from "@/server/mal/anime-detail-normalize";
 import AnimeDetailClient from "./AnimeDetailClient";
 import { SITE_NAME, absoluteUrl, truncateDescription } from "@/lib/seo";
 import {
@@ -41,8 +41,12 @@ export default async function AnimeDetailPage({ params, family }: Props) {
 
   let rawDetail;
   try {
-    rawDetail = await fetchJikanDetailRaw(context.targetAnimeId);
+    rawDetail = await fetchPublicAnimeDetail(context.targetAnimeId);
   } catch (err) {
+    console.error(
+      `[anime-detail] MAL fetch failed for ${pathname} (anime ${context.targetAnimeId}):`,
+      err instanceof Error ? err.message : err,
+    );
     const query = {
       mal_id: String(context.sourceAnimeId),
       ...(context.relationAnimeId
@@ -57,16 +61,17 @@ export default async function AnimeDetailPage({ params, family }: Props) {
     redirect(redirectUrl);
   }
 
-  const [rawRelations, bannerImageUrl] = await Promise.all([
-    fetchJikanRelations(context.targetAnimeId, rawDetail).catch(() => []),
-    fetchAniListBannerImage(context.targetAnimeId),
+  // Trailer (Jikan) and banner (AniList) are cosmetic enrichments: if either
+  // upstream is rate-limited or down, the page still renders from MAL data.
+  const [trailerEmbedUrl, bannerImageUrl] = await Promise.all([
+    fetchJikanTrailerEmbedUrl(context.targetAnimeId).catch(() => null),
+    fetchAniListBannerImage(context.targetAnimeId).catch(() => null),
   ]);
 
-  const normalizedDetail = normalizeJikanDetail(
-    rawDetail,
-    rawRelations,
+  const normalizedDetail = normalizeMalDetail(rawDetail, {
     bannerImageUrl,
-  );
+    trailerEmbedUrl,
+  });
   const animeJsonLd = {
     "@context": "https://schema.org",
     "@type": normalizedDetail.episodes === 1 ? "Movie" : "TVSeries",
