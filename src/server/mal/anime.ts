@@ -139,10 +139,9 @@ export async function fetchPublicAnimeDetail(id: string | number): Promise<any> 
         broadcast: { day_of_week: "saturday", start_time: "16:00" },
         related_anime: [
           {
-            relation: "side_story",
-            entry: [
-              { id: 5, type: "anime", name: "Cowboy Bebop: Tengoku no Tobira" }
-            ]
+            relation_type: "side_story",
+            relation_type_formatted: "Side story",
+            node: { id: 5, title: "Cowboy Bebop: Tengoku no Tobira" }
           }
         ]
       };

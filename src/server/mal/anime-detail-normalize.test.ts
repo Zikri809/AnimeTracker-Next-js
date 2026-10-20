@@ -33,12 +33,12 @@ describe('MAL Detail Normalize Helper', () => {
       average_episode_duration: 1440,
       related_anime: [
         {
-          relation: "adaptation",
-          entry: [{ id: 10, name: "Manga", type: "manga" }],
+          relation_type: "prequel",
+          node: { id: 10, title: "Prequel" },
         },
         {
-          relation: "side_story",
-          entry: [{ id: 5, name: "Cowboy Bebop: The Movie", type: "anime" }],
+          relation_type: "side_story",
+          node: { id: 5, title: "Cowboy Bebop: The Movie" },
         },
       ],
     };
@@ -87,8 +87,8 @@ describe('MAL Detail Normalize Helper', () => {
     expect(vm.duration).toBe("24 min");
     expect(vm.relations).toEqual([
       {
-        relation: "Adaptation",
-        entries: [{ malId: 10, name: "Manga", type: "manga" }],
+        relation: "Prequel",
+        entries: [{ malId: 10, name: "Prequel", type: "anime" }],
       },
       {
         relation: "Side Story",
@@ -96,6 +96,30 @@ describe('MAL Detail Normalize Helper', () => {
           { malId: 5, name: "Cowboy Bebop: The Movie", type: "anime" },
         ],
       },
+    ]);
+  });
+
+  it('groups MAL nodes by relation and skips malformed entries', () => {
+    const vm = normalizeMalDetail({
+      id: 1,
+      related_anime: [
+        { node: { id: 5, title: 'Movie' }, relation_type: 'side_story' },
+        { node: { id: 4037, title: 'Recap' }, relation_type: 'summary' },
+        { node: { id: 17205, title: 'Short' }, relation_type: 'side_story' },
+        null,
+        { relation_type: 'sequel' },
+        { node: { id: 0 }, relation_type: 'sequel' },
+        { node: { id: '5' }, relation_type: 'sequel' },
+        { node: { id: 6 } },
+      ],
+    });
+    expect(vm.relations).toEqual([
+      { relation: 'Side Story', entries: [
+        { malId: 5, name: 'Movie', type: 'anime' },
+        { malId: 17205, name: 'Short', type: 'anime' },
+      ] },
+      { relation: 'Summary', entries: [{ malId: 4037, name: 'Recap', type: 'anime' }] },
+      { relation: 'Other', entries: [{ malId: 6, name: 'Anime #6', type: 'anime' }] },
     ]);
   });
 

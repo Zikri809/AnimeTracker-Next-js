@@ -161,18 +161,22 @@ function isValidRelationId(value: unknown): value is number {
 
 function mapMalRelations(rawRelations: unknown): AnimeDetailViewModel["relations"] {
   if (!Array.isArray(rawRelations)) return [];
-  return rawRelations.map((rel: any) => ({
-    relation: mapMalRelation(rel?.relation),
-    entries: Array.isArray(rel?.entry)
-      ? rel.entry
-          .filter((entry: any) => isValidRelationId(entry?.id))
-          .map((entry: any) => ({
-            malId: entry.id,
-            name: entry.name || `Anime #${entry.id}`,
-            type: entry.type || null,
-          }))
-      : [],
-  }));
+  const groups = new Map<string, AnimeDetailViewModel["relations"][number]>();
+  for (const rel of rawRelations) {
+    if (!isValidRelationId(rel?.node?.id)) continue;
+    const relation = mapMalRelation(rel.relation_type) || "Other";
+    let group = groups.get(relation);
+    if (!group) {
+      group = { relation, entries: [] };
+      groups.set(relation, group);
+    }
+    group.entries.push({
+      malId: rel.node.id,
+      name: rel.node.title || `Anime #${rel.node.id}`,
+      type: "anime",
+    });
+  }
+  return [...groups.values()];
 }
 
 function normalizeTrailerEmbedUrl(rawTrailerEmbed: unknown): string | null {
