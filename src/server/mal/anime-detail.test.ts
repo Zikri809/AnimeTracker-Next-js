@@ -1,10 +1,40 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fetchPublicAnimeDetail } from './anime';
-import { fetchJikanTrailerEmbedUrl } from '@/server/anime/jikan-detail';
+import { fetchAniListBannerImage, fetchJikanTrailerEmbedUrl } from '@/server/anime/jikan-detail';
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
+});
+
+describe.each([
+  ['Jikan trailer', fetchJikanTrailerEmbedUrl],
+  ['AniList banner', fetchAniListBannerImage],
+] as const)('%s deadline', (_name, fetchMedia) => {
+  it.each(['headers', 'body'])('aborts a stalled response during %s without retrying', async (stage) => {
+    vi.useFakeTimers();
+    let signal: AbortSignal | undefined;
+    const fetchMock = vi.fn((_url: string, init: RequestInit) => {
+      signal = init.signal as AbortSignal;
+      const stalled = () => new Promise<never>((_resolve, reject) => {
+        signal!.addEventListener('abort', () => reject(new Error('aborted')), { once: true });
+      });
+      return stage === 'headers'
+        ? stalled()
+        : Promise.resolve({ ok: true, json: stalled } as unknown as Response);
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = fetchMedia(1);
+    await vi.advanceTimersByTimeAsync(1999);
+    expect(signal?.aborted).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+    await expect(result).resolves.toBeNull();
+    expect(signal?.aborted).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(vi.getTimerCount()).toBe(0);
+  });
 });
 
 describe('fetchPublicAnimeDetail', () => {

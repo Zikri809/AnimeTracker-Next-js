@@ -6,10 +6,6 @@ import {
   buildRetryLimitHref,
 } from "@/lib/routing/detail-route-context";
 import { fetchPublicAnimeDetail } from "@/server/mal/anime";
-import {
-  fetchAniListBannerImage,
-  fetchJikanTrailerEmbedUrl,
-} from "@/server/anime/jikan-detail";
 import { normalizeMalDetail } from "@/server/mal/anime-detail-normalize";
 import AnimeDetailClient from "./AnimeDetailClient";
 import { SITE_NAME, absoluteUrl, truncateDescription } from "@/lib/seo";
@@ -61,17 +57,7 @@ export default async function AnimeDetailPage({ params, family }: Props) {
     redirect(redirectUrl);
   }
 
-  // Trailer (Jikan) and banner (AniList) are cosmetic enrichments: if either
-  // upstream is rate-limited or down, the page still renders from MAL data.
-  const [trailerEmbedUrl, bannerImageUrl] = await Promise.all([
-    fetchJikanTrailerEmbedUrl(context.targetAnimeId).catch(() => null),
-    fetchAniListBannerImage(context.targetAnimeId).catch(() => null),
-  ]);
-
-  const normalizedDetail = normalizeMalDetail(rawDetail, {
-    bannerImageUrl,
-    trailerEmbedUrl,
-  });
+  const normalizedDetail = normalizeMalDetail(rawDetail);
   const animeJsonLd = {
     "@context": "https://schema.org",
     "@type": normalizedDetail.episodes === 1 ? "Movie" : "TVSeries",

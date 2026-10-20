@@ -14,6 +14,27 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
+test('detail and relation navigation work while optional media is stalled', async ({ page }) => {
+  let releaseMedia!: () => void;
+  const mediaGate = new Promise<void>((resolve) => { releaseMedia = resolve; });
+  await page.route('**/api/anime/media?*', async (route) => {
+    await mediaGate;
+    await route.fulfill({ json: { trailerEmbedUrl: null, bannerImageUrl: null } });
+  });
+
+  try {
+    const mediaRequest = page.waitForRequest('**/api/anime/media?id=1');
+    await page.goto('/Anime/1');
+    await mediaRequest;
+    await expect(page.getByText('This is a detailed mock synopsis for Cowboy Bebop.')).toBeVisible();
+    await page.getByText('Cowboy Bebop: Tengoku no Tobira').click();
+    await page.waitForURL('**/Anime/1/relation/5');
+    await expect(page.getByText('Cowboy Bebop: The Movie').first()).toBeVisible();
+  } finally {
+    releaseMedia();
+  }
+});
+
 test('Direct URL access to detail pages and relation pages', async ({ page }) => {
   // 1. Visit details page of Cowboy Bebop
   await page.goto('/Anime/1');

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Horizontalcard from "@/ComponentsSelf/animecardheader";
 import Navbar from "@/ComponentsSelf/detailednavbar";
 import Add_to_watchlist_button from "@/ComponentsSelf/add to watchlist button";
@@ -20,6 +21,21 @@ type Props = {
 };
 
 export default function AnimeDetailClient({ detail, context }: Props) {
+  const { data: media } = useQuery<{
+    bannerImageUrl: string | null;
+    trailerEmbedUrl: string | null;
+  }>({
+    queryKey: ["anime-detail-media", detail.malId],
+    queryFn: async ({ signal }) => {
+      const response = await fetch(`/api/anime/media?id=${detail.malId}`, { signal });
+      if (!response.ok) throw new Error("Anime media unavailable");
+      return response.json();
+    },
+    staleTime: 12 * 60 * 60 * 1000,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+  const trailerEmbedUrl = media?.trailerEmbedUrl ?? detail.trailerEmbedUrl;
   const [windowinner, Setwindow] = useState<number>(0);
   const debouncebrowserwidth = useDebounce(windowinner, 200);
   const synopsis_ref = useRef<HTMLDivElement>(null);
@@ -69,7 +85,7 @@ export default function AnimeDetailClient({ detail, context }: Props) {
         <Horizontalcard
           key={detail.malId}
           image={detail.imageUrl ?? ""}
-          bannerImage={detail.bannerImageUrl}
+          bannerImage={media?.bannerImageUrl ?? detail.bannerImageUrl}
           status={detail.status ?? "Unknown"}
           season={detail.seasonLabel || " "}
           episodes={detail.episodes}
@@ -146,10 +162,10 @@ export default function AnimeDetailClient({ detail, context }: Props) {
           </div>
         </section>
 
-        {detail.trailerEmbedUrl && (
+        {trailerEmbedUrl && (
           <iframe
             className="mx-5 my-6 aspect-video rounded-md border border-white/10 bg-card sm:mx-auto sm:w-[50rem]"
-            src={detail.trailerEmbedUrl}
+            src={trailerEmbedUrl}
             title={`${detail.displayTitle} trailer`}
           />
         )}

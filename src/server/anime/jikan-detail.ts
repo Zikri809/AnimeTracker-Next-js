@@ -1,9 +1,20 @@
 const JIKAN_TRAILER_REVALIDATE_SECONDS = 43200;
+const MEDIA_TIMEOUT_MS = 2000;
 
-// Trailer URLs are not exposed by the official MAL API, so Jikan remains a
-// purely cosmetic enrichment for the detail page. It must never block
-// rendering: callers treat any failure (including rate limiting) as "no
-// trailer" and the page still renders fully from MAL data.
+async function fetchMediaJson(url: string, init: RequestInit) {
+  const controller = new AbortController();
+  // Keep the deadline active through body parsing, not only response headers.
+  const timeout = setTimeout(() => controller.abort(), MEDIA_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, { ...init, signal: controller.signal });
+    return response.ok ? await response.json() : null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+// Trailer URLs are not exposed by the official MAL API, so Jikan remains
+// an optional enrichment loaded after the MAL detail page has rendered.
 export async function fetchJikanTrailerEmbedUrl(
   targetAnimeId: number,
 ): Promise<string | null> {
@@ -15,14 +26,11 @@ export async function fetchJikanTrailerEmbedUrl(
   }
 
   try {
-    const response = await fetch(
+    const json = await fetchMediaJson(
       `https://api.jikan.moe/v4/anime/${targetAnimeId}/full`,
       { next: { revalidate: JIKAN_TRAILER_REVALIDATE_SECONDS } },
     );
 
-    if (!response.ok) return null;
-
-    const json = await response.json();
     const embedUrl = json?.data?.trailer?.embed_url;
     return typeof embedUrl === "string" && embedUrl.trim() !== ""
       ? embedUrl
@@ -44,7 +52,7 @@ export async function fetchAniListBannerImage(malId: number): Promise<string | n
       }
     }`;
 
-    const response = await fetch("https://graphql.anilist.co", {
+    const payload = await fetchMediaJson("https://graphql.anilist.co", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -57,9 +65,6 @@ export async function fetchAniListBannerImage(malId: number): Promise<string | n
       next: { revalidate: 43200 },
     });
 
-    if (!response.ok) return null;
-
-    const payload = await response.json();
     const bannerImage = payload?.data?.Media?.bannerImage;
     return typeof bannerImage === "string" && bannerImage.trim() !== "" ? bannerImage : null;
   } catch {
